@@ -2,12 +2,12 @@
 :-
 :- please add correct location of your TC++ directory
 
-set XNASM=c:\bin\nasm.exe
-set TCC=c:\tcpp\bin\tcc
-set TLIB=c:\tcpp\bin\tlib
-set XAPACK=c:\bin\apack
+set XNASM=tasm.exe
+set TCC=bcc.exe
+set TLIB=tlib.exe
+set XAPACK=apack.exe
 
 :- set XUPX=c:\binnt\upx  (now apack is the exepacker of choice)
 
 
-c:\tcpp\bin\make
+make

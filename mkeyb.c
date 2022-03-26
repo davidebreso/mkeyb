@@ -156,95 +156,105 @@ return;
 
 error:
     if (!print)
-        VerifyScancodeTableForCorrectness(kb,1);
+	VerifyScancodeTableForCorrectness(kb,1);
     exit(1);
 }
 
 void UninstallKeyboard(int verbose)
 {
+	void far *int9handler = *(void far *far *)MK_FP(0,4*0x9);
 	void far *int15handler = *(void far *far *)MK_FP(0,4*0x15);
 	void far *int2fhandler = *(void far *far *)MK_FP(0,4*0x2f);
 	unsigned resident;
-	void far *orig15,far*orig2f;
-	
-    union  REGS r;  
+	void far *orig9, far *orig15, far *orig2f;
+
+    union  REGS r;
     struct SREGS sr;
-    
+
 	r.x.ax = 0xad82;  			// disable old keyboard driver
 	r.x.bx = 0;
 	int86(0x2f,&r,&r);
 
 
-	// now try to disable the old 
+	// now try to disable the old
 
 	resident = NULL;
-	
+
 	if (_fmemcmp(MK_FP(FP_SEG(int15handler)-1,8),MY_MEMORY_SIGNATURE,8) == 0)
 		resident = FP_SEG(int15handler);
-		
+
 
 	if (_fmemcmp(MK_FP(FP_SEG(int15handler)-1,8),MY_MEMORY_SIGNATURE,8) == 0)
 		resident = FP_SEG(int2fhandler);
 
-	//printf("resident found at %x:0\n",resident);	
+	printf("resident found at %x:0\n",resident);
 
 	if (resident == 0)
 		{
 		if (verbose)
 			printf("no previous instance of KEYB found\n");
 		return;
-		}	           
+		}
 							// check that this is the same version
 							// of KEYB
-	if (_fmemcmp( ((char far *)&OldInt15)-8, 
-	              ((char far *)MK_FP(resident,FP_OFF(&OldInt15)))-8,
-	             		8) != 0)
+	if (_fmemcmp( ((char far *)&OldInt15)-8,
+		      ((char far *)MK_FP(resident,FP_OFF(&OldInt15)))-8,
+				8) != 0)
 		{
-		printf("different version of KEYB found %8lx != %8lx\n",      
-				  ((char far *)&OldInt15)-8,                                           	
-	              ((char far *)MK_FP(resident,FP_OFF(&OldInt15)))-8
+		printf("different version of KEYB found %8lx != %8lx\n",
+				  ((char far *)&OldInt15)-8,
+		      ((char far *)MK_FP(resident,FP_OFF(&OldInt15)))-8
 				);
 		return;
-		}	                                   
+		}
 
+	orig9 = *(void far *far*)MK_FP(resident,FP_OFF(&OldInt9));
 	orig15 = *(void far *far*)MK_FP(resident,FP_OFF(&OldInt15));
 	orig2f = *(void far *far*)MK_FP(resident,FP_OFF(&OldInt2F));
 
-	//printf("original values %8lx , %8lx\n",orig15,orig2f);	  
+	printf("original values %8lx, %8lx , %8lx\n",orig9, orig15,orig2f);
 
+	if (FP_SEG(int9handler) == resident)
+		{
+	r.x.ax  = 0x2509;                        /* dosSetVect */
+	r.x.dx  = FP_OFF(orig9);
+	sr.ds   = FP_SEG(orig9);
+	int86x(0x21,&r,&r,&sr);
+		printf("int9 handler desinstalled\n");
+		}
 
 	if (FP_SEG(int15handler) == resident)
 		{
-        r.x.ax  = 0x2515;                        /* dosSetVect */
-        r.x.dx  = FP_OFF(orig15);
-        sr.ds   = FP_SEG(orig15);
-        int86x(0x21,&r,&r,&sr);
-		//printf("int15 handler desinstalled\n");
+	r.x.ax  = 0x2515;                        /* dosSetVect */
+	r.x.dx  = FP_OFF(orig15);
+	sr.ds   = FP_SEG(orig15);
+	int86x(0x21,&r,&r,&sr);
+		printf("int15 handler desinstalled\n");
 		}
 
 	if (FP_SEG(int2fhandler) == resident)
 		{
-        r.x.ax  = 0x252f;                        /* dosSetVect */
-        r.x.dx  = FP_OFF(orig2f);
-        sr.ds   = FP_SEG(orig2f);
-        int86x(0x21,&r,&r,&sr);
-		//printf("int2f handler deinstalled\n");
+	r.x.ax  = 0x252f;                        /* dosSetVect */
+	r.x.dx  = FP_OFF(orig2f);
+	sr.ds   = FP_SEG(orig2f);
+	int86x(0x21,&r,&r,&sr);
+		printf("int2f handler deinstalled\n");
 		}
 
-	if (FP_SEG(int15handler) == resident && 
+	if (FP_SEG(int15handler) == resident &&
 	    FP_SEG(int2fhandler) == resident)
 		{
-												// OK. free memory also
-	        								 /* DosFree(resident) */
+					// OK. free memory also
+					/* DosFree(resident) */
 		r.x.ax = 0x4900;
 		sr.es  = resident;
-        int86x(0x21,&r,&r,&sr);
+	int86x(0x21,&r,&r,&sr);
 
-        *(short far*)MK_FP(resident-1, 1) = 0;   /* bums. DosFree(resident) */
-        
-        //printf("DOS memory at %x freed\n",resident);
-		}   
-	if (verbose)	
+	*(short far*)MK_FP(resident-1, 1) = 0;   /* bums. DosFree(resident) */
+
+	printf("DOS memory at %x freed\n",resident);
+		}
+	if (verbose)
 		printf("old KEYB deinstalled\n");
 
 }
@@ -350,31 +360,36 @@ InstallKeyboard(struct KeyboardDefinition *kb, int GOTSR)
 
 #define RESPTR(x) MK_FP(residentSeg, (void near*)x)
 
-        OldInt15 = getvect(0x15);       /* do this before copying */
-        OldInt2F = getvect(0x2f);
+	OldInt9 = getvect(0x9);
+	OldInt15 = getvect(0x15);       /* do this before copying */
+	OldInt2F = getvect(0x2f);
 
-                                        /* copy code and data up into (high) memory */
-        fmemcpy(RESPTR(0),
-                MK_FP(FP_SEG(int15_handler),0),
-                residentsize);
+					/* copy code and data up into (high) memory */
+	fmemcpy(RESPTR(0),
+		MK_FP(FP_SEG(int15_handler),0),
+		residentsize);
 
+	r.x.ax  = 0x2509;                        /* dosSetVect */
+	r.x.dx  = FP_OFF(int9_handler);
+	sregs.ds   = residentSeg;
+	int86x(0x21,&r,&r,&sregs);
 
-        r.x.ax  = 0x2515;                        /* dosSetVect */
-        r.x.dx  = FP_OFF(int15_handler);
-        sregs.ds   = residentSeg;
-        int86x(0x21,&r,&r,&sregs);
+	r.x.ax  = 0x2515;                        /* dosSetVect */
+	r.x.dx  = FP_OFF(int15_handler);
+	sregs.ds   = residentSeg;
+	int86x(0x21,&r,&r,&sregs);
 
-        r.x.ax  = 0x252f;                        /* dosSetVect */
-        r.x.dx  = FP_OFF(int2f_handler);
-        sregs.ds   = residentSeg;
-        int86x(0x21,&r,&r,&sregs);
+	r.x.ax  = 0x252f;                        /* dosSetVect */
+	r.x.dx  = FP_OFF(int2f_handler);
+	sregs.ds   = residentSeg;
+	int86x(0x21,&r,&r,&sregs);
 
   } /* done with install */
 
     if (GOTSR)
-        {
-        exit(0);
-        }
+	{
+	exit(0);
+	}
 
     printf("\n KEYB installed at segment %04x, %u bytes\n",residentSeg, residentsize);
 

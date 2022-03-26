@@ -1,18 +1,13 @@
-all: mkeyb.asm \
-     keyb.exe
-     
-
+all: keyb.exe
 
 TCCLINK=$(TCC) -lm -O -Z -g1
 TCCCOMP=$(TCC) -c  -O -Z -g1 -a-
-
 
 #
 # each language gets 2 binaries:
 # the miniminimum 'mkeybXX.exe'
 # and additional  'mkeybXXc.exe' with additional COMBI characters
 #
-
 
 depends=prf.obj
 resdep = mKEYBA.obj mkeybrc.obj mkeybr.obj mkeybrf.obj
@@ -42,20 +37,17 @@ keydefs = \
 	keydefBP.obj \
 	keydefSL.obj \
 
-
 #
 # GERMAN
 #
 keyb.exe: mkeyb.obj  $(resdep) $(depends) $(keydefs)
 	$(TCCLINK) mKEYB.obj $(resdep) $(depends) keydef.lib
-	$(XAPACK) mkeyb.exe mkeyb.exe
-	copy mkeyb.exe keyb.exe
-	del  mkeyb.exe
+	# $(XAPACK) mkeyb.exe mkeyb.exe
+	# copy mkeyb.exe keyb.exe
+	# del  mkeyb.exe
 
 mkeyb.obj: mkeyb.c mkeyb.h
 	$(TCCCOMP) mKEYB.c
-
-
 
 keydefgr.obj:  keydefgr.h  mkeyb.h
 	$(TCCCOMP) keydefgr.h
@@ -157,27 +149,20 @@ keydefsl.obj: keydefsl.h  mkeyb.h
 	$(TLIB) keydef.lib -+ keydefsl.obj
 
 
-
-
-
 #mkeybGRc.exe: mkeyb.c keydefGR.h $(combidepends)
 #	$(TCCLINK) -emkeybGRc -DLANG_GR -DCOMBI mKEYB.c $(combidepends)
 #	$(XUPX) mkeybGRc.exe
-
-
-
 
 # ############## generic ##########################
 #
 # for all languages same:
 #
 
-
 #
 #assembly stub
 #
 mkeybA.obj: mkeybA.ASM
-	$(XNASM) mKEYBA.asm -fobj
+	$(XNASM) /mx mKEYBA.asm
 
 #
 # resident part

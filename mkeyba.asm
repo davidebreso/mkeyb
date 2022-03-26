@@ -1,12 +1,60 @@
-group   I_GR I_ASMTEXT
-segment I_ASMTEXT class=INIT align=1
+I_GR group I_ASMTEXT
+I_ASMTEXT SEGMENT BYTE PUBLIC 'INIT'
 
+ASSUME CS:I_ASMTEXT
 
-global _int2f_handler,_OldInt2F
-global _int15_handler,_OldInt15
+public _int9_handler,_OldInt9
+public _int2f_handler,_OldInt2F
+public _int15_handler,_OldInt15
 
-SEGMENT_START:
+; SEGMENT_START:
 
+_int9_handler:
+	jmp int9_start		; Workaround for APL software
+int9_isActiveF dw 1    		; Modified by APL software
+int9_start:
+	; save the registers
+	push ax        		; scancode
+	push cx			; counter
+	push es
+	; compute if we should handle the extended
+	mov al, byte ptr [cs:int9_isActiveF]
+	or al, al
+	jz chain_int9
+	; disable the interrupts
+	cli
+	xor cx, cx
+	mov es, cx
+	; read and authenticate scancode
+	in al, 60h		; get the scancode in AL
+	mov ah, 4fh		; authenticate scancode
+	stc
+
+	int 15h			; return: CF clear if no further processing
+	jc chain_int9
+	; clear keyboard buffer
+	in al, 61h		; read status register
+	or al, 0f0h		; set bit 7
+	out 61h, al
+	and al, 7fh		; clear bit 7
+	out 61h, al
+	; report end of interrupt to interrupt controller
+	mov al, 20h
+	out 20h, al
+	; restore interrupts
+	sti
+	jmp leave_int9
+chain_int9:
+	pushf
+	sti
+	db 9ah		        ; Call Far
+_OldInt9  	dd 0
+	; leave interrupt routine
+leave_int9:
+	pop es
+	pop cx
+	pop ax
+	iret
 
 _int2f_handler:
 	cmp ax,0ad82h
@@ -25,7 +73,7 @@ chain_int2f:
 _OldInt2F  	dd 0
 
 
-                extern  _cint15_handler_full
+extrn  _cint15_handler_full:near
 
 _int15_handler:
 	jnc chain_int15_non_carry
@@ -40,10 +88,10 @@ _int15_handler:
 	push es
 
 	push cs
-	pop  ds                
+	pop  ds
 	push ax
 
-	call near _cint15_handler_full
+	call _cint15_handler_full
 	pop cx						; pop argument from stack
 
 	pop es
@@ -52,8 +100,8 @@ _int15_handler:
 	pop cx
 	pop bx
 
-            					; scancode if pass down key to BIOS
-            					; 0  if scancode was handled
+						; scancode if pass down key to BIOS
+						; 0  if scancode was handled
 	mov ah,04fh
 	cmp al,0
 	jne chain_int15
@@ -64,7 +112,7 @@ _int15_handler:
 
 	push bp
 	mov  bp,sp
-	and  byte [bp+6],0feh		; clear carry
+	and  byte ptr [bp+6],0feh		; clear carry
 	pop bp
 	iret
 
@@ -78,22 +126,22 @@ _OldInt15  	dd 0
 
 							;extern uchar usebiosonly_flag;
 							;extern uchar debug_scancode;
-							
+
 							;extern uint  RESIDENT currentCombi             ;
 							;extern uchar RESIDENT currentCombiScancode     ;
 							;extern uint  RESIDENT ResidentCombiTables[5]   ;
 							;extern uchar RESIDENT DecimalDingsBums         ;    /* grey , or . */
-							
+
 							;extern char  *ResidentScancodetable;
 
 
-global _usebiosonly_flag
-global _lastisctrl_flag
+public _usebiosonly_flag
+public _lastisctrl_flag
 
-global _debug_scancode,_currentCombi
-global _ResidentCombiTables, _DecimalDingsBums,_SilentKeyboard
-global _pResidentScancodetable
-extern _ResidentScancodetable
+public _debug_scancode,_currentCombi
+public _ResidentCombiTables, _DecimalDingsBums,_SilentKeyboard
+public _pResidentScancodetable
+extrn _ResidentScancodetable
 
 
 _usebiosonly_flag db 0ffh
@@ -105,7 +153,9 @@ _SilentKeyboard   db 0
 _ResidentCombiTables dw 0,0,0,0,0,0
 _pResidentScancodetable dw 0
 
+I_ASMTEXT ENDS
 
+END
 
 
 

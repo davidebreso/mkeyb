@@ -105,7 +105,7 @@ void VerifyScancodeTableForCorrectness(	struct KeyboardDefinition *kb,int print)
     
     scancode_end = kb->CombicodeTables[0];
     if (scancode_end == NULL)
-    	scancode_end = kb;
+	scancode_end = kb;
 
     
     
@@ -115,14 +115,14 @@ void VerifyScancodeTableForCorrectness(	struct KeyboardDefinition *kb,int print)
                 tbl = tblnext)
         {
         if (print)
-            printf("offset %02x scancode %02x flags %02x \n",
+	    printf("offset %02x scancode %02x flags %02x \n",
                 tbl-kb->ScancodeTable, tbl[0], tbl[1]);
 
-        if (++loopdetect > 200)
+	if (++loopdetect > 200)
             {
-            printf("loop detected\n");
+	    printf("loop detected\n");
             goto error;
-            }
+	    }
 
         flags = tbl[1];
 
@@ -130,7 +130,7 @@ void VerifyScancodeTableForCorrectness(	struct KeyboardDefinition *kb,int print)
 
         if (tblnext > scancode_end)
             {
-            printf("scancode table error <SIZE> offset 0x%2x, scancode = 0x%02x, flags = 0x%02x\n",
+	    printf("scancode table error <SIZE> offset 0x%2x, scancode = 0x%02x, flags = 0x%02x\n",
                 tbl-kb->ScancodeTable, tbl[0],flags);
             goto error;
             }
@@ -138,7 +138,7 @@ void VerifyScancodeTableForCorrectness(	struct KeyboardDefinition *kb,int print)
         if (tblnext[0])
             if ((tblnext[1] & SIZEFIELD) <= 2)
                 {
-                printf("scancode table error <FLAGS> offset 0x%2x, scancode = 0x%02x, flags = 0x%02x\n",
+		printf("scancode table error <FLAGS> offset 0x%2x, scancode = 0x%02x, flags = 0x%02x\n",
                     tbl-kb->ScancodeTable, tbl[0],flags);
                 goto error;
                 }
@@ -148,7 +148,7 @@ void VerifyScancodeTableForCorrectness(	struct KeyboardDefinition *kb,int print)
 
     if (tbl + 1 != scancode_end)
         {
-        printf("scancode table error: early zero found at offset 0x%2x last scan 0x%02x\n",
+	printf("scancode table error: early zero found at offset 0x%2x last scan 0x%02x\n",
                 tbl-kb->ScancodeTable, lasttbl[0]);
         goto error;
         }
@@ -187,7 +187,7 @@ void UninstallKeyboard(int verbose)
 	if (_fmemcmp(MK_FP(FP_SEG(int15handler)-1,8),MY_MEMORY_SIGNATURE,8) == 0)
 		resident = FP_SEG(int2fhandler);
 
-	printf("resident found at %x:0\n",resident);
+	// printf("resident found at %x:0\n",resident);
 
 	if (resident == 0)
 		{
@@ -212,7 +212,7 @@ void UninstallKeyboard(int verbose)
 	orig15 = *(void far *far*)MK_FP(resident,FP_OFF(&OldInt15));
 	orig2f = *(void far *far*)MK_FP(resident,FP_OFF(&OldInt2F));
 
-	printf("original values %8lx, %8lx , %8lx\n",orig9, orig15,orig2f);
+	// printf("original values %8lx, %8lx , %8lx\n",orig9, orig15,orig2f);
 
 	if (FP_SEG(int9handler) == resident)
 		{
@@ -220,7 +220,7 @@ void UninstallKeyboard(int verbose)
 	r.x.dx  = FP_OFF(orig9);
 	sr.ds   = FP_SEG(orig9);
 	int86x(0x21,&r,&r,&sr);
-		printf("int9 handler desinstalled\n");
+		// printf("int9 handler desinstalled\n");
 		}
 
 	if (FP_SEG(int15handler) == resident)
@@ -229,7 +229,7 @@ void UninstallKeyboard(int verbose)
 	r.x.dx  = FP_OFF(orig15);
 	sr.ds   = FP_SEG(orig15);
 	int86x(0x21,&r,&r,&sr);
-		printf("int15 handler desinstalled\n");
+		// printf("int15 handler desinstalled\n");
 		}
 
 	if (FP_SEG(int2fhandler) == resident)
@@ -238,7 +238,7 @@ void UninstallKeyboard(int verbose)
 	r.x.dx  = FP_OFF(orig2f);
 	sr.ds   = FP_SEG(orig2f);
 	int86x(0x21,&r,&r,&sr);
-		printf("int2f handler deinstalled\n");
+		// printf("int2f handler deinstalled\n");
 		}
 
 	if (FP_SEG(int15handler) == resident &&
@@ -252,7 +252,7 @@ void UninstallKeyboard(int verbose)
 
 	*(short far*)MK_FP(resident-1, 1) = 0;   /* bums. DosFree(resident) */
 
-	printf("DOS memory at %x freed\n",resident);
+	// printf("DOS memory at %x freed\n",resident);
 		}
 	if (verbose)
 		printf("old KEYB deinstalled\n");
@@ -267,7 +267,7 @@ void UninstallKeyboard(int verbose)
 
 
 
-InstallKeyboard(struct KeyboardDefinition *kb, int GOTSR)
+InstallKeyboard(struct KeyboardDefinition *kb, int GOTSR, int int9hChain)
 {
     union  REGS r;
     struct SREGS sregs;
@@ -285,20 +285,20 @@ InstallKeyboard(struct KeyboardDefinition *kb, int GOTSR)
 //    if (FP_OFF(ResidentScancodetable)  > 0x800)                  err |= 0x0004;
 
     if (err)
-        {
-        printf("compile time error %x\n", err);
-        printf("please check your compiler switches and recompile\n");
-        return 1;
-        }
+	{
+	printf("compile time error %x\n", err);
+	printf("please check your compiler switches and recompile\n");
+	return 1;
+	}
   }
 
     VerifyScancodeTableForCorrectness(kb,0);
 
   { /* install the resident part */
-  	void far *pint15_handler; 
-  	uint      int15_handler_size;
-  	uchar far *pres;
-  	
+	void far *pint15_handler;
+	uint      int15_handler_size;
+	uchar far *pres;
+
 	extern int  far cint15_handler_full(int);
 	extern void far END_cint15_handler_full(void);
 	extern int  far cint15_handler_normal(int);
@@ -322,40 +322,41 @@ InstallKeyboard(struct KeyboardDefinition *kb, int GOTSR)
 				pint15_handler = (void far *)cint15_handler_fastswitch;
 				int15_handler_size = FP_OFF(END_cint15_handler_fastswitch) - FP_OFF(cint15_handler_fastswitch);
 				break;
-				
-		}		
-	
-	pres = (void far *)cint15_handler_full;	
+
+		}
+
+	pres = (void far *)cint15_handler_full;
 
 	fmemcpy(pres, pint15_handler, int15_handler_size);
 	pres += int15_handler_size;
-	
+
 	pResidentScancodetable = (char*)FP_OFF(pres);
-	
+
 	for (i = COMBI1; i <= COMBI6; i++)
 		{
-		ResidentCombiTables[i-COMBI1] = (char*)pResidentScancodetable + 
+		ResidentCombiTables[i-COMBI1] = (char*)pResidentScancodetable +
 						(kb->CombicodeTables[i-COMBI1] - kb->ScancodeTable);
 		}
-	
+
 	fmemcpy(pres, kb->ScancodeTable, (char *)kb - (char *)kb->ScancodeTable);
 	pres += (char *)kb - (char *)(kb->ScancodeTable);
-	
+
 
 
     DecimalDingsBums = kb->DezimalDingsbums;
 
 	if (kb->DefaultLayoutUS)
-        	usebiosonly_flag = 0;
-        	
-        	
-    residentsize = FP_OFF(pres);	
-        	
-                                        /* fetch enough memory for the TSR part */
-    residentSeg = AllocHighMemory(residentsize,GOTSR);  
+		usebiosonly_flag = 0;
 
+
+    residentsize = FP_OFF(pres);
+
+					/* fetch enough memory for the TSR part */
+    residentSeg = AllocHighMemory(residentsize,GOTSR);
+
+	printf("%s keyboard\n", (int9hChain ? "PC/XT" : "AT"));
 	printf(" %s - %s\n", kb->LanguageShort, kb->Description);
-        
+
 
 
 #define RESPTR(x) MK_FP(residentSeg, (void near*)x)
@@ -369,11 +370,13 @@ InstallKeyboard(struct KeyboardDefinition *kb, int GOTSR)
 		MK_FP(FP_SEG(int15_handler),0),
 		residentsize);
 
-	r.x.ax  = 0x2509;                        /* dosSetVect */
-	r.x.dx  = FP_OFF(int9_handler);
-	sregs.ds   = residentSeg;
-	int86x(0x21,&r,&r,&sregs);
-
+	if(int9hChain)	   	/* install int9 handler if requested */
+	{
+		r.x.ax  = 0x2509;                        /* dosSetVect */
+		r.x.dx  = FP_OFF(int9_handler);
+		sregs.ds   = residentSeg;
+		int86x(0x21,&r,&r,&sregs);
+	}
 	r.x.ax  = 0x2515;                        /* dosSetVect */
 	r.x.dx  = FP_OFF(int15_handler);
 	sregs.ds   = residentSeg;
@@ -399,36 +402,37 @@ InstallKeyboard(struct KeyboardDefinition *kb, int GOTSR)
     extern uchar far debug_scancode;        /* debug */
 
     while (*(uchar far*)RESPTR(&debug_scancode) != 1)
-        {
+	{
 
-        if (*(uchar far*)RESPTR(&debug_scancode) != 0)
-            {
-            printf("shiftstate %02x scancode    %02x\n", 
-            	*(short far*)MK_FP(0x40,0x17), *(uchar far*)RESPTR(&debug_scancode));
+	if (*(uchar far*)RESPTR(&debug_scancode) != 0)
+	    {
+	    printf("shiftstate %02x scancode    %02x\n",
+		*(short far*)MK_FP(0x40,0x17), *(uchar far*)RESPTR(&debug_scancode));
 
-            if (*(uchar far*)RESPTR(&debug_scancode) & 0x80 && /* release key ??*/
-                *(uchar far*)RESPTR(&debug_scancode) != 0xe0)
-                printf("\n");
+	    if (*(uchar far*)RESPTR(&debug_scancode) & 0x80 && /* release key ??*/
+		*(uchar far*)RESPTR(&debug_scancode) != 0xe0)
+		printf("\n");
 
-            *(uchar far*)RESPTR(&debug_scancode) = 0;
-            }
+	    *(uchar far*)RESPTR(&debug_scancode) = 0;
+	    }
 
-        r.h.ah = 0x01;
-        int86(0x16,&r,&r);
-        if ((r.x.flags & 0x40) == 0)  /* ZF = 0 */
-            {
-            r.h.ah = 0x00;
-            int86(0x16,&r,&r);
+	r.h.ah = 0x01;
+	int86(0x16,&r,&r);
+	if ((r.x.flags & 0x40) == 0)  /* ZF = 0 */
+	    {
+	    r.h.ah = 0x00;
+	    int86(0x16,&r,&r);
 
-            printf("key pressed %04x '%c'\n",r.x.ax,r.h.al);
-            }
-        }
+	    printf("key pressed %04x '%c'\n",r.x.ax,r.h.al);
+	    }
+	}
   }
 
+    setvect(0x9,OldInt9);
     setvect(0x15,OldInt15);
     setvect(0x2f,OldInt2F);
 
-    printf("KEYB - uninstalled\n");
+    printf(" KEYB - uninstalled\n");
 
     return 0;
 }
@@ -491,20 +495,20 @@ struct KeyboardDefinition *KeyDefTab[] =
 void ListLanguages(void)
 	{
     struct KeyboardDefinition *kb;
-	int j;                       
-	              
-	printf("\n");              
+	int j;
+
+	printf("\n");
 	for (j = 0; j < LENGTH(KeyDefTab); j++)
 		{
 		kb = KeyDefTab[j];
 		printf(" %-3s- %s\n",kb->LanguageShort,kb->Description);
-		}				
+		}
 	}
-	
-	
+
+
 void usage(void)
 {
-    printf( " Copyright (c) 2002-20018 www.tomehlert.de\n");
+    printf( " Copyright (c) 2002-2018 www.tomehlert.de\n");
 
 	printf("KEYB  usage:\n"
 		   "      KEYB UK - United Kingdom keyboard\n"
@@ -513,10 +517,12 @@ void usage(void)
 		   "      KEYB /L - List all available keyboards\n"
 		   "      KEYB /U - uninstall previous keyboard driver\n"
 		   "      KEYB /S - Silent - absorb all keyboard input\n"
+		   "      KEYB /9 - Force PC/XT keyboard controller type\n"
+		   "      KEYB /E - Force AT keyboard controller type\n"
 		   "      KEYB GR /T - test the GERman keyboard driver, don't go resident\n"
 		   "When loaded:\n"
 		   "      Ctrl+Alt+F1 : International (QWERTY) keyboard\n"
-           "      Ctrl+Alt+F2 : National loaded keyboard\n"
+	   "      Ctrl+Alt+F2 : National loaded keyboard\n"
            "      on some languages, tapping Right-Control also switches"
 		   );
 	exit(1);		   
@@ -527,18 +533,23 @@ int main(int argc, char *argv[])
 {
     struct KeyboardDefinition *kb = NULL;
     uint GOTSR = 1;
-    int i;  
+    uint int9hChain;
+    int i;
+    uchar far *pmodel;
 
     if (argv);
     if (argc);
 
     printf("mKEYB 0.46 [" __DATE__ "] - " );
 
+    pmodel = MK_FP(0xF000, 0xFFFE);
+    // printf("Machine ID %02x\n", *pmodel);
+    int9hChain = (*pmodel >= 0xFD);
 
 	for (i = 1; i < argc; i++)
 		{
 		char *argptr = argv[i];
-		
+
 		if (*argptr == '/' || *argptr == '-')
 			{
 			switch(toupper(argptr[1]))
@@ -546,19 +557,25 @@ int main(int argc, char *argv[])
 				case 'L': ListLanguages(); exit(0);
 				case 'T': GOTSR = 0; break;
 
-				case 'U': 
-						  UninstallKeyboard(1);        
+				case 'U':
+						  UninstallKeyboard(1);
 						  exit(0);
-						  break;       
-						  
+						  break;
+
 				case 'S': SilentKeyboard = 1;
-						  break;							  
-				
+						  break;
+
+				case '9': int9hChain = 1;
+					break;
+
+				case 'E': int9hChain = 0;
+					break;
+
 				default: printf("unknown argument <%s>\n", argptr+1);
 				case 'H':
 				case '?':usage();
 						 break;
-				
+
 				}
 			}
 		else
@@ -578,7 +595,7 @@ int main(int argc, char *argv[])
 				if (stricmp(argptr,"US") == 0)	
 					{
 					printf("US keyboards don't need a keyboard handler\n");
-					UninstallKeyboard(0);        
+					UninstallKeyboard(0);
 					exit(0);
 					}
 				
@@ -587,7 +604,7 @@ int main(int argc, char *argv[])
 				exit(1);
 				}						
 			}				
-		}	
+		}
 
 
 	UninstallKeyboard(0);
@@ -602,7 +619,7 @@ int main(int argc, char *argv[])
 		}						
 
 
-	return InstallKeyboard(kb, GOTSR);
+	return InstallKeyboard(kb, GOTSR, int9hChain);
 }
 
 /*

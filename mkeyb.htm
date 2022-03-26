@@ -1,0 +1,118 @@
+<html>
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+<meta http-equiv="Content-Language" content="en-us">
+
+<meta name="keywords" content="mkeyb,keyb,keyboard,DOS,FreeDOS, international keyboard,keyboard driver, small, smallest">
+
+<title>mKEYB 0.39 - a very small keyboard driver for DOS</title>
+</head>
+
+<body>
+
+<div align="center">
+  <center>
+  <table border="1" width="100%" bgcolor="#f0f0f0">
+    <tr>
+      <td width=25%><a href="http://www.drivesnapshot.de/en">Drive
+        Snapshot&nbsp;<br>
+        Disk Image Backup for Windows NT/2000/XP/2003/PE</a> </td>
+      <td width=25%><a href="http://www.drivesnapshot.de/freedos/mkeyb.htm">MKEYB<br>
+        very small Keyboard driver for DOS</a> </td>
+      <td width=25%><a href="http://www.drivesnapshot.de/freedos/rawread.htm">RAWREAD<br>
+        measure your hard disk speed</a> </td>
+    </tr>
+  </table>
+  </center>
+</div>
+<h1>mKEYB - a very small keyboard driver for DOS</h1>
+<p>mKEYB is a very small keyboard driver that can be used with any DOS.<br>
+The
+resident size is below 500-700 bytes, depending on the keyboard.</p>
+<p>There are about 24 keyboard layouts compiled into the executable, yet the
+executable size is only 8K.</p>
+<p>mKEYB originated from an idea, how to write a very small keyboard driver by
+recycling existing BIOS resources.<br>
+So it requires much less RAM then most other
+keyboard drivers, although it's written entirely in C.<br>
+mKEYB requires a 80286 or
+better machine.</p>
+<p>mKEYB comes including source; you will need 
+<a href="http://edn.embarcadero.com/article/21751">Borland Turbo C++ 1.0</a>&nbsp; to recompile it.</p>
+<p>If you want to add a new language, or change an existing one, please see
+readme.txt for instructions.<br>
+We will be glad to incorporate your language
+definitions into mKEYB, if you send us the changes.</p>
+<p>License: mKEYB is free to use, change, distribute, learn from, or use in 
+whatever way you see useful ...<br>
+However if you offer mKEYB to others, it would
+be cool if you place a link to this page onto your web page.</p>
+<p><a href="http://www.drivesnapshot.de/freedos/mkeyb.zip"><font size="4">Download
+mKEYB program and source (66K)</font></a></p>
+<p>Another keyboard driver for DOS (XKEYB) can be found
+<a href="http://www.ibiblio.org/pub/micro/pc-stuff/freedos/files/dos/keyb/xkeyb/">here</a>,
+It's even programmable, and configurable without recompiling it; however it has
+a somewhat larger executable size and RAM requirements.<br>
+</p>
+<h3>Keyboard layouts supported</h3>
+<pre> BE - BELGIUM - belgique clavier AZERTY (tom+imre)
+ BG - BULGARIAN - use right Ctrl to switch (by Anton Zinoviev)
+ BGP- BULGARIAN PHONETIC - use right Ctrl to switch (by Anton Zinoviev)
+ BR - BRAZIL - Portuguese keyboard with combis (Henrique Peron)
+ BX - BRAZIL EXTENDED - Portuguese keyboard with combis (Henrique Peron)
+ DK - DENMARK - Danish keyboard, no combi's (by tom)
+ FR - FRENCH - clavier AZERTY (Snoopy81)
+ GR - GERMAN - deutsche Tastatur (by tom)
+ GR2- GERMAN2 - deutsche Tastatur mit internatinalen Umlauten (by tom)
+ HE - HEBREW - Hebrew keyboard, right Ctrl to switch (by diego)
+ IT - ITALY - Italian keyboardo (by tom)
+ LA - Latin American - keyboardo espanolo latino americano (by tom)
+ NL - NETHERLANDS - dutch keyboard (by Bart)
+ NO - NORWEGIAN - norske keyboard (by tom)
+ PL - POLISH - polska klawiatura (by tom, verified by michael)
+ PO - PORTUGAL - portugese keyboard (by tom)
+ RU - RUSSIA - Russian keyboard, right Ctrl to switch (by Arkady)
+ SF - SWISS FRENCH - (by tom)
+ SG - SWISS GERMAN - schweizer deutsches Keyboard, keine combi's (by tom)
+ SL - SLOVENIAN keyboard, no combi's (by tom)
+ SP - SPANISH - keyboard with combis (by aitor)
+ SU - SUOMI - finnish Keyboard, no combi's (by tom)
+ SV - SWEDISH - Swedish Keyboard, no combi's (by tom)
+ UK - UNITED KINGDOM - british keyboard, no combi's (by Bart)
+</pre>
+<h3>Version information</h3>
+<div align="center">
+  <center>
+  <table border="0" width="100%">
+    <tr>
+      <td valign="top">0.39&nbsp;&nbsp; 24 sep 03</td>
+      <td>	finally implemented KEYB US - by deinstalling old keyboard handler<br>
+	added experimental Slovenian keyboard</td>
+    </tr>
+    <tr>
+      <td valign="top">0.40&nbsp;&nbsp; 17 mar 04</td>
+      <td>	changed the used exepacker; now APACK is the packer of choice <a href="http://www.ibsensoftware.com/products_aPACK.html">read
+        more about APACK<br>
+        </a>this makes KEYB.EXE 200 byte smaller.<br>
+
+        changed the licensing to allow distribution of APACK'ed executables</td>
+    </tr>
+    <tr>
+      <td valign="top">0.43&nbsp;&nbsp;&nbsp; 03 dec 18</td>
+      <td>	Fritz corrected the slowenian SL keyboard definition.</td>
+    </tr>
+  </table>
+  </center>
+</div>
+
+<hr>
+<font size="1">
+ Copyright © 2001-2018 <a href="mailto:te@tomehlert.de">tom ehlert</a>&nbsp;
+-- last changed on <!--webbot bot="Timestamp" S-Type="EDITED"
+S-Format="%d %b %y" startspan -->04 Dez 18<!--webbot bot="Timestamp" endspan i-checksum="14720" --></font> 
+
+
+</body>
+
+</html>

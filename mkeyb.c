@@ -401,13 +401,13 @@ InstallKeyboard(struct KeyboardDefinition *kb, int GOTSR, int int9hChain)
   { /* debug only */
     extern uchar far debug_scancode;        /* debug */
 
-    while (*(uchar far*)RESPTR(&debug_scancode) != 1)
+    do
 	{
 
 	if (*(uchar far*)RESPTR(&debug_scancode) != 0)
 	    {
 	    printf("shiftstate %02x scancode    %02x\n",
-		*(short far*)MK_FP(0x40,0x17), *(uchar far*)RESPTR(&debug_scancode));
+		*(uchar far*)MK_FP(0x40,0x17), *(uchar far*)RESPTR(&debug_scancode));
 
 	    if (*(uchar far*)RESPTR(&debug_scancode) & 0x80 && /* release key ??*/
 		*(uchar far*)RESPTR(&debug_scancode) != 0xe0)
@@ -426,6 +426,7 @@ InstallKeyboard(struct KeyboardDefinition *kb, int GOTSR, int int9hChain)
 	    printf("key pressed %04x '%c'\n",r.x.ax,r.h.al);
 	    }
 	}
+    while (r.h.ah != 1);
   }
 
     setvect(0x9,OldInt9);
@@ -463,8 +464,9 @@ extern struct KeyboardDefinition
 	,Keyboard_FR
 	,Keyboard_HE
 	,Keyboard_SL
+	,Keyboard_UX
 	;
-struct KeyboardDefinition *KeyDefTab[] = 
+struct KeyboardDefinition *KeyDefTab[] =
 	{
 	 &Keyboard_BE
 	,&Keyboard_BG
@@ -490,6 +492,7 @@ struct KeyboardDefinition *KeyDefTab[] =
 	,&Keyboard_SU
 	,&Keyboard_SV
 	,&Keyboard_UK
+	,&Keyboard_UX
 	};
 
 void ListLanguages(void)
@@ -540,7 +543,7 @@ int main(int argc, char *argv[])
     if (argv);
     if (argc);
 
-    printf("mKEYB 0.46 [" __DATE__ "] - " );
+    printf("mKEYB 0.47 [" __DATE__ "] - " );
 
     pmodel = MK_FP(0xF000, 0xFFFE);
     // printf("Machine ID %02x\n", *pmodel);

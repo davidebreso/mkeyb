@@ -116,5 +116,8 @@
 0.46 - 9 oct 2021
     fixed the EURO symbol in most keyboards
 
-
+0.47 - 27 mar 2022
+    add int9 handler for XT machines
+    add US international keyboard layout
+    asm stub ported to TASM
     

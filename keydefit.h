@@ -3,6 +3,7 @@
 /*
  * history
  * 26 apr 02: tom ehlert - creation
+ * 27 mar 22: davide bresolin - correct name
  */
 
 #define NAME(x) x##_IT
@@ -79,18 +80,18 @@ uchar NAME(scancodetable)[] = {
  /* , */ PUNCT		(0x33, ',', ';'		) /* 51 ,  ;   .  .  . */
  /* . */ PUNCT		(0x34, '.', ':'		) /* 52 .  :   .  .  . */
  /* / */ PUNCT		(0x35, '-', '_'		) /* 53 -  _   .  .  . */
- /*   */ PUNCT_CTRL	(0x56, '<', '>',0x1C	) /* 86 <  >   .  .  . */   
- 
+ /*   */ PUNCT_CTRL	(0x56, '<', '>',0x1C	) /* 86 <  >   .  .  . */
+
  /* E */ ALTGR           (0x12, EURO)          // Added by Snoopy81
- 
+
 	 0
 };
 
 struct KeyboardDefinition NAME(Keyboard) = {
-	"IT",                                          //char LanguageShort[4];			// "GR",                    
-	"ITALY - italiano keyboardo (by tom)",  //char *Description;				// created by, "with combis"
-	DRIVER_FUNCTION_NORMAL,                        //char DriverFunctionRequired;                                  
-	NAME(scancodetable),                           //char *ScancodeTable;                                          
+	"IT",                                          //char LanguageShort[4];			// "GR",
+	"ITALY - tastiera italiana (by tom)",          //char *Description;				// created by, "with combis"
+	DRIVER_FUNCTION_NORMAL,                        //char DriverFunctionRequired;
+	NAME(scancodetable),                           //char *ScancodeTable;
 #ifdef COMBI
 	{	NAME(combi1table),NAME(combi2table),NAME(combi3table),
 		NAME(combi4table),NAME(combi5table),NAME(combi6table) },

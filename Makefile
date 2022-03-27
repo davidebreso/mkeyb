@@ -1,4 +1,4 @@
-all: keyb.exe
+all: mkeyb.exe
 
 TCCLINK=$(TCC) -lm -O -Z -g1
 TCCCOMP=$(TCC) -c  -O -Z -g1 -a-
@@ -36,11 +36,12 @@ keydefs = \
 	keydefBG.obj \
 	keydefBP.obj \
 	keydefSL.obj \
+	keydefUX.obj \
 
 #
 # GERMAN
 #
-keyb.exe: mkeyb.obj  $(resdep) $(depends) $(keydefs)
+mkeyb.exe: mkeyb.obj  $(resdep) $(depends) $(keydefs)
 	$(TCCLINK) mKEYB.obj $(resdep) $(depends) keydef.lib
 	# $(XAPACK) mkeyb.exe mkeyb.exe
 	# copy mkeyb.exe keyb.exe
@@ -148,6 +149,10 @@ keydefsl.obj: keydefsl.h  mkeyb.h
 	$(TCCCOMP) keydefsl.h
 	$(TLIB) keydef.lib -+ keydefsl.obj
 
+keydefux.obj: keydefux.h  mkeyb.h
+	$(TCCCOMP) keydefux.h
+	$(TLIB) keydef.lib -+ keydefux.obj
+
 
 #mkeybGRc.exe: mkeyb.c keydefGR.h $(combidepends)
 #	$(TCCLINK) -emkeybGRc -DLANG_GR -DCOMBI mKEYB.c $(combidepends)
@@ -170,6 +175,8 @@ mkeybA.obj: mkeybA.ASM
 
 mkeybr.obj: mkeybr.c
 	$(TCCCOMP) -mt    -zAINIT -zCI_TEXT -zDIB -zRID -zTID -zPI_GR -zBIB -zGI_GR -zSI_GR    mKEYBr.c
+
+mkeybr.asm: mkeybr.c
 	$(TCCCOMP) -mt -S -zAINIT -zCI_TEXT -zDIB -zRID -zTID -zPI_GR -zBIB -zGI_GR -zSI_GR    mKEYBr.c
 
 #
@@ -177,6 +184,8 @@ mkeybr.obj: mkeybr.c
 #
 mkeybrC.obj: mkeybr.c
 	$(TCCCOMP) -mt    -zAINIT -zCI_TEXT -zDIB -zRID -zTID -zPI_GR -zBIB -zGI_GR -zSI_GR    -DCOMBI -omkeybrC mKEYBr.c
+
+mkeybrC.asm: mkeybr.c
 	$(TCCCOMP) -mt -S -zAINIT -zCI_TEXT -zDIB -zRID -zTID -zPI_GR -zBIB -zGI_GR -zSI_GR    -DCOMBI -omkeybrC mKEYBr.c
 
 #
@@ -185,6 +194,8 @@ mkeybrC.obj: mkeybr.c
 #
 mkeybrf.obj: mkeybr.c
 	$(TCCCOMP) -mt    -zAINIT -zCI_TEXT -zDIB -zRID -zTID -zPI_GR -zBIB -zGI_GR -zSI_GR    -DFASTSWITCH -omkeybrF mKEYBr.c
+
+mkeybrf.asm: mkeybr.c
 	$(TCCCOMP) -mt -S -zAINIT -zCI_TEXT -zDIB -zRID -zTID -zPI_GR -zBIB -zGI_GR -zSI_GR    -DFASTSWITCH -omkeybrF mKEYBr.c
 
 
@@ -199,5 +210,15 @@ sscani.obj: sscani.c
 mkeyb.asm: mkeyb.c mkeyb.h
 	$(TCCCOMP) -S mKEYB.c
 
+# cleanup
+clean:
+	del *.obj
+	del *.lib
+	del *.bak
+	del *.exe
+	del mkeyb.asm
+	del mkeybr.asm
+	del mkeybrc.asm
+	del mkeybrf.asm
 
 # ############## end generic ##########################

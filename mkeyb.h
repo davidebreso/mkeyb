@@ -17,10 +17,12 @@ extern uchar  RESIDENT cdecl SilentKeyboard; /* absorb all keyboard input except
 extern uchar RESIDENT  cdecl usebiosonly_flag;
 
 extern void (interrupt far *RESIDENT cdecl OldInt9)();
+extern void (interrupt far *RESIDENT cdecl OldInt16)();
 extern void (interrupt far *RESIDENT cdecl OldInt15)();
 extern void (interrupt far *RESIDENT cdecl OldInt2F)();
 
 extern void interrupt RESIDENT int9_handler();
+extern void interrupt RESIDENT int16_handler();
 extern void interrupt RESIDENT int15_handler();
 extern void interrupt RESIDENT int2f_handler();
 

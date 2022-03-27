@@ -163,10 +163,11 @@ error:
 void UninstallKeyboard(int verbose)
 {
 	void far *int9handler = *(void far *far *)MK_FP(0,4*0x9);
+	void far *int16handler = *(void far *far *)MK_FP(0,4*0x16);
 	void far *int15handler = *(void far *far *)MK_FP(0,4*0x15);
 	void far *int2fhandler = *(void far *far *)MK_FP(0,4*0x2f);
 	unsigned resident;
-	void far *orig9, far *orig15, far *orig2f;
+	void far *orig9, far *orig16, far *orig15, far *orig2f;
 
     union  REGS r;
     struct SREGS sr;
@@ -209,10 +210,11 @@ void UninstallKeyboard(int verbose)
 		}
 
 	orig9 = *(void far *far*)MK_FP(resident,FP_OFF(&OldInt9));
+	orig16 = *(void far *far*)MK_FP(resident,FP_OFF(&OldInt16));
 	orig15 = *(void far *far*)MK_FP(resident,FP_OFF(&OldInt15));
 	orig2f = *(void far *far*)MK_FP(resident,FP_OFF(&OldInt2F));
 
-	// printf("original values %8lx, %8lx , %8lx\n",orig9, orig15,orig2f);
+	printf("original values %8lx, %8lx, %8lx , %8lx\n",orig9, orig16, orig15,orig2f);
 
 	if (FP_SEG(int9handler) == resident)
 		{
@@ -220,7 +222,16 @@ void UninstallKeyboard(int verbose)
 	r.x.dx  = FP_OFF(orig9);
 	sr.ds   = FP_SEG(orig9);
 	int86x(0x21,&r,&r,&sr);
-		// printf("int9 handler desinstalled\n");
+		printf("int9 handler desinstalled\n");
+		}
+
+	if (FP_SEG(int16handler) == resident)
+		{
+	r.x.ax  = 0x2516;                        /* dosSetVect */
+	r.x.dx  = FP_OFF(orig16);
+	sr.ds   = FP_SEG(orig16);
+	int86x(0x21,&r,&r,&sr);
+		printf("int16 handler desinstalled\n");
 		}
 
 	if (FP_SEG(int15handler) == resident)
@@ -229,7 +240,7 @@ void UninstallKeyboard(int verbose)
 	r.x.dx  = FP_OFF(orig15);
 	sr.ds   = FP_SEG(orig15);
 	int86x(0x21,&r,&r,&sr);
-		// printf("int15 handler desinstalled\n");
+		printf("int15 handler desinstalled\n");
 		}
 
 	if (FP_SEG(int2fhandler) == resident)
@@ -238,7 +249,7 @@ void UninstallKeyboard(int verbose)
 	r.x.dx  = FP_OFF(orig2f);
 	sr.ds   = FP_SEG(orig2f);
 	int86x(0x21,&r,&r,&sr);
-		// printf("int2f handler deinstalled\n");
+		printf("int2f handler deinstalled\n");
 		}
 
 	if (FP_SEG(int15handler) == resident &&
@@ -258,13 +269,6 @@ void UninstallKeyboard(int verbose)
 		printf("old KEYB deinstalled\n");
 
 }
-
-
-
-
-
-
-
 
 
 InstallKeyboard(struct KeyboardDefinition *kb, int GOTSR, int int9hChain)
@@ -362,6 +366,7 @@ InstallKeyboard(struct KeyboardDefinition *kb, int GOTSR, int int9hChain)
 #define RESPTR(x) MK_FP(residentSeg, (void near*)x)
 
 	OldInt9 = getvect(0x9);
+	OldInt16 = getvect(0x16);
 	OldInt15 = getvect(0x15);       /* do this before copying */
 	OldInt2F = getvect(0x2f);
 
@@ -374,6 +379,11 @@ InstallKeyboard(struct KeyboardDefinition *kb, int GOTSR, int int9hChain)
 	{
 		r.x.ax  = 0x2509;                        /* dosSetVect */
 		r.x.dx  = FP_OFF(int9_handler);
+		sregs.ds   = residentSeg;
+		int86x(0x21,&r,&r,&sregs);
+		/* install int16 handler */
+		r.x.ax  = 0x2516;                        /* dosSetVect */
+		r.x.dx  = FP_OFF(int16_handler);
 		sregs.ds   = residentSeg;
 		int86x(0x21,&r,&r,&sregs);
 	}
@@ -429,6 +439,7 @@ InstallKeyboard(struct KeyboardDefinition *kb, int GOTSR, int int9hChain)
   }
 
     setvect(0x9,OldInt9);
+    setvect(0x16,OldInt16);
     setvect(0x15,OldInt15);
     setvect(0x2f,OldInt2F);
 

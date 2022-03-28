@@ -124,7 +124,7 @@ void VerifyScancodeTableForCorrectness(	struct KeyboardDefinition *kb,int print)
             goto error;
 	    }
 
-        flags = tbl[1];
+	flags = tbl[1];
 
         tblnext = tbl+(flags & SIZEFIELD);
 
@@ -144,7 +144,7 @@ void VerifyScancodeTableForCorrectness(	struct KeyboardDefinition *kb,int print)
                 }
 
         lasttbl = tbl;
-        }
+	}
 
     if (tbl + 1 != scancode_end)
         {
@@ -163,10 +163,11 @@ error:
 void UninstallKeyboard(int verbose)
 {
 	void far *int9handler = *(void far *far *)MK_FP(0,4*0x9);
+	void far *int16handler = *(void far *far *)MK_FP(0,4*0x16);
 	void far *int15handler = *(void far *far *)MK_FP(0,4*0x15);
 	void far *int2fhandler = *(void far *far *)MK_FP(0,4*0x2f);
 	unsigned resident;
-	void far *orig9, far *orig15, far *orig2f;
+	void far *orig9, far *orig16, far *orig15, far *orig2f;
 
     union  REGS r;
     struct SREGS sr;
@@ -209,10 +210,11 @@ void UninstallKeyboard(int verbose)
 		}
 
 	orig9 = *(void far *far*)MK_FP(resident,FP_OFF(&OldInt9));
+	orig16 = *(void far *far*)MK_FP(resident,FP_OFF(&OldInt16));
 	orig15 = *(void far *far*)MK_FP(resident,FP_OFF(&OldInt15));
 	orig2f = *(void far *far*)MK_FP(resident,FP_OFF(&OldInt2F));
 
-	// printf("original values %8lx, %8lx , %8lx\n",orig9, orig15,orig2f);
+	printf("original values %8lx, %8lx, %8lx , %8lx\n",orig9, orig16, orig15,orig2f);
 
 	if (FP_SEG(int9handler) == resident)
 		{
@@ -220,7 +222,16 @@ void UninstallKeyboard(int verbose)
 	r.x.dx  = FP_OFF(orig9);
 	sr.ds   = FP_SEG(orig9);
 	int86x(0x21,&r,&r,&sr);
-		// printf("int9 handler desinstalled\n");
+		printf("int9 handler desinstalled\n");
+		}
+
+	if (FP_SEG(int16handler) == resident)
+		{
+	r.x.ax  = 0x2516;                        /* dosSetVect */
+	r.x.dx  = FP_OFF(orig16);
+	sr.ds   = FP_SEG(orig16);
+	int86x(0x21,&r,&r,&sr);
+		printf("int16 handler desinstalled\n");
 		}
 
 	if (FP_SEG(int15handler) == resident)
@@ -229,7 +240,7 @@ void UninstallKeyboard(int verbose)
 	r.x.dx  = FP_OFF(orig15);
 	sr.ds   = FP_SEG(orig15);
 	int86x(0x21,&r,&r,&sr);
-		// printf("int15 handler desinstalled\n");
+		printf("int15 handler desinstalled\n");
 		}
 
 	if (FP_SEG(int2fhandler) == resident)
@@ -238,7 +249,7 @@ void UninstallKeyboard(int verbose)
 	r.x.dx  = FP_OFF(orig2f);
 	sr.ds   = FP_SEG(orig2f);
 	int86x(0x21,&r,&r,&sr);
-		// printf("int2f handler deinstalled\n");
+		printf("int2f handler deinstalled\n");
 		}
 
 	if (FP_SEG(int15handler) == resident &&
@@ -260,14 +271,8 @@ void UninstallKeyboard(int verbose)
 }
 
 
-
-
-
-
-
-
-
-InstallKeyboard(struct KeyboardDefinition *kb, int GOTSR, int int9hChain)
+InstallKeyboard(struct KeyboardDefinition *kb,
+		uint GOTSR, uint int9hChain, uint int16hChain)
 {
     union  REGS r;
     struct SREGS sregs;
@@ -280,7 +285,7 @@ InstallKeyboard(struct KeyboardDefinition *kb, int GOTSR, int int9hChain)
   { /* make sure some assumptions old */
     int err = 0;
 
-    if (FP_SEG(int2f_handler) != FP_SEG(int15_handler)) err |= 0x0001;
+    if (FP_SEG(int2f_handler) != FP_SEG(int9_handler)) err |= 0x0001;
 //    if (FP_SEG(ResidentScancodetable)  != FP_SEG(int15_handler)) err |= 0x0002;
 //    if (FP_OFF(ResidentScancodetable)  > 0x800)                  err |= 0x0004;
 
@@ -354,15 +359,15 @@ InstallKeyboard(struct KeyboardDefinition *kb, int GOTSR, int int9hChain)
 					/* fetch enough memory for the TSR part */
     residentSeg = AllocHighMemory(residentsize,GOTSR);
 
-	printf("%s keyboard\n", (int9hChain ? "PC/XT" : "AT"));
 	printf(" %s - %s\n", kb->LanguageShort, kb->Description);
 
 
 
 #define RESPTR(x) MK_FP(residentSeg, (void near*)x)
 
-	OldInt9 = getvect(0x9);
-	OldInt15 = getvect(0x15);       /* do this before copying */
+	OldInt9 = getvect(0x9);		/* do this before copying */
+	OldInt16 = getvect(0x16);
+	OldInt15 = getvect(0x15);
 	OldInt2F = getvect(0x2f);
 
 					/* copy code and data up into (high) memory */
@@ -374,6 +379,13 @@ InstallKeyboard(struct KeyboardDefinition *kb, int GOTSR, int int9hChain)
 	{
 		r.x.ax  = 0x2509;                        /* dosSetVect */
 		r.x.dx  = FP_OFF(int9_handler);
+		sregs.ds   = residentSeg;
+		int86x(0x21,&r,&r,&sregs);
+	}
+	if(int16hChain)		/* install 1nt16 handler if requested */
+	{
+		r.x.ax  = 0x2516;                        /* dosSetVect */
+		r.x.dx  = FP_OFF(int16_handler);
 		sregs.ds   = residentSeg;
 		int86x(0x21,&r,&r,&sregs);
 	}
@@ -400,6 +412,7 @@ InstallKeyboard(struct KeyboardDefinition *kb, int GOTSR, int int9hChain)
 
   { /* debug only */
     extern uchar far debug_scancode;        /* debug */
+    uchar last_scancode = 0;
 
     do
 	{
@@ -422,14 +435,15 @@ InstallKeyboard(struct KeyboardDefinition *kb, int GOTSR, int int9hChain)
 	    {
 	    r.h.ah = 0x00;
 	    int86(0x16,&r,&r);
-
+	    last_scancode = r.h.ah;
 	    printf("key pressed %04x '%c'\n",r.x.ax,r.h.al);
 	    }
 	}
-    while (r.h.ah != 1);
+    while (last_scancode != 1);
   }
 
     setvect(0x9,OldInt9);
+    setvect(0x16,OldInt16);
     setvect(0x15,OldInt15);
     setvect(0x2f,OldInt2F);
 
@@ -520,8 +534,8 @@ void usage(void)
 		   "      KEYB /L - List all available keyboards\n"
 		   "      KEYB /U - uninstall previous keyboard driver\n"
 		   "      KEYB /S - Silent - absorb all keyboard input\n"
-		   "      KEYB /9 - Force PC/XT keyboard controller type\n"
-		   "      KEYB /E - Force AT keyboard controller type\n"
+		   "      KEYB /9 - Chain INT 9 handler \n"
+		   "      KEYB /G - Chain INT 16 handler \n"
 		   "      KEYB GR /T - test the GERman keyboard driver, don't go resident\n"
 		   "When loaded:\n"
 		   "      Ctrl+Alt+F1 : International (QWERTY) keyboard\n"
@@ -530,13 +544,14 @@ void usage(void)
 		   );
 	exit(1);		   
 }	
- 
+
 
 int main(int argc, char *argv[])
 {
     struct KeyboardDefinition *kb = NULL;
     uint GOTSR = 1;
-    uint int9hChain;
+    uint int9hChain = 0;
+    uint int16hChain = 0;
     int i;
     uchar far *pmodel;
 
@@ -544,10 +559,6 @@ int main(int argc, char *argv[])
     if (argc);
 
     printf("mKEYB 0.47 [" __DATE__ "] - " );
-
-    pmodel = MK_FP(0xF000, 0xFFFE);
-    // printf("Machine ID %02x\n", *pmodel);
-    int9hChain = (*pmodel >= 0xFD);
 
 	for (i = 1; i < argc; i++)
 		{
@@ -571,7 +582,7 @@ int main(int argc, char *argv[])
 				case '9': int9hChain = 1;
 					break;
 
-				case 'E': int9hChain = 0;
+				case 'G': int16hChain = 1;
 					break;
 
 				default: printf("unknown argument <%s>\n", argptr+1);
@@ -622,7 +633,7 @@ int main(int argc, char *argv[])
 		}						
 
 
-	return InstallKeyboard(kb, GOTSR, int9hChain);
+	return InstallKeyboard(kb, GOTSR, int9hChain, int16hChain);
 }
 
 /*
@@ -656,7 +667,7 @@ int main(int argc, char *argv[])
                              { UNREFERENCED_PARAMETER (__stream);
                                UNREFERENCED_PARAMETER ( __buf);
                                UNREFERENCED_PARAMETER ( __type);
-                               UNREFERENCED_PARAMETER ( __size);   return 0;}
+			       UNREFERENCED_PARAMETER ( __size);   return 0;}
 
     void    _Cdecl _xfflush (void){}
     void    _Cdecl _setupio (void){}

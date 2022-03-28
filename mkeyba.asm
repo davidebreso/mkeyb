@@ -4,6 +4,7 @@ I_ASMTEXT SEGMENT BYTE PUBLIC 'INIT'
 ASSUME CS:I_ASMTEXT
 
 public _int9_handler,_OldInt9
+public _int16_handler,_OldInt16
 public _int2f_handler,_OldInt2F
 public _int15_handler,_OldInt15
 
@@ -34,7 +35,7 @@ int9_start:
 	jc chain_int9
 	; clear keyboard buffer
 	in al, 61h		; read status register
-	or al, 0f0h		; set bit 7
+	or al, 080h		; set bit 7
 	out 61h, al
 	and al, 7fh		; clear bit 7
 	out 61h, al
@@ -55,6 +56,41 @@ leave_int9:
 	pop cx
 	pop ax
 	iret
+
+_int16_handler:
+	cmp ah, 05 		; check INT 16 function number
+	jne chain_int16		; call old handler if != 05
+	; save registers
+	push di
+	push ds
+	cli
+	mov di, 040h
+	mov ds, di
+	mov di, [ds:001Ch]
+	mov [di], cx
+	add di, 2
+	cmp di, [ds:0082h]
+	jne int16_1
+	mov di,[ds:0080h]
+int16_1:
+	cmp di,[ds:001Ah]
+	je int16_2
+	mov [ds:001Ch], di
+	xor al, al
+	jmp int16_3
+int16_2:
+	mov al,01
+int16_3:
+	sti
+	pop ds
+	pop di
+	iret
+
+chain_int16:
+	db 0eah		; Jump Far
+_OldInt16  	dd 0
+
+
 
 _int2f_handler:
 	cmp ax,0ad82h
@@ -122,18 +158,13 @@ chain_int15_non_carry:
 	db 0eah		; Jump Far
 _OldInt15  	dd 0
 
-
-
-							;extern uchar usebiosonly_flag;
-							;extern uchar debug_scancode;
-
-							;extern uint  RESIDENT currentCombi             ;
-							;extern uchar RESIDENT currentCombiScancode     ;
-							;extern uint  RESIDENT ResidentCombiTables[5]   ;
-							;extern uchar RESIDENT DecimalDingsBums         ;    /* grey , or . */
-
-							;extern char  *ResidentScancodetable;
-
+;extern uchar usebiosonly_flag;
+;extern uchar debug_scancode;
+;extern uint  RESIDENT currentCombi             ;
+;extern uchar RESIDENT currentCombiScancode     ;
+;extern uint  RESIDENT ResidentCombiTables[5]   ;
+;extern uchar RESIDENT DecimalDingsBums         ;    /* grey , or . */
+;extern char  *ResidentScancodetable;
 
 public _usebiosonly_flag
 public _lastisctrl_flag

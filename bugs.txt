@@ -15,8 +15,12 @@ different models implement different subsets of the three functionalities.
 If the BIOS do not support INT 15,4F, the /9 switch installs a new INT9 handler that 
 calls INT 15,4F to do keyboard translation. The handler should work on any machine 
 with a keyboard controller that is compatible with the 8255 PPI: data buffer at port 
-60h and status register at port 61h. You still need BIOS support for INT 16,5 and for
-the extended keyboard flags.
+60h and status register at port 61h. 
+
+With the /G switch, mKEYB installs also a handler for the INT 16,5, if your BIOS do 
+not have it. 
+
+All layouts are designed for an Enhanced 101/102 keys keyboard. 
 
 Confirmed working machines:
  - Amstrad PC5086: real and emulated, chain INT9 needed

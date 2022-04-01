@@ -25,7 +25,6 @@ extern void interrupt RESIDENT int9_handler();
 extern void interrupt RESIDENT int16_handler();
 extern void interrupt RESIDENT int15_handler();
 extern void interrupt RESIDENT int2f_handler();
-
 /* magic constants in keycode table */
 
 #define _KCAPS       0x80               /* key uses caps lock */

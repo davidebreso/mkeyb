@@ -1,4 +1,5 @@
 I_GR group I_ASMTEXT
+
 I_ASMTEXT SEGMENT BYTE PUBLIC 'INIT'
 
 ASSUME CS:I_ASMTEXT
@@ -89,7 +90,6 @@ int16_3:
 chain_int16:
 	db 0eah		; Jump Far
 _OldInt16  	dd 0
-
 
 
 _int2f_handler:

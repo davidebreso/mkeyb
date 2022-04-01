@@ -1,5 +1,10 @@
 all: mkeyb.exe
 
+TCC=bcc.exe
+TASM=tasm.exe
+TLIB=tlib.exe
+PACK=pklite.exe
+
 TCCLINK=$(TCC) -lm -O -Z -g1
 TCCCOMP=$(TCC) -c  -O -Z -g1 -a-
 
@@ -43,7 +48,7 @@ keydefs = \
 #
 mkeyb.exe: mkeyb.obj  $(resdep) $(depends) $(keydefs)
 	$(TCCLINK) mKEYB.obj $(resdep) $(depends) keydef.lib
-	# $(XAPACK) mkeyb.exe mkeyb.exe
+	# $(PACK) mkeyb.exe mkeyb.exe
 	# copy mkeyb.exe keyb.exe
 	# del  mkeyb.exe
 
@@ -167,7 +172,7 @@ keydefux.obj: keydefux.h  mkeyb.h
 #assembly stub
 #
 mkeybA.obj: mkeybA.ASM
-	$(XNASM) /mx mKEYBA.asm
+	$(TASM) /mx mKEYBA.asm
 
 #
 # resident part

@@ -120,4 +120,7 @@
     add int9 handler for XT machines
     add US international keyboard layout
     asm stub ported to TASM
-    
+
+0.48 - 2 apr 2022
+	autodetect of BIOS functionalities
+	int9 and int16 handlers copied to resident part only when needed

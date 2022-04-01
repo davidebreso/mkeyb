@@ -1,96 +1,13 @@
-I_GR group I_ASMTEXT
+I_GR group I_ASMTEXT, I_TEXT, I_AUXTEXT
 
 I_ASMTEXT SEGMENT BYTE PUBLIC 'INIT'
 
 ASSUME CS:I_ASMTEXT
 
-public _int9_handler,_OldInt9
-public _int16_handler,_OldInt16
 public _int2f_handler,_OldInt2F
 public _int15_handler,_OldInt15
 
 ; SEGMENT_START:
-
-_int9_handler:
-	jmp int9_start		; Workaround for APL software
-int9_isActiveF dw 1    		; Modified by APL software
-int9_start:
-	; save the registers
-	push ax        		; scancode
-	push cx			; counter
-	push es
-	; compute if we should handle the extended
-	mov al, byte ptr [cs:int9_isActiveF]
-	or al, al
-	jz chain_int9
-	; disable the interrupts
-	cli
-	xor cx, cx
-	mov es, cx
-	; read and authenticate scancode
-	in al, 60h		; get the scancode in AL
-	mov ah, 4fh		; authenticate scancode
-	stc
-
-	int 15h			; return: CF clear if no further processing
-	jc chain_int9
-	; clear keyboard buffer
-	in al, 61h		; read status register
-	or al, 080h		; set bit 7
-	out 61h, al
-	and al, 7fh		; clear bit 7
-	out 61h, al
-	; report end of interrupt to interrupt controller
-	mov al, 20h
-	out 20h, al
-	; restore interrupts
-	sti
-	jmp leave_int9
-chain_int9:
-	pushf
-	sti
-	db 9ah		        ; Call Far
-_OldInt9  	dd 0
-	; leave interrupt routine
-leave_int9:
-	pop es
-	pop cx
-	pop ax
-	iret
-
-_int16_handler:
-	cmp ah, 05 		; check INT 16 function number
-	jne chain_int16		; call old handler if != 05
-	; save registers
-	push di
-	push ds
-	cli
-	mov di, 040h
-	mov ds, di
-	mov di, [ds:001Ch]
-	mov [di], cx
-	add di, 2
-	cmp di, [ds:0082h]
-	jne int16_1
-	mov di,[ds:0080h]
-int16_1:
-	cmp di,[ds:001Ah]
-	je int16_2
-	mov [ds:001Ch], di
-	xor al, al
-	jmp int16_3
-int16_2:
-	mov al,01
-int16_3:
-	sti
-	pop ds
-	pop di
-	iret
-
-chain_int16:
-	db 0eah		; Jump Far
-_OldInt16  	dd 0
-
 
 _int2f_handler:
 	cmp ax,0ad82h
@@ -166,6 +83,9 @@ _OldInt15  	dd 0
 ;extern uchar RESIDENT DecimalDingsBums         ;    /* grey , or . */
 ;extern char  *ResidentScancodetable;
 
+public _OldInt9
+public _OldInt16
+
 public _usebiosonly_flag
 public _lastisctrl_flag
 
@@ -174,7 +94,8 @@ public _ResidentCombiTables, _DecimalDingsBums,_SilentKeyboard
 public _pResidentScancodetable
 extrn _ResidentScancodetable
 
-
+_OldInt9 dd 0
+_OldInt16 dd 0
 _usebiosonly_flag db 0ffh
 _lastisctrl_flag db 0
 _debug_scancode   db 0
@@ -185,6 +106,106 @@ _ResidentCombiTables dw 0,0,0,0,0,0
 _pResidentScancodetable dw 0
 
 I_ASMTEXT ENDS
+
+I_TEXT SEGMENT BYTE PUBLIC 'INIT'
+; cint15_handler_* routines are here
+I_TEXT ENDS
+
+I_AUXTEXT SEGMENT BYTE PUBLIC 'INIT'
+
+public _int9_handler
+public _int16_handler,_END_int16_handler
+
+ASSUME CS:I_GR
+
+; Optional handlers for INT9 and INT16
+_int9_handler:
+	jmp int9_start		; Workaround for APL software
+int9_isActiveF dw 1    		; Modified by APL software
+int9_start:
+	; save the registers
+	push ax        		; scancode
+	push cx			; counter
+	push es
+	; compute if we should handle the extended
+	mov al, byte ptr [cs:int9_isActiveF]
+	or al, al
+	jz chain_int9
+	; disable the interrupts
+	cli
+	xor cx, cx
+	mov es, cx
+	; read and authenticate scancode
+	in al, 60h		; get the scancode in AL
+	mov ah, 4fh		; authenticate scancode
+	stc
+
+	int 15h			; return: CF clear if no further processing
+	jc chain_int9
+	; clear keyboard buffer
+	in al, 61h		; read status register
+	or al, 080h		; set bit 7
+	out 61h, al
+	and al, 7fh		; clear bit 7
+	out 61h, al
+	; report end of interrupt to interrupt controller
+	mov al, 20h
+	out 20h, al
+	; restore interrupts
+	sti
+	jmp leave_int9
+chain_int9:
+	pushf
+	sti
+;	db 9ah		        ; Call Far
+;_OldInt9  	dd 0
+	call [cs:_OldInt9]
+	; leave interrupt routine
+leave_int9:
+	pop es
+	pop cx
+	pop ax
+	iret
+
+_int16_handler:
+	cmp ah, 05 		; check INT 16 function number
+	jne chain_int16		; call old handler if != 05
+	; save registers
+	push di
+	push ds
+	cli
+	mov di, 040h
+	mov ds, di
+	mov di, [ds:001Ch]
+	mov [di], cx
+	add di, 2
+	cmp di, [ds:0082h]
+	jne int16_1
+	mov di,[ds:0080h]
+int16_1:
+	cmp di,[ds:001Ah]
+	je int16_2
+	mov [ds:001Ch], di
+	xor al, al
+	jmp int16_3
+int16_2:
+	mov al,01
+int16_3:
+	sti
+	pop ds
+	pop di
+	iret
+
+chain_int16:
+;	db 0eah		; Jump Far
+;_OldInt16  	dd 0
+	jmp [cs:_OldInt16]
+
+_END_int16_handler:
+	nop
+
+I_AUXTEXT ENDS
+
 
 END
 

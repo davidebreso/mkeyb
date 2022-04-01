@@ -2,30 +2,39 @@
 Known bugs and limitations
 **************************
 
-mKEYB relies on the BIOS to do most of the work. It should work on any machine where 
-the BIOS: 
+mKEYB relies on the BIOS to do most of the work. It should work on any
+machine where the BIOS:
  - uses INT 15,4F to allow for keyboard translation,
  - implements the INT 16,5 service (Keyboard buffer write),
  - populates the Keyboard Flags Bytes at 40:17 and 40:96.
- 
-All the required functionalities are present in the IBM XT BIOS after 11/8/82, and in 
-most (all?) AT and PS/2 class machines. The situation differs for XT clones, where
-different models implement different subsets of the three functionalities.
 
-If the BIOS do not support INT 15,4F, the /9 switch installs a new INT9 handler that 
-calls INT 15,4F to do keyboard translation. The handler should work on any machine 
-with a keyboard controller that is compatible with the 8255 PPI: data buffer at port 
-60h and status register at port 61h. 
+All the required functionalities are present in the IBM XT BIOS after
+11/8/82, and in most (all?) AT and PS/2 class machines. The situation
+differs for XT clones, where different models implement different
+subsets of the three functionalities.
 
-With the /G switch, mKEYB installs also a handler for the INT 16,5, if your BIOS do 
-not have it. 
+From version 0.48 onwards, mKEYB autodetects the functionalities present
+in the BIOS, and install additional handlers to support the missing
+functionalities.
 
-All layouts are designed for an Enhanced 101/102 keys keyboard. 
+If the BIOS do not support INT 15,4F, the /9 switch installs a new INT9
+handler that calls INT 15,4F to do keyboard translation. The handler
+should work on any machine with a keyboard controller that is compatible
+with the 8255 PPI: data buffer at port 60h and status register at port 61h.
+
+With the /G switch, mKEYB installs also a handler for the INT 16,5, if
+your BIOS do not have it.
+
+The /9 and /G switch can be disabled with /9- and /G- respectively, if
+autodetecs fails to detect them.
+
+All layouts are designed for an Enhanced 101/102 keys keyboard. They may
+not be completely accurate for 83 keys keyboards.
 
 Confirmed working machines:
- - Amstrad PC5086: real and emulated, chain INT9 needed
+ - Amstrad PC5086: real and emulated, chain INT9 needed and autodetected
  - Amstrad PC2086, PC3086: emulated, chain INT9 needed
  - Toshiba T1200: emulated, no need to chain INT9 since BIOS uses INT 15,4F 
  - Tandy 1000 SL/2: emulated, no need to chain INT9 since BIOS uses INT 15,4F
  - IBM XT: emulated, no need to chain INT9 since BIOS uses INT 15,4F
- 
+

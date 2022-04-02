@@ -319,6 +319,8 @@ InstallKeyboard(struct KeyboardDefinition *kb,
 	struct SREGS sregs;
 	uint residentSeg;
 	uint residentsize;
+	void far *pint9_handler;
+	void far *pint16_handler;
 
 	int  i;
 
@@ -346,8 +348,6 @@ InstallKeyboard(struct KeyboardDefinition *kb,
 
   {	/* install the resident part */
 	void far *pint15_handler;
-	void far *pint9_handler;
-	void far *pint16_handler;
 	uint      int15_handler_size;
 	uint	  int9_handler_size;
 	uint	  int16_handler_size;
@@ -469,7 +469,13 @@ InstallKeyboard(struct KeyboardDefinition *kb,
 		exit(0);
 	}
 
-	printf("\n KEYB installed at segment %04x, %u bytes\n",residentSeg, residentsize);
+	printf("\n KEYB installed at segment %04x, %u bytes\n", residentSeg, residentsize);
+	if(int9hChain)
+		printf(" INT 9 handler installed at %04x:%04x\n", residentSeg, FP_OFF(pint9_handler));
+	if(int16hChain)
+		printf(" INT 16 handler installed at %04x:%04x\n", residentSeg, FP_OFF(pint16_handler));
+	printf(" INT 15 handler installed at %04x:%04x\n", residentSeg, FP_OFF(int15_handler));
+	printf(" INT 2F handler installed at %04x:%04x\n", residentSeg, FP_OFF(int2f_handler));
 
 	printf("\n KEYB debug mode - hit ESC key to terminate test mode\n");
 

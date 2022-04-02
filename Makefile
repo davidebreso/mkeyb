@@ -15,12 +15,13 @@ TCCCOMP=$(TCC) -c  -O -Z -g1 -a-
 #
 
 depends=prf.obj
-resdep = mKEYBA.obj mkeybrc.obj mkeybr.obj mkeybrf.obj
+resdep = mKEYBA.obj mkeybrc.obj mkeybr.obj mkeybrf.obj mkeybrs.obj
 keydefs = \
 	keydefdk.obj \
 	keydefGR.obj \
 	keydefG2.obj \
 	keydefIT.obj \
+	keystdIT.obj \
 	keydefLA.obj \
 	keydefNL.obj \
 	keydefno.obj \
@@ -80,6 +81,10 @@ keydefdk.obj: keydefdk.h  mkeyb.h
 keydefit.obj: keydefit.h  mkeyb.h
 	$(TCCCOMP) keydefit.h
 	$(TLIB) keydef.lib -+ keydefit.obj
+
+keystdit.obj: keydefit.h  mkeyb.h
+	$(TCCCOMP) -okeystdit -DSTANDARD keydefit.h
+	$(TLIB) keydef.lib -+ keystdit.obj
 
 keydefla.obj: keydefla.h  mkeyb.h
 	$(TCCCOMP) keydefla.h
@@ -203,6 +208,14 @@ mkeybrf.obj: mkeybr.c
 mkeybrf.asm: mkeybr.c
 	$(TCCCOMP) -mt -S -zAINIT -zCI_TEXT -zDIB -zRID -zTID -zPI_GR -zBIB -zGI_GR -zSI_GR    -DFASTSWITCH -omkeybrF mKEYBr.c
 
+#
+# resident part for 83 keys "standard" keyboards
+#
+mkeybrS.obj: mkeybr.c
+	$(TCCCOMP) -mt    -zAINIT -zCI_TEXT -zDIB -zRID -zTID -zPI_GR -zBIB -zGI_GR -zSI_GR    -DSTANDARD -omkeybrS mKEYBr.c
+
+mkeybrS.asm: mkeybr.c
+	$(TCCCOMP) -mt -S -zAINIT -zCI_TEXT -zDIB -zRID -zTID -zPI_GR -zBIB -zGI_GR -zSI_GR    -DSTANDARD -omkeybrS mKEYBr.c
 
 prf.obj: prf.c
 	$(TCCCOMP) -DFORSYS prf.c
@@ -220,7 +233,7 @@ clean:
 	del *.obj
 	del *.lib
 	del *.bak
-	del *.exe
+        del *.map
 	del mkeyb.asm
 	del mkeybr.asm
 	del mkeybrc.asm

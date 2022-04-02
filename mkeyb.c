@@ -207,6 +207,20 @@ int AutodetectInt16h()
 	return 1;	/* Buffer empty, chain INT16 */
 }
 
+/*
+  AutodetectKeyboard();
+  Autodetect if the keyboard is enhanced (101/102 keys)
+  or standard (83/84 keys).
+*/
+
+int AutodetectKeyboard()
+{
+	uchar status;
+	status = *(uchar far *)MK_FP(0x40, 0x96);
+	printf("Keyboard status byte: %04x\n", status);
+	return (status & 0x10);
+}
+
 void UninstallKeyboard(int verbose)
 {
 	void far *int9handler = *(void far *far *)MK_FP(0,4*0x9);
@@ -359,6 +373,8 @@ InstallKeyboard(struct KeyboardDefinition *kb,
 	extern void far END_cint15_handler_normal(void);
 	extern int  far cint15_handler_fastswitch(int);
 	extern void far END_cint15_handler_fastswitch(void);
+	extern int  far cint15_handler_standard(int);
+	extern void far END_cint15_handler_standard(void);
 	extern void far END_int16_handler(void);
 
 	switch(kb->DriverFunctionRequired)
@@ -376,6 +392,11 @@ InstallKeyboard(struct KeyboardDefinition *kb,
 		case DRIVER_FUNCTION_FASTSWITCH:
 			pint15_handler = (void far *)cint15_handler_fastswitch;
 			int15_handler_size = FP_OFF(END_cint15_handler_fastswitch) - FP_OFF(cint15_handler_fastswitch);
+			break;
+
+		case DRIVER_FUNCTION_STANDARD:
+			pint15_handler = (void far *)cint15_handler_standard;
+			int15_handler_size = FP_OFF(END_cint15_handler_standard) - FP_OFF(cint15_handler_standard);
 			break;
 	}
 
@@ -529,6 +550,7 @@ extern struct KeyboardDefinition
 	,Keyboard_GR
 	,Keyboard_GR2
 	,Keyboard_IT
+	,Keyboard_ITstd
 	,Keyboard_LA
 	,Keyboard_NL
 	,Keyboard_NO
@@ -548,6 +570,8 @@ extern struct KeyboardDefinition
 	,Keyboard_SL
 	,Keyboard_UX
 	;
+
+/* 101/102 keys enhanced keyboards definition table */
 struct KeyboardDefinition *KeyDefTab[] =
 	{
 	 &Keyboard_BE
@@ -577,6 +601,37 @@ struct KeyboardDefinition *KeyDefTab[] =
 	,&Keyboard_UX
 	};
 
+/* 83/84 keys standard keyboards definition table */
+struct KeyboardDefinition *StdKeyDefTab[] =
+	{
+	 &Keyboard_BE
+	,&Keyboard_BG
+	,&Keyboard_BGP
+	,&Keyboard_BR
+	,&Keyboard_BX
+	,&Keyboard_DK
+	,&Keyboard_FR
+	,&Keyboard_GR
+	,&Keyboard_GR2
+	,&Keyboard_HE
+	,&Keyboard_ITstd
+	,&Keyboard_LA
+	,&Keyboard_NL
+	,&Keyboard_NO
+	,&Keyboard_PL
+	,&Keyboard_PO
+	,&Keyboard_RU
+	,&Keyboard_SF
+	,&Keyboard_SG
+	,&Keyboard_SL
+	,&Keyboard_SP
+	,&Keyboard_SU
+	,&Keyboard_SV
+	,&Keyboard_UK
+	,&Keyboard_UX
+	};
+
+
 void ListLanguages(void)
 {
 	struct KeyboardDefinition *kb;
@@ -602,6 +657,7 @@ void usage(void)
 		   "      KEYB /L - List all available keyboards\n"
 		   "      KEYB /U - uninstall previous keyboard driver\n"
 		   "      KEYB /S - Silent - absorb all keyboard input\n"
+		   "      KEYB /E - 101/102 keys keyboard layout (/E- for 83 keys layout)\n"
 		   "      KEYB /9 - Install INT 9 handler (/9- to disable)\n"
 		   "      KEYB /G - Install INT 16 handler (/G- to disable)\n"
 		   "      KEYB GR /T - test the GERman keyboard driver, don't go resident\n"
@@ -620,13 +676,15 @@ int main(int argc, char *argv[])
 	uint GOTSR = 1;
 	uint int9hChain = AutodetectInt9h();
 	uint int16hChain = AutodetectInt16h();
-	int i;
+	uint enhancedKeyb = AutodetectKeyboard();
+	int i, kb_idx;
 	uchar far *pmodel;
 
 	if (argv);
 	if (argc);
 
 	printf("mKEYB 0.48 [" __DATE__ "] - " );
+	printf("%s keyboard detected\n", (enhancedKeyb ? "Enhanced" : "Standard"));
 
 	for (i = 1; i < argc; i++)
 	{
@@ -647,6 +705,11 @@ int main(int argc, char *argv[])
 				case 'S': SilentKeyboard = 1;
 						  break;
 
+				case 'E':
+					printf("switch %s\n", argptr);
+					enhancedKeyb = (argptr[2] != '-');
+					break;
+
 				case '9': int9hChain = (argptr[2] != '-');
 					break;
 
@@ -660,17 +723,17 @@ int main(int argc, char *argv[])
 
 			}
 		} else {
-			int j;
-			for (j = 0; j < LENGTH(KeyDefTab); j++)
+			for (kb_idx = 0; kb_idx < LENGTH(KeyDefTab); kb_idx++)
 			{
-				if (stricmp(argptr,KeyDefTab[j]->LanguageShort) == 0)
+				if (stricmp(argptr,KeyDefTab[kb_idx]->LanguageShort) == 0)
 				{
-					kb = KeyDefTab[j];
+					printf("Found keyb %s with enhancedKeyb %u\n",
+							argptr, enhancedKeyb);
 					break;
 				}
 			}
 
-			if (kb == NULL)
+			if (kb_idx == LENGTH(KeyDefTab))
 			{
 				if (stricmp(argptr,"US") == 0)
 				{
@@ -688,7 +751,7 @@ int main(int argc, char *argv[])
 
 	UninstallKeyboard(0);
 
-	if (kb == NULL)
+	if (kb_idx == LENGTH(KeyDefTab))
 	{
 		printf("you MUST specify a keyboard language like\n"
 			   "   MKEYB GR\n"
@@ -697,6 +760,7 @@ int main(int argc, char *argv[])
 		exit(1);
 	}
 
+	kb = (enhancedKeyb) ? KeyDefTab[kb_idx] : StdKeyDefTab[kb_idx];
 	// printf("INT9: %d, INT16: %d\n", int9hChain, int16hChain);
 	return InstallKeyboard(kb, GOTSR, int9hChain, int16hChain);
 }

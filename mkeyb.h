@@ -81,10 +81,11 @@ extern void interrupt RESIDENT int2f_handler();
 #define LENGTH(x) (sizeof(x)/sizeof(x[0]))
 
 
-#define DRIVER_FUNCTION_FULL       0
-#define DRIVER_FUNCTION_NORMAL     1
+#define DRIVER_FUNCTION_NORMAL     0
+#define DRIVER_FUNCTION_FULL       1
 #define DRIVER_FUNCTION_FASTSWITCH 2
-#define DRIVER_FUNCTION_STANDARD   3
+#define DRIVER_FUNCTION_STANDARD   4
+#define DRIVER_FUNCTION_STD_FULL   5
 
 struct KeyboardDefinition {
 	char LanguageShort[4];			// "GR", 

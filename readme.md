@@ -35,6 +35,14 @@ You can combine /G with /9: `mkeyb it /9 /G`.
 
 `/G-` diables installation of the INT16 handler even if autodetection decided that it is needed.
 
+## Standard and Enhanced keyboards
+
+PC keyboards came in two flavours: "standard" keyboards with 83 or 84 keys, common on XT class machines, and "enhanced" keyboards with 101 or 102 keys, common on AT, PS2 and later machines.
+
+mKEYB supports both keyboard types. An enhanced keyboard layout is available for all languages. For some languages also a custom layout for standard keyboards is present. mKEYB can autodetect the keyboard type and selects the appropriate keyboard layout, if available for the language. If the standard keyboard layout is not available for the selected language, mKEYB patches the enhanced keyboard layout to use Ctrl+Alt instead of AltGr (not available on standard keyboards). This pached layout may not be completely accurate.
+
+The `/E` switch forces an enhanced keyboard layout, while `/S` forces a standard keyboard layout.
+
 ## How to uninstall it
 
 To uninstall the driver type `mkeyb /u` or `mkeyb us` (US keyboards do not need a driver).
@@ -42,14 +50,13 @@ To uninstall the driver type `mkeyb /u` or `mkeyb us` (US keyboards do not need 
 ## Known limitations
 
 * mKEYB is known to work on my machine, an Amstrad PC5086 with and enhanced 101 keys keyboard. Consider it untested on anything else.
-* Layouts are for 101/102 keys enhanced keyboards. They are not accurate for 83 keys keyboard.
-* Autodetect of BIOS features may not work.
+* Most of the layouts are for 101/102 keys enhanced keyboards only. They are not accurate for 83 keys keyboard.
+* Autodetect of BIOS features and keyboard type may not work.
 * The INT 9 handler is written for controllers compatible with the 8255 PPI, and may have unpredictable results with non-standard keyboard controllers
 
 ## License 
 
-This program and it's sources is distributed under the terms 
-of the GNU GPL with one major exception:
+This program and it's sources is distributed under the terms of the GNU GPL with one major exception:
 
-you may use any exepacker you want to process the resulting 
-executable.
+you may use any exepacker you want to process the resulting executable.
+

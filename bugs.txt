@@ -28,13 +28,30 @@ your BIOS do not have it.
 The /9 and /G switch can be disabled with /9- and /G- respectively, if
 autodetecs fails to detect them.
 
-All layouts are designed for an Enhanced 101/102 keys keyboard. They may
-not be completely accurate for 83 keys keyboards.
+*******************************
+Standard and enhanced keyboards
+*******************************
 
-Confirmed working machines:
+PC keyboards came in two flavours: "standard" keyboards with 83 or 84 keys,
+common on XT class machines, and "enhanced" keyboards with 101 or 102 keys,
+common on AT, PS2 and later machines.
+
+From version 0.49 onwards, mKEYB tries to autodetect the keyboard type.
+If a standard keyboard is detected, a custom layout for 83/84 keys
+keyboards is used, if available. If the custom layout is not available
+for the selected language, it patches the enhanced keyboard layout to
+use Ctrl+Alt instead of AltGr (not available on standard keyboards).
+This pached layout may not be accurate for standard keyboards.
+
+The /E switch forces an enhanced keyboard layout, while /S forces a
+standard keyboard.
+
+**************************
+Confirmed working machines
+**************************
  - Amstrad PC5086: real and emulated, chain INT9 needed and autodetected
- - Amstrad PC2086, PC3086: emulated, chain INT9 needed
- - Toshiba T1200: emulated, no need to chain INT9 since BIOS uses INT 15,4F 
+ - Amstrad PC2086, PC3086: emulated, chain INT9, autodetect do not work
+ - Toshiba T1200: emulated, no need to chain INT9 since BIOS uses INT 15,4F
  - Tandy 1000 SL/2: emulated, no need to chain INT9 since BIOS uses INT 15,4F
  - IBM XT: emulated, no need to chain INT9 since BIOS uses INT 15,4F
 

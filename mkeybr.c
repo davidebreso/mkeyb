@@ -24,23 +24,27 @@
 	#define NO_ALTGREY
 
 	#define NAME(x) x##_fastswitch
-#elif defined(COMBI)
-	#define NO_FASTSWITCH
-
-	#define NAME(x) x##_full
 #elif defined(STANDARD)
 	#define NO_FASTSWITCH
 	#define NO_ALTGREY
 
 	#define NAME(x) x##_standard
+#elif defined(STD_FULL)
+	#define NO_FASTSWITCH
+	#define NO_ALTGREY
+	#define COMBI
+	#define STANDARD
+
+	#define NAME(x) x##_stdfull
+#elif defined(COMBI)
+	#define NO_FASTSWITCH
+
+	#define NAME(x) x##_full
 #else
 	#define NO_FASTSWITCH
 
 	#define NAME(x) x##_normal
 #endif
-
-
-
 
 
 /** 'normal' data **********************************/
@@ -55,7 +59,6 @@ extern uchar RESIDENT cdecl DecimalDingsBums         ;    /* grey , or . */
 
 /* MUST BE LAST DATA MEMBER */
 extern uchar * cdecl pResidentScancodetable;
-
 
 
 /** normal data end, ONE last member - the scan code translation table

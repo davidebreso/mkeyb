@@ -217,7 +217,7 @@ int AutodetectKeyboard()
 {
 	uchar status;
 	status = *(uchar far *)MK_FP(0x40, 0x96);
-	printf("Keyboard status byte: %04x\n", status);
+	// printf("Keyboard status byte: %04x\n", status);
 	return (status & 0x10);
 }
 
@@ -375,6 +375,8 @@ InstallKeyboard(struct KeyboardDefinition *kb,
 	extern void far END_cint15_handler_fastswitch(void);
 	extern int  far cint15_handler_standard(int);
 	extern void far END_cint15_handler_standard(void);
+	extern int  far cint15_handler_stdfull(int);
+	extern void far END_cint15_handler_stdfull(void);
 	extern void far END_int16_handler(void);
 
 	switch(kb->DriverFunctionRequired)
@@ -398,17 +400,20 @@ InstallKeyboard(struct KeyboardDefinition *kb,
 			pint15_handler = (void far *)cint15_handler_standard;
 			int15_handler_size = FP_OFF(END_cint15_handler_standard) - FP_OFF(cint15_handler_standard);
 			break;
+
+		case DRIVER_FUNCTION_STD_FULL:
+			pint15_handler = (void far *)cint15_handler_stdfull;
+			int15_handler_size = FP_OFF(END_cint15_handler_stdfull) - FP_OFF(cint15_handler_stdfull);
+			break;
 	}
 
 	pres = (void far *)cint15_handler_full;
-	// printf("cint15 pres: %08lx\n", pres);
 	fmemcpy(pres, pint15_handler, int15_handler_size);
 	pres += int15_handler_size;
 	if(int9hChain)
 	{
 		/* copy the INT9 handler */
 		pint9_handler = pres;
-		// printf("INT9 pres: %08lx\n", pres);
 		int9_handler_size = FP_OFF(int16_handler) - FP_OFF(int9_handler);
 		fmemcpy(pres, int9_handler, int9_handler_size);
 		pres += int9_handler_size;
@@ -417,13 +422,10 @@ InstallKeyboard(struct KeyboardDefinition *kb,
 	{
 		/* copy the INT16 handler */
 		pint16_handler = pres;
-		// printf("INT16 pres: %08lx\n", pres);
 		int16_handler_size = FP_OFF(END_int16_handler) - FP_OFF(int16_handler);
 		fmemcpy(pres, int16_handler, int16_handler_size);
 		pres += int16_handler_size;
 	}
-
-	// printf("Scancode pres: %08lx\n", pres);
 
 	pResidentScancodetable = (char*)FP_OFF(pres);
 
@@ -446,7 +448,7 @@ InstallKeyboard(struct KeyboardDefinition *kb,
 								/* fetch enough memory for the TSR part */
 	residentSeg = AllocHighMemory(residentsize,GOTSR);
 
-	printf(" %s - %s\n", kb->LanguageShort, kb->Description);
+	printf("%s - %s\n", kb->LanguageShort, kb->Description);
 
 #define RESPTR(x) MK_FP(residentSeg, (void near*)x)
 
@@ -497,6 +499,7 @@ InstallKeyboard(struct KeyboardDefinition *kb,
 		printf(" INT 16 handler installed at %04x:%04x\n", residentSeg, FP_OFF(pint16_handler));
 	printf(" INT 15 handler installed at %04x:%04x\n", residentSeg, FP_OFF(int15_handler));
 	printf(" INT 2F handler installed at %04x:%04x\n", residentSeg, FP_OFF(int2f_handler));
+	printf(" %s keyboard layout\n", (kb->DriverFunctionRequired & 4) ? "Standard" : "Enhanced");
 
 	printf("\n KEYB debug mode - hit ESC key to terminate test mode\n");
 
@@ -654,13 +657,14 @@ void usage(void)
 		   "      KEYB UK - United Kingdom keyboard\n"
 		   "      KEYB GR - German - deutsche Tastatur\n"
 		   "      ....\n"
-		   "      KEYB /L - List all available keyboards\n"
-		   "      KEYB /U - uninstall previous keyboard driver\n"
-		   "      KEYB /S - Silent - absorb all keyboard input\n"
-		   "      KEYB /E - 101/102 keys keyboard layout (/E- for 83 keys layout)\n"
-		   "      KEYB /9 - Install INT 9 handler (/9- to disable)\n"
-		   "      KEYB /G - Install INT 16 handler (/G- to disable)\n"
-		   "      KEYB GR /T - test the GERman keyboard driver, don't go resident\n"
+		   "      KEYB /L - Lists all available keyboards\n"
+		   "      KEYB /U - Uninstalls previous keyboard driver\n"
+		   "      KEYB /Q - Quiet - absorb all keyboard input\n"
+		   "      KEYB /E - Specifies that an enhanced 101/102 keys keyboard is installed\n"
+		   "      KEYB /S - Specifies that a standard 83/83 keys keyboard is installed\n"
+		   "      KEYB /9 - Installs INT 9 handler (/9- to disable)\n"
+		   "      KEYB /G - Installs INT 16 handler (/G- to disable)\n"
+		   "      KEYB GR /T - Tests the GERman keyboard driver, don't go resident\n"
 		   "When loaded:\n"
 		   "      Ctrl+Alt+F1 : International (QWERTY) keyboard\n"
 		   "      Ctrl+Alt+F2 : National loaded keyboard\n"
@@ -683,8 +687,7 @@ int main(int argc, char *argv[])
 	if (argv);
 	if (argc);
 
-	printf("mKEYB 0.48 [" __DATE__ "] - " );
-	printf("%s keyboard detected\n", (enhancedKeyb ? "Enhanced" : "Standard"));
+	printf("mKEYB 0.49 [" __DATE__ "] - " );
 
 	for (i = 1; i < argc; i++)
 	{
@@ -702,13 +705,14 @@ int main(int argc, char *argv[])
 						  exit(0);
 						  break;
 
-				case 'S': SilentKeyboard = 1;
+				case 'Q': SilentKeyboard = 1;
 						  break;
 
-				case 'E':
-					printf("switch %s\n", argptr);
-					enhancedKeyb = (argptr[2] != '-');
-					break;
+				case 'E': enhancedKeyb = 1;
+						  break;
+
+				case 'S': enhancedKeyb = 0;
+						  break;
 
 				case '9': int9hChain = (argptr[2] != '-');
 					break;
@@ -727,8 +731,6 @@ int main(int argc, char *argv[])
 			{
 				if (stricmp(argptr,KeyDefTab[kb_idx]->LanguageShort) == 0)
 				{
-					printf("Found keyb %s with enhancedKeyb %u\n",
-							argptr, enhancedKeyb);
 					break;
 				}
 			}
@@ -760,8 +762,20 @@ int main(int argc, char *argv[])
 		exit(1);
 	}
 
-	kb = (enhancedKeyb) ? KeyDefTab[kb_idx] : StdKeyDefTab[kb_idx];
-	// printf("INT9: %d, INT16: %d\n", int9hChain, int16hChain);
+
+	kb = KeyDefTab[kb_idx];
+	if(!enhancedKeyb)
+	{
+		kb = StdKeyDefTab[kb_idx];
+		if (kb == NULL)
+		{
+			printf("%s language not available for 83/84 keys keyboards.\n"
+				   "Please select a different language.\n");
+			exit(1);
+		}
+		/* Patch enhanced keyboard layouts to use standard drivers */
+		kb->DriverFunctionRequired = (kb->DriverFunctionRequired & 1) | 4;
+	}
 	return InstallKeyboard(kb, GOTSR, int9hChain, int16hChain);
 }
 

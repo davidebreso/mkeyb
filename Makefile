@@ -8,6 +8,8 @@ PACK=pklite.exe
 TCCLINK=$(TCC) -lm -O -Z -g1
 TCCCOMP=$(TCC) -c  -O -Z -g1 -a-
 
+INSTALLDIR=C:\DRIVERS
+
 #
 # each language gets 2 binaries:
 # the miniminimum 'mkeybXX.exe'
@@ -15,7 +17,8 @@ TCCCOMP=$(TCC) -c  -O -Z -g1 -a-
 #
 
 depends=prf.obj
-resdep = mKEYBA.obj mkeybrc.obj mkeybr.obj mkeybrf.obj mkeybrs.obj
+resdep = mKEYBA.obj mkeybrc.obj mkeybr.obj mkeybrf.obj \
+	mkeybrs.obj mkeybrsc.obj
 keydefs = \
 	keydefdk.obj \
 	keydefGR.obj \
@@ -217,6 +220,15 @@ mkeybrS.obj: mkeybr.c
 mkeybrS.asm: mkeybr.c
 	$(TCCCOMP) -mt -S -zAINIT -zCI_TEXT -zDIB -zRID -zTID -zPI_GR -zBIB -zGI_GR -zSI_GR    -DSTANDARD -omkeybrS mKEYBr.c
 
+#
+# resident part for 83 keys "standard" keyboards with COMBI
+#
+mkeybrSC.obj: mkeybr.c
+	$(TCCCOMP) -mt    -zAINIT -zCI_TEXT -zDIB -zRID -zTID -zPI_GR -zBIB -zGI_GR -zSI_GR    -DSTD_FULL -omkeybrSC mKEYBr.c
+
+mkeybrSC.asm: mkeybr.c
+	$(TCCCOMP) -mt -S -zAINIT -zCI_TEXT -zDIB -zRID -zTID -zPI_GR -zBIB -zGI_GR -zSI_GR    -DSTD_FULL -omkeybrSC mKEYBr.c
+
 prf.obj: prf.c
 	$(TCCCOMP) -DFORSYS prf.c
 
@@ -228,15 +240,21 @@ sscani.obj: sscani.c
 mkeyb.asm: mkeyb.c mkeyb.h
 	$(TCCCOMP) -S mKEYB.c
 
+# copy driver to INSTALLDIR
+install:
+	xcopy mkeyb.exe $(INSTALLDIR)
+
 # cleanup
 clean:
-	del *.obj
-	del *.lib
-	del *.bak
-        del *.map
-	del mkeyb.asm
-	del mkeybr.asm
-	del mkeybrc.asm
-	del mkeybrf.asm
+	del /eq *.obj
+	del /eq *.lib
+	del /eq *.bak
+        del /eq *.map
+	del /eq mkeyb.asm
+	del /eq mkeybr.asm
+	del /eq mkeybrc.asm
+	del /eq mkeybrf.asm
+	del /eq mkeybrs.asm
+	del /eq mkeybrsc.asm
 
 # ############## end generic ##########################

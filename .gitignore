@@ -10,4 +10,8 @@ mkeyb.asm
 mkeybr.asm
 mkeybrc.asm
 mkeybrf.asm
+# Local scripts and support files
+push.*
+pull.*
+ignore.lst
 

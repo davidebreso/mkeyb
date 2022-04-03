@@ -120,21 +120,15 @@ ASSUME CS:I_GR
 
 ; Optional handlers for INT9 and INT16
 _int9_handler:
-	jmp int9_start		; Workaround for APL software
+	jmp int9_start			; Workaround for APL software
 int9_isActiveF dw 1    		; Modified by APL software
 int9_start:
 	; save the registers
 	push ax        		; scancode
-	push cx			; counter
-	push es
 	; compute if we should handle the extended
 	mov al, byte ptr [cs:int9_isActiveF]
 	or al, al
 	jz chain_int9
-	; disable the interrupts
-	cli
-	xor cx, cx
-	mov es, cx
 	; read and authenticate scancode
 	in al, 60h		; get the scancode in AL
 	mov ah, 4fh		; authenticate scancode
@@ -151,19 +145,12 @@ int9_start:
 	; report end of interrupt to interrupt controller
 	mov al, 20h
 	out 20h, al
-	; restore interrupts
-	sti
 	jmp leave_int9
 chain_int9:
 	pushf
-	sti
-;	db 9ah		        ; Call Far
-;_OldInt9  	dd 0
 	call [cs:_OldInt9]
 	; leave interrupt routine
 leave_int9:
-	pop es
-	pop cx
 	pop ax
 	iret
 
@@ -173,7 +160,6 @@ _int16_handler:
 	; save registers
 	push di
 	push ds
-	cli
 	mov di, 040h
 	mov ds, di
 	mov di, [ds:001Ch]
@@ -191,14 +177,11 @@ int16_1:
 int16_2:
 	mov al,01
 int16_3:
-	sti
 	pop ds
 	pop di
 	iret
 
 chain_int16:
-;	db 0eah		; Jump Far
-;_OldInt16  	dd 0
 	jmp [cs:_OldInt16]
 
 _END_int16_handler:

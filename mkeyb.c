@@ -1,5 +1,5 @@
 /*
-    mKEYB.C - minimum keyboard handler for international keyboards
+	mKEYB.C - minimum keyboard handler for international keyboards
 
     requires only ~512 byte (~600 byte with COMBI characters)
     of precious memory to do what it does.
@@ -38,7 +38,7 @@ int _fmemcmp(void far *d, void far *s, uint len)
 
 /*
     this allocates memory as undisturbing as possible.
-    strategy choosen:
+	strategy choosen:
     allocate at end of memory, in upper memory if present
 */
 
@@ -56,9 +56,9 @@ AllocHighMemory(uint residentsize, int makeResident)
 	int86(0x21,&r,&r);
 	oldstrategy = r.h.al;
 
-    r.x.ax = 0x5803;     /* set UMB link state */
+	r.x.ax = 0x5803;     /* set UMB link state */
     r.x.bx = 0x0001;
-    int86(0x21,&r,&r);
+	int86(0x21,&r,&r);
 
     r.x.ax = 0x5801;     /* set allocation strategy */
 	r.x.bx = 0x82;       /* last fit, try high, then low */
@@ -70,7 +70,7 @@ AllocHighMemory(uint residentsize, int makeResident)
 
     if (r.x.cflag) { printf("can't allocate memory\n");exit(1); }
 
-    allocSeg = r.x.ax;
+	allocSeg = r.x.ax;
 
 	if (makeResident)
 	{
@@ -227,41 +227,35 @@ void UninstallKeyboard(int verbose)
 	void far *int16handler = *(void far *far *)MK_FP(0,4*0x16);
 	void far *int15handler = *(void far *far *)MK_FP(0,4*0x15);
 	void far *int2fhandler = *(void far *far *)MK_FP(0,4*0x2f);
-	unsigned resident;
+	unsigned resident = NULL;
 	void far *orig9, far *orig16, far *orig15, far *orig2f;
 
 	union  REGS r;
 	struct SREGS sr;
 
-	r.x.ax = 0xad82;  			// disable old keyboard driver
+	uint freemem = 1;
+
+	// printf("current values %8lx, %8lx, %8lx , %8lx\n",int9handler, int16handler, int15handler, int2fhandler);
+
+	r.x.ax = 0xad82;  			// Disable old keyboard driver
 	r.x.bx = 0;
 	int86(0x2f,&r,&r);
 
-	// now try to disable the old
-	resident = NULL;
-
 	if (_fmemcmp(MK_FP(FP_SEG(int15handler)-1,8),MY_MEMORY_SIGNATURE,8) == 0)
-		resident = FP_SEG(int15handler);
-
-	if (_fmemcmp(MK_FP(FP_SEG(int15handler)-1,8),MY_MEMORY_SIGNATURE,8) == 0)
-		resident = FP_SEG(int2fhandler);
-
-	// printf("resident found at %x:0\n",resident);
-
-	if (resident == 0)
 	{
+		resident = FP_SEG(int15handler);
+		// printf("resident found at %x:0\n",resident);
+	} else {
 		if (verbose)
-			printf("no previous instance of KEYB found\n");
+			printf("No previous instance of mKEYB found\n");
 		return;
 	}
 							// check that this is the same version
-							// of KEYB
+							// of mKEYB
 	if (_fmemcmp( ((char far *)&OldInt15)-8,
 		((char far *)MK_FP(resident,FP_OFF(&OldInt15)))-8, 8) != 0)
 	{
-		printf("different version of KEYB found %8lx != %8lx\n",
-			   ((char far *)&OldInt15)-8,
-			   ((char far *)MK_FP(resident,FP_OFF(&OldInt15)))-8);
+		printf("Different version of mKEYB found\n");
 		return;
 	}
 
@@ -279,6 +273,8 @@ void UninstallKeyboard(int verbose)
 		sr.ds   = FP_SEG(orig9);
 		int86x(0x21,&r,&r,&sr);
 		// printf("int9 handler desinstalled\n");
+	} else {
+		freemem = (orig9 == NULL);
 	}
 
 	if (FP_SEG(int16handler) == resident)
@@ -288,16 +284,15 @@ void UninstallKeyboard(int verbose)
 		sr.ds   = FP_SEG(orig16);
 		int86x(0x21,&r,&r,&sr);
 		// printf("int16 handler desinstalled\n");
+	} else {
+		freemem = (orig16 == NULL);
 	}
 
-	if (FP_SEG(int15handler) == resident)
-	{
-		r.x.ax  = 0x2515;                        /* dosSetVect */
-		r.x.dx  = FP_OFF(orig15);
-		sr.ds   = FP_SEG(orig15);
-		int86x(0x21,&r,&r,&sr);
-		// printf("int15 handler desinstalled\n");
-	}
+	r.x.ax  = 0x2515;                        /* dosSetVect */
+	r.x.dx  = FP_OFF(orig15);
+	sr.ds   = FP_SEG(orig15);
+	int86x(0x21,&r,&r,&sr);
+	// printf("int15 handler desinstalled\n");
 
 	if (FP_SEG(int2fhandler) == resident)
 	{
@@ -306,10 +301,11 @@ void UninstallKeyboard(int verbose)
 		sr.ds   = FP_SEG(orig2f);
 		int86x(0x21,&r,&r,&sr);
 		// printf("int2f handler deinstalled\n");
+	} else {
+		freemem = (orig2f == NULL);
 	}
 
-	if (FP_SEG(int15handler) == resident &&
-		FP_SEG(int2fhandler) == resident)
+	if (freemem)
 	{
 					// OK. free memory also
 					/* DosFree(resident) */
@@ -322,9 +318,8 @@ void UninstallKeyboard(int verbose)
 	}
 
 	if (verbose)
-		printf("old KEYB deinstalled\n");
+		printf("old mKEYB deinstalled\n");
 }
-
 
 InstallKeyboard(struct KeyboardDefinition *kb,
 		uint GOTSR, uint int9hChain, uint int16hChain)
@@ -355,8 +350,12 @@ InstallKeyboard(struct KeyboardDefinition *kb,
 
 	VerifyScancodeTableForCorrectness(kb,0);
 
-	OldInt9 = getvect(0x9);		/* do this before copying */
-	OldInt16 = getvect(0x16);
+	/*
+	 * Do this before copying.
+	 * Save only the handlers that will be installed.
+	 */
+	if(int9hChain) 	OldInt9 = getvect(0x9);
+	if(int16hChain) OldInt16 = getvect(0x16);
 	OldInt15 = getvect(0x15);
 	OldInt2F = getvect(0x2f);
 
@@ -492,7 +491,7 @@ InstallKeyboard(struct KeyboardDefinition *kb,
 		exit(0);
 	}
 
-	printf("\n KEYB installed at segment %04x, %u bytes\n", residentSeg, residentsize);
+	printf("\n mKEYB installed at segment %04x, %u bytes\n", residentSeg, residentsize);
 	if(int9hChain)
 		printf(" INT 9 handler installed at %04x:%04x\n", residentSeg, FP_OFF(pint9_handler));
 	if(int16hChain)
@@ -501,7 +500,7 @@ InstallKeyboard(struct KeyboardDefinition *kb,
 	printf(" INT 2F handler installed at %04x:%04x\n", residentSeg, FP_OFF(int2f_handler));
 	printf(" %s keyboard layout\n", (kb->DriverFunctionRequired & 4) ? "Standard" : "Enhanced");
 
-	printf("\n KEYB debug mode - hit ESC key to terminate test mode\n");
+	printf("\n mKEYB debug mode - hit ESC key to terminate test mode\n");
 
   {	/* debug only */
 	extern uchar far debug_scancode;        /* debug */
@@ -534,13 +533,12 @@ InstallKeyboard(struct KeyboardDefinition *kb,
 	}
 	while (last_scancode != 1);
   } /* end debug */
-
-	setvect(0x9,OldInt9);
-	setvect(0x16,OldInt16);
+	if(int9hChain) 	setvect(0x9,OldInt9);
+	if(int16hChain) setvect(0x16,OldInt16);
 	setvect(0x15,OldInt15);
 	setvect(0x2f,OldInt2F);
 
-	printf(" KEYB - uninstalled\n");
+	printf(" mKEYB - uninstalled\n");
 
 	return 0;
 }
@@ -653,18 +651,18 @@ void usage(void)
 {
 	printf( " Copyright (c) 2002-2018 www.tomehlert.de\n");
 
-	printf("KEYB  usage:\n"
-		   "      KEYB UK - United Kingdom keyboard\n"
-		   "      KEYB GR - German - deutsche Tastatur\n"
+	printf("MKEYB usage:\n"
+		   "      MKEYB UK - United Kingdom keyboard\n"
+		   "      MKEYB GR - German - deutsche Tastatur\n"
 		   "      ....\n"
-		   "      KEYB /L - Lists all available keyboards\n"
-		   "      KEYB /U - Uninstalls previous keyboard driver\n"
-		   "      KEYB /Q - Quiet - absorb all keyboard input\n"
-		   "      KEYB /E - Specifies that an enhanced 101/102 keys keyboard is installed\n"
-		   "      KEYB /S - Specifies that a standard 83/83 keys keyboard is installed\n"
-		   "      KEYB /9 - Installs INT 9 handler (/9- to disable)\n"
-		   "      KEYB /G - Installs INT 16 handler (/G- to disable)\n"
-		   "      KEYB GR /T - Tests the GERman keyboard driver, don't go resident\n"
+		   "      MKEYB /L - Lists all available keyboards\n"
+		   "      MKEYB /U - Uninstalls previous keyboard driver\n"
+		   "      MKEYB /Q - Quiet - absorb all keyboard input\n"
+		   "      MKEYB /E - Specifies that an enhanced 101/102 keys keyboard is installed\n"
+		   "      MKEYB /S - Specifies that a standard 83/83 keys keyboard is installed\n"
+		   "      MKEYB /9 - Installs INT 9 handler (/9- to disable)\n"
+		   "      MKEYB /G - Installs INT 16 handler (/G- to disable)\n"
+		   "      MKEYB GR /T - Tests the GERman keyboard driver, don't go resident\n"
 		   "When loaded:\n"
 		   "      Ctrl+Alt+F1 : International (QWERTY) keyboard\n"
 		   "      Ctrl+Alt+F2 : National loaded keyboard\n"
@@ -681,7 +679,7 @@ int main(int argc, char *argv[])
 	uint int9hChain = AutodetectInt9h();
 	uint int16hChain = AutodetectInt16h();
 	uint enhancedKeyb = AutodetectKeyboard();
-	int i, kb_idx;
+	int i, kb_idx = LENGTH(KeyDefTab);
 	uchar far *pmodel;
 
 	if (argv);

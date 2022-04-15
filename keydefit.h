@@ -98,7 +98,7 @@ uchar NAME(scancodetable)[] = {
 struct KeyboardDefinition NAME(Keyboard) = {
 	"IT",                                          //char LanguageShort[4];			// "GR",
 #ifdef STANDARD
-	"ITALY - tastiera italiana 83/84 tasti (by DB)",	 //char *Description;				// created by, "with combis"
+	"ITALY - tastiera italiana 83/84 tasti (by Davide)",	 //char *Description;				// created by, "with combis"
 	DRIVER_FUNCTION_STANDARD,                      //char DriverFunctionRequired;
 #else
 	"ITALY - tastiera italiana (by tom)",          //char *Description;				// created by, "with combis"

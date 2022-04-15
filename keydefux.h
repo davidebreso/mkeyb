@@ -12,7 +12,7 @@
 #include "mkeyb.h"
 
 #define LANGUAGE "us-international"
-#define STATUS   "by DB"
+#define STATUS   "by Davide"
 
 #define COMBI
 
@@ -103,7 +103,7 @@ uchar NAME(combi6table)[] = {
 
 struct KeyboardDefinition NAME(Keyboard) = {
 	"UX",                                         //char LanguageShort[4];                 // "GR",
-	"US INTERNATIONAL - with combis, Ctrl+Alt+F2 to switch (by DB)",    //char *Description;                              // created by, "with combis"
+	"US INTERNATIONAL - with combis, Ctrl+Alt+F2 to switch (by Davide)",    //char *Description;                              // created by, "with combis"
 	DRIVER_FUNCTION_FULL,                       //char DriverFunctionRequired;
 	NAME(scancodetable),                          //char *ScancodeTable;
 #ifdef COMBI

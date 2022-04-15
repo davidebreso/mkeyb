@@ -17,6 +17,7 @@
 #include "mkeyb.h"
 
 #define MY_MEMORY_SIGNATURE "mKEYB   "
+#define MY_INSTALL_SIGNATURE 0x6d4b
 
 #define DBGprintf printf
 
@@ -237,18 +238,28 @@ void UninstallKeyboard(int verbose)
 
 	// printf("current values %8lx, %8lx, %8lx , %8lx\n",int9handler, int16handler, int15handler, int2fhandler);
 
-	r.x.ax = 0xad82;  			// Disable old keyboard driver
-	r.x.bx = 0;
+	r.x.ax = 0xad80;  			// Check for keyboard driver
 	int86(0x2f,&r,&r);
+
+	if (r.h.al != 0xff)
+	{
+		// printf("No keyboard driver installed.\n");
+		return;
+	}
+
+	if (r.x.bx != MY_INSTALL_SIGNATURE)
+	{
+		printf("Another keyboard driver is installed\n");
+		exit(1);
+	}
 
 	if (_fmemcmp(MK_FP(FP_SEG(int15handler)-1,8),MY_MEMORY_SIGNATURE,8) == 0)
 	{
 		resident = FP_SEG(int15handler);
 		// printf("resident found at %x:0\n",resident);
 	} else {
-		if (verbose)
-			printf("No previous instance of mKEYB found\n");
-		return;
+		printf("Cannot uninstall mKEYB since it is not the last loaded driver.\n");
+		exit(1);
 	}
 							// check that this is the same version
 							// of mKEYB
@@ -256,7 +267,7 @@ void UninstallKeyboard(int verbose)
 		((char far *)MK_FP(resident,FP_OFF(&OldInt15)))-8, 8) != 0)
 	{
 		printf("Different version of mKEYB found\n");
-		return;
+		exit(1);
 	}
 
 	orig9 = *(void far *far*)MK_FP(resident,FP_OFF(&OldInt9));
@@ -749,8 +760,6 @@ int main(int argc, char *argv[])
 		}
 	}
 
-	UninstallKeyboard(0);
-
 	if (kb_idx == LENGTH(KeyDefTab))
 	{
 		printf("you MUST specify a keyboard language like\n"
@@ -760,6 +769,7 @@ int main(int argc, char *argv[])
 		exit(1);
 	}
 
+	UninstallKeyboard(0);
 
 	kb = KeyDefTab[kb_idx];
 	if(!enhancedKeyb)

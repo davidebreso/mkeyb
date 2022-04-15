@@ -52,9 +52,7 @@ keydefs = \
 #
 mkeyb.exe: mkeyb.obj  $(resdep) $(depends) $(keydefs)
 	$(TCCLINK) mKEYB.obj $(resdep) $(depends) keydef.lib
-	# $(PACK) mkeyb.exe mkeyb.exe
-	# copy mkeyb.exe keyb.exe
-	# del  mkeyb.exe
+	$(PACK) mkeyb.exe
 
 mkeyb.obj: mkeyb.c mkeyb.h
 	$(TCCCOMP) mKEYB.c

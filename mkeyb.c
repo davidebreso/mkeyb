@@ -237,19 +237,19 @@ uint DetectKeyboardDriver()
 	r.x.ax = 0xad80;  			// Check for keyboard driver
 	int86(0x2f,&r,&r);
 
-	if (r.h.al != 0xff)
-	{
-		// printf("No keyboard driver installed\n");
-		return 0;
-	}
-
-	if (r.x.bx != MY_INSTALL_SIGNATURE)
+	if (r.h.al == 0xff)
 	{
 		// printf("Another keyboard driver is installed\n");
 		return 3;
 	}
 
-	if (r.x.cx != MY_VERSION_SIGNATURE)
+	if (r.x.ax != MY_INSTALL_SIGNATURE)
+	{
+		// printf("No keyboard driver installed\n");
+		return 0;
+	}
+
+	if (r.x.bx != MY_VERSION_SIGNATURE)
 	{
 		// printf("Different version of mKEYB installed\n");
 		return 2;

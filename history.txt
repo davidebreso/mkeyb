@@ -125,7 +125,7 @@
     autodetect of BIOS functionalities
     int9 and int16 handlers copied to resident part only when needed
 
-0.49 - 15 april 2022
+0.49 - 16 april 2022
     support for 83/84 keys standard keyboards
     autodetect of keyboard type (standard or enhanced)
     standard keyboard layout for italian

@@ -12,12 +12,12 @@ public _int15_handler,_OldInt15
 _int2f_handler:
 	cmp ax, 0ad80h
 	jne int2f_82
-	mov ax, 0ffffh				; Report mKEYB installed
-	mov bx, 06d4bh				; BX is mKYEB fingerprint "mK"
-	mov cx, 00031h				; CH is major CL is minor version
+	mov ax, 0ffffh					; Report mKEYB installed
+	mov bx, MY_INSTALL_SIGNATURE	; BX is mKYEB fingerprint "mK"
+	mov cx, MY_VERSION_SIGNATURE	; CH is major CL is minor version
 	mov di, cs
 	mov es, di
-	mov di, offset _OldInt9		; ES:DI points to data block
+	mov di, offset _OldInt9			; ES:DI points to data block
 	iret
 
 int2f_82:

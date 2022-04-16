@@ -1,13 +1,13 @@
 /*
 	mKEYB.C - minimum keyboard handler for international keyboards
 
-    requires only ~512 byte (~600 byte with COMBI characters)
-    of precious memory to do what it does.
+	requires only ~512 byte (~600 byte with COMBI characters)
+	of precious memory to do what it does.
 
-    for details, please see readme.txt
+	for details, please see readme.txt
 
 
-    Copyright (C) 2002-2005 by www.tomehlert.de
+	Copyright (C) 2002-2005 by www.tomehlert.de
 */
 
 #include <dos.h>
@@ -17,7 +17,6 @@
 #include "mkeyb.h"
 
 #define MY_MEMORY_SIGNATURE "mKEYB   "
-#define MY_INSTALL_SIGNATURE 0x6d4b
 
 #define DBGprintf printf
 
@@ -213,14 +212,59 @@ int AutodetectInt16h()
   Autodetect if the keyboard is enhanced (101/102 keys)
   or standard (83/84 keys).
 */
-
-int AutodetectKeyboard()
+uint AutodetectKeyboard()
 {
 	uchar status;
 	status = *(uchar far *)MK_FP(0x40, 0x96);
 	// printf("Keyboard status byte: %04x\n", status);
 	return (status & 0x10);
 }
+
+/*
+  uint DetectKeyboardDriver();
+  Check if a keyboard driver is installed.
+  Return value:
+	0	no driver installed
+	1	same version of mKEYB installed
+	2	different version of mKEYB installed
+	3	another keyboard driver installed
+*/
+
+uint DetectKeyboardDriver()
+{
+	union REGS r;
+
+	r.x.ax = 0xad80;  			// Check for keyboard driver
+	int86(0x2f,&r,&r);
+
+	if (r.h.al != 0xff)
+	{
+		// printf("No keyboard driver installed\n");
+		return 0;
+	}
+
+	if (r.x.bx != MY_INSTALL_SIGNATURE)
+	{
+		// printf("Another keyboard driver is installed\n");
+		return 3;
+	}
+
+	if (r.x.cx != MY_VERSION_SIGNATURE)
+	{
+		// printf("Different version of mKEYB installed\n");
+		return 2;
+	}
+
+	return 1;
+}
+
+/*
+  UninstallKeyboard(int verbose);
+  Uninstall mKEYB if present in memory
+  If verbose == 0 and another keyb driver is found, disable it
+  If verbose == 1 and another keyb driver is found, terminate with
+  a warning message.
+*/
 
 void UninstallKeyboard(int verbose)
 {
@@ -234,40 +278,62 @@ void UninstallKeyboard(int verbose)
 	union  REGS r;
 	struct SREGS sr;
 
-	uint freemem = 1;
+	uint installed, freemem = 1;
 
 	// printf("current values %8lx, %8lx, %8lx , %8lx\n",int9handler, int16handler, int15handler, int2fhandler);
 
-	r.x.ax = 0xad80;  			// Check for keyboard driver
-	int86(0x2f,&r,&r);
+	installed = DetectKeyboardDriver();
 
-	if (r.h.al != 0xff)
+	if (installed == 0)
 	{
-		// printf("No keyboard driver installed.\n");
+		if(verbose)
+			printf("No keyboard driver installed\n");
 		return;
 	}
 
-	if (r.x.bx != MY_INSTALL_SIGNATURE)
+	if (installed == 1)
 	{
-		printf("Another keyboard driver is installed\n");
-		exit(1);
-	}
-
-	if (_fmemcmp(MK_FP(FP_SEG(int15handler)-1,8),MY_MEMORY_SIGNATURE,8) == 0)
-	{
-		resident = FP_SEG(int15handler);
-		// printf("resident found at %x:0\n",resident);
-	} else {
-		printf("Cannot uninstall mKEYB since it is not the last loaded driver.\n");
-		exit(1);
-	}
+		/* Current version of mKEYB is installed
+		 * Check if you can uninstall it			*/
+		if (_fmemcmp(MK_FP(FP_SEG(int15handler)-1,8),MY_MEMORY_SIGNATURE,8) == 0)
+		{
+			resident = FP_SEG(int15handler);
+			// printf("resident found at %x:0\n",resident);
 							// check that this is the same version
 							// of mKEYB
-	if (_fmemcmp( ((char far *)&OldInt15)-8,
-		((char far *)MK_FP(resident,FP_OFF(&OldInt15)))-8, 8) != 0)
+			if (_fmemcmp( ((char far *)&OldInt15)-8,
+				((char far *)MK_FP(resident,FP_OFF(&OldInt15)))-8, 8) != 0)
+			{
+				if(verbose)
+				{
+					printf("Different version of mKEYB found\n");
+					return;
+				}
+				installed = 2;
+			}
+		} else {
+			if(verbose)
+			{
+				printf("Cannot uninstall mKEYB since it is not the last loaded driver\n");
+				return;
+			}
+			installed = 2;
+		}
+	} else {
+		if(verbose)
+		{
+			printf("No previous instance of mKEYB " MY_VERSION_TEXT " found\n");
+			return;
+		}
+	}
+
+	if (installed > 1)
 	{
-		printf("Different version of mKEYB found\n");
-		exit(1);
+		r.x.ax = 0xad82;  			// Disable current driver
+		r.x.bx = 0;
+		int86(0x2f,&r,&r);
+		// printf("Old keyb driver disabled\n");
+		return;
 	}
 
 	orig9 = *(void far *far*)MK_FP(resident,FP_OFF(&OldInt9));
@@ -670,7 +736,7 @@ void usage(void)
 		   "      MKEYB /U - Uninstalls previous keyboard driver\n"
 		   "      MKEYB /Q - Quiet - absorb all keyboard input\n"
 		   "      MKEYB /E - Specifies that an enhanced 101/102 keys keyboard is installed\n"
-		   "      MKEYB /S - Specifies that a standard 83/83 keys keyboard is installed\n"
+		   "      MKEYB /S - Specifies that a standard 83/84 keys keyboard is installed\n"
 		   "      MKEYB /9 - Installs INT 9 handler (/9- to disable)\n"
 		   "      MKEYB /G - Installs INT 16 handler (/G- to disable)\n"
 		   "      MKEYB GR /T - Tests the GERman keyboard driver, don't go resident\n"
@@ -696,7 +762,7 @@ int main(int argc, char *argv[])
 	if (argv);
 	if (argc);
 
-	printf("mKEYB 0.49 [" __DATE__ "] - " );
+	printf("mKEYB " MY_VERSION_TEXT " [" __DATE__ "] - " );
 
 	for (i = 1; i < argc; i++)
 	{
@@ -777,8 +843,8 @@ int main(int argc, char *argv[])
 		kb = StdKeyDefTab[kb_idx];
 		if (kb == NULL)
 		{
-			printf("%s language not available for 83/84 keys keyboards.\n"
-				   "Please select a different language.\n");
+			printf("%s language not available for 83/84 keys keyboards\n"
+				   "please select a different language\n");
 			exit(1);
 		}
 		/* Patch enhanced keyboard layouts to use standard drivers */

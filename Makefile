@@ -1,5 +1,9 @@
 all: mkeyb.exe
 
+INST_SIG=19309			# mKEYB fingerprint "mK"
+VERSION=49				# version number
+VERSION_STR="0.49"		# version number text
+
 TCC=bcc.exe
 TASM=tasm.exe
 TLIB=tlib.exe
@@ -55,7 +59,7 @@ mkeyb.exe: mkeyb.obj  $(resdep) $(depends) $(keydefs)
 	$(PACK) mkeyb.exe
 
 mkeyb.obj: mkeyb.c mkeyb.h
-	$(TCCCOMP) mKEYB.c
+	$(TCCCOMP) -DMY_INSTALL_SIGNATURE=$(INST_SIG) -DMY_VERSION_SIGNATURE=$(VERSION) -DMY_VERSION_TEXT=$(VERSION_STR) mKEYB.c
 
 keydefgr.obj:  keydefgr.h  mkeyb.h
 	$(TCCCOMP) keydefgr.h
@@ -178,7 +182,7 @@ keydefux.obj: keydefux.h  mkeyb.h
 #assembly stub
 #
 mkeybA.obj: mkeybA.ASM
-	$(TASM) /mx mKEYBA.asm
+	$(TASM) /mx /dMY_INSTALL_SIGNATURE=$(INST_SIG) /dMY_VERSION_SIGNATURE=$(VERSION) mKEYBA.asm
 
 #
 # resident part

@@ -663,6 +663,7 @@ extern struct KeyboardDefinition
 	,Keyboard_HE
 	,Keyboard_SL
 	,Keyboard_UX
+	,Keyboard_TR
 	;
 
 /* 101/102 keys enhanced keyboards definition table */
@@ -693,6 +694,7 @@ struct KeyboardDefinition *KeyDefTab[] =
 	,&Keyboard_SV
 	,&Keyboard_UK
 	,&Keyboard_UX
+	,&Keyboard_TR
 	};
 
 /* 83/84 keys standard keyboards definition table */
@@ -723,6 +725,7 @@ struct KeyboardDefinition *StdKeyDefTab[] =
 	,&Keyboard_SV
 	,&Keyboard_UK
 	,&Keyboard_UX
+	,&Keyboard_TR
 	};
 
 

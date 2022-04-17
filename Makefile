@@ -50,6 +50,7 @@ keydefs = \
 	keydefBP.obj \
 	keydefSL.obj \
 	keydefUX.obj \
+	keydefTR.obj \
 
 #
 # GERMAN
@@ -139,7 +140,6 @@ keydefbx.obj: keydefbx.h  mkeyb.h
 	$(TCCCOMP) keydefbx.h
 	$(TLIB) keydef.lib -+ keydefbx.obj
 
-
 keydeffr.obj: keydeffr.h  mkeyb.h
 	$(TCCCOMP) keydeffr.h
 	$(TLIB) keydef.lib -+ keydeffr.obj
@@ -167,6 +167,10 @@ keydefsl.obj: keydefsl.h  mkeyb.h
 keydefux.obj: keydefux.h  mkeyb.h
 	$(TCCCOMP) keydefux.h
 	$(TLIB) keydef.lib -+ keydefux.obj
+
+keydeftr.obj: keydeftr.h  mkeyb.h
+	$(TCCCOMP) keydeftr.h
+	$(TLIB) keydef.lib -+ keydeftr.obj
 
 
 #mkeybGRc.exe: mkeyb.c keydefGR.h $(combidepends)

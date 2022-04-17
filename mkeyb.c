@@ -221,21 +221,24 @@ uint AutodetectKeyboard()
 }
 
 /*
-  uint DetectKeyboardDriver();
+  uint DetectKeyboardDriver(uint *resident);
   Check if a keyboard driver is installed.
   Return value:
 	0	no driver installed
 	1	same version of mKEYB installed
 	2	different version of mKEYB installed
 	3	another keyboard driver installed
+  resident is modifed to point to the resident code segment
 */
 
-uint DetectKeyboardDriver()
+uint DetectKeyboardDriver(uint *resident)
 {
 	union REGS r;
+	struct SREGS sr;
 
-	r.x.ax = 0xad80;  			// Check for keyboard driver
-	int86(0x2f,&r,&r);
+	r.x.ax = 0xad80;  		  // Check for keyboard driver
+	int86x(0x2f,&r,&r,&sr);
+	*resident = sr.es;
 
 	if (r.h.al == 0xff)
 	{
@@ -282,7 +285,7 @@ void UninstallKeyboard(int verbose)
 
 	// printf("current values %8lx, %8lx, %8lx , %8lx\n",int9handler, int16handler, int15handler, int2fhandler);
 
-	installed = DetectKeyboardDriver();
+	installed = DetectKeyboardDriver(&resident);
 
 	if (installed == 0)
 	{
@@ -293,28 +296,16 @@ void UninstallKeyboard(int verbose)
 
 	if (installed == 1)
 	{
-		/* Current version of mKEYB is installed
-		 * Check if you can uninstall it			*/
-		if (_fmemcmp(MK_FP(FP_SEG(int15handler)-1,8),MY_MEMORY_SIGNATURE,8) == 0)
+		/* Current version of mKEYB is installed */
+		/* Check if you can uninstall it 		 */
+
+		// printf("resident found at %x:0\n",resident);
+		if (_fmemcmp( ((char far *)&OldInt15)-8,
+		   ((char far *)MK_FP(resident,FP_OFF(&OldInt15)))-8, 8) != 0)
 		{
-			resident = FP_SEG(int15handler);
-			// printf("resident found at %x:0\n",resident);
-							// check that this is the same version
-							// of mKEYB
-			if (_fmemcmp( ((char far *)&OldInt15)-8,
-				((char far *)MK_FP(resident,FP_OFF(&OldInt15)))-8, 8) != 0)
-			{
-				if(verbose)
-				{
-					printf("Different version of mKEYB found\n");
-					return;
-				}
-				installed = 2;
-			}
-		} else {
 			if(verbose)
 			{
-				printf("Cannot uninstall mKEYB since it is not the last loaded driver\n");
+				printf("Different version of mKEYB found\n");
 				return;
 			}
 			installed = 2;
@@ -352,6 +343,11 @@ void UninstallKeyboard(int verbose)
 		// printf("int9 handler desinstalled\n");
 	} else {
 		freemem = (orig9 == NULL);
+		if(!freemem)
+		{
+			printf("unlinking INT 9 not possible because it points to %04x:%04x which is not mKEYB\n",
+					FP_SEG(orig9), FP_OFF(orig9));
+		}
 	}
 
 	if (FP_SEG(int16handler) == resident)
@@ -363,13 +359,28 @@ void UninstallKeyboard(int verbose)
 		// printf("int16 handler desinstalled\n");
 	} else {
 		freemem = (orig16 == NULL);
+		if(!freemem)
+		{
+			printf("unlinking INT 16 not possible because it points to %04x:%04x which is not mKEYB\n",
+					FP_SEG(orig16), FP_OFF(orig16));
+		}
 	}
 
-	r.x.ax  = 0x2515;                        /* dosSetVect */
-	r.x.dx  = FP_OFF(orig15);
-	sr.ds   = FP_SEG(orig15);
-	int86x(0x21,&r,&r,&sr);
-	// printf("int15 handler desinstalled\n");
+	if (FP_SEG(int15handler) == resident)
+	{
+		r.x.ax  = 0x2515;                        /* dosSetVect */
+		r.x.dx  = FP_OFF(orig15);
+		sr.ds   = FP_SEG(orig15);
+		int86x(0x21,&r,&r,&sr);
+		// printf("int15 handler desinstalled\n");
+	} else {
+		freemem = (orig15 == NULL);
+		if(!freemem)
+		{
+			printf("unlinking INT 15 not possible because it points to %04x:%04x which is not mKEYB\n",
+					FP_SEG(orig15), FP_OFF(orig15));
+		}
+	}
 
 	if (FP_SEG(int2fhandler) == resident)
 	{
@@ -380,6 +391,11 @@ void UninstallKeyboard(int verbose)
 		// printf("int2f handler deinstalled\n");
 	} else {
 		freemem = (orig2f == NULL);
+		if(!freemem)
+		{
+			printf("unlinking INT 2F not possible because it points to %04x:%04x which is not mKEYB\n",
+					FP_SEG(orig2f), FP_OFF(orig2f));
+		}
 	}
 
 	if (freemem)
@@ -392,6 +408,8 @@ void UninstallKeyboard(int verbose)
 
 		*(short far*)MK_FP(resident-1, 1) = 0;   /* bums. DosFree(resident) */
 		// printf("DOS memory at %x freed\n",resident);
+	} else {
+		printf("working around the issue anyway...\n");
 	}
 
 	if (verbose)
@@ -523,8 +541,6 @@ InstallKeyboard(struct KeyboardDefinition *kb,
 
 								/* fetch enough memory for the TSR part */
 	residentSeg = AllocHighMemory(residentsize,GOTSR);
-
-	printf("%s - %s\n", kb->LanguageShort, kb->Description);
 
 #define RESPTR(x) MK_FP(residentSeg, (void near*)x)
 
@@ -776,6 +792,7 @@ int main(int argc, char *argv[])
 				case 'T': GOTSR = 0; break;
 
 				case 'U':
+						  printf("\n");
 						  UninstallKeyboard(1);
 						  exit(0);
 						  break;
@@ -835,8 +852,6 @@ int main(int argc, char *argv[])
 		exit(1);
 	}
 
-	UninstallKeyboard(0);
-
 	kb = KeyDefTab[kb_idx];
 	if(!enhancedKeyb)
 	{
@@ -850,6 +865,9 @@ int main(int argc, char *argv[])
 		/* Patch enhanced keyboard layouts to use standard drivers */
 		kb->DriverFunctionRequired = (kb->DriverFunctionRequired & 1) | 4;
 	}
+
+	printf("%s - %s\n", kb->LanguageShort, kb->Description);
+	UninstallKeyboard(0);
 	return InstallKeyboard(kb, GOTSR, int9hChain, int16hChain);
 }
 

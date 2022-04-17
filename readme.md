@@ -16,7 +16,7 @@ From version 0.48 onwards, mKEYB tries to detect if the BIOS provides the requir
 
 `mkeyb /?` gives you a help screen, and `mkeyb /l` lists all available keyboard layouts. 
 
-Try first to run it with the layout code and no other switches, e.g. `mkeyb it` for italian. If everything works, congratulations! mKEYB autodetected the functionalities provided by your BIOS and installed what is missinga: you can enjoy your ~700 bytes driver. If not, see below for some hints.
+Try first to run it with the layout code and no other switches, e.g. `mkeyb it` for italian. If everything works, congratulations! mKEYB autodetected the functionalities provided by your BIOS and installed what is missing: you can enjoy your ~700 bytes driver. If not, see below for some hints.
 
 ### The driver loads but the keyboard remains with the default US layout.
 Your BIOS do not use INT 15,4F to allow for layout translation. Try with the `/9` switch: `mkeyb it /9`.
@@ -25,7 +25,7 @@ This switch installs a new handler for INT9 (keyboard interrupt) that calls INT 
 with a keyboard controller that is compatible with the 8255 PPI of the original IBM PC and XT: data buffer at port 60h and status register at port 61h. 
 This includes also machines with AT keyboard controllers, that are backward compatible with the 8255 PPI. If your machine uses a keyboard controller that answers on different ports, the handler will most likely hang your keyboard.
 
-`/9-` diables installation of the INT9 handler even if autodetection decided that it is needed.
+`/9-` disables installation of the INT9 handler even if autodetection decided that it is needed.
 
 ### The driver loads, some keys works but others do not (nothing happens when I press them).
 Your BIOS do not implement the INT 16,5 service to insert a new keystroke in the keyboard buffer. Try with the `/G` switch: `mkeyb it /G`.
@@ -33,7 +33,7 @@ This switch installs a new handler for INT 16 (keyboard services) with the requi
 
 You can combine /G with /9: `mkeyb it /9 /G`. 
 
-`/G-` diables installation of the INT16 handler even if autodetection decided that it is needed.
+`/G-` disables installation of the INT16 handler even if autodetection decided that it is needed.
 
 ## Standard and Enhanced keyboards
 
@@ -56,7 +56,7 @@ To uninstall the driver type `mkeyb /u` or `mkeyb us` (US keyboards do not need 
 
 ## License 
 
-This program and it's sources is distributed under the terms of the GNU GPL with one major exception:
+This program and its source code is distributed under the terms of the GNU GPL with one major exception:
 
 you may use any exepacker you want to process the resulting executable.
 

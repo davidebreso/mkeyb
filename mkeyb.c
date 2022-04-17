@@ -692,9 +692,9 @@ struct KeyboardDefinition *KeyDefTab[] =
 	,&Keyboard_SP
 	,&Keyboard_SU
 	,&Keyboard_SV
+	,&Keyboard_TR
 	,&Keyboard_UK
 	,&Keyboard_UX
-	,&Keyboard_TR
 	};
 
 /* 83/84 keys standard keyboards definition table */
@@ -723,9 +723,9 @@ struct KeyboardDefinition *StdKeyDefTab[] =
 	,&Keyboard_SP
 	,&Keyboard_SU
 	,&Keyboard_SV
+	,&Keyboard_TR
 	,&Keyboard_UK
 	,&Keyboard_UX
-	,&Keyboard_TR
 	};
 
 

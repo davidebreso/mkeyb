@@ -13,6 +13,8 @@
 #define LANGUAGE "turkish-q"
 #define STATUS   "untested, by Davide"
 
+#define COMBI
+
 /********************************************************
  * TURKISH Q keyboard mappings				*
  ********************************************************/
@@ -96,7 +98,7 @@ uchar NAME(scancodetable)[] = {
  /* [ */ ALPHA_ALTGR	(0x1a, 0xA7, 0xA8,      COMBI2)
  /* ] */ ALPHA_ALTGR	(0x1b, 0x81, 0x9A,      COMBI3)
 #else
- /* [ */ ALPHA_ALTGR	(0x1a, 0xA7, 0xA6,      0xF9  )
+ /* [ */ ALPHA_ALTGR	(0x1a, 0xA7, 0xA8,      0xF9  )
  /* ] */ ALPHA_ALTGR	(0x1b, 0x81, 0x9A,      '~'   )
 #endif
 
@@ -118,10 +120,82 @@ uchar NAME(scancodetable)[] = {
 	 0
 };
 
+/*
+   These keys are generated on a COMBI+character base.
+   Some of them are correct only for codepage 857, since
+   the standard 437 codepage doesn't have all accented characters
+*/
+
+#ifdef COMBI
+
+uchar NAME(combi1table)[] = {         /* CIRCUMFLEX ACCENT */
+	/*scancode lower upper*/
+ /* A */ 0x1E, 0x83, 0xB6,
+ /* E */ 0x12, 0x88, 0xD2,
+ /* I */ 0x17, 0x8C, 0xD7,
+ /* i */ 0x28, 0x8C, 0xD7,
+ /* O */ 0x18, 0x93, 0xE2,
+ /* U */ 0x16, 0x96, 0xEA,
+ /*   */ 0x39,  '^',  '^', /* and additional generated character */
+	 0
+};
+
+uchar NAME(combi2table)[] = {         /* DIAERESIS */
+	/*scancode lower upper*/
+ /* A */ 0x1E, 0x84, 0x8E,
+ /* E */ 0x12, 0x89, 0xD3,
+ /* I */ 0x17, 0x8B, 0xD8,
+ /* i */ 0x28, 0x8B, 0xD8,
+ /* O */ 0x18, 0x94, 0x99,
+ /* U */ 0x16, 0x81, 0x9A,
+ /*   */ 0x39, 0xF9, 0xF9, /* and additional generated character */
+	 0
+};
+
+uchar NAME(combi3table)[] = {        /* TILDE */
+	/*scancode lower upper*/
+ /* A */ 0x1E, 0xC6, 0xC7,
+ /* O */ 0x18, 0xE4, 0xE5,
+ /* N */ 0x31, 0xA4, 0xA5,
+ /*   */ 0x39,  '~',  '~', /* and additional generated character */
+	0
+};
+
+uchar NAME(combi4table)[] = {         /* ACUTE ACCENT */
+	/*scancode lower upper*/
+ /* A */ 0x1E, 0xA0, 0xB5,
+ /* E */ 0x12, 0x82, 0x90,
+ /* I */ 0x17, 0xA1, 0xD6,
+ /* i */ 0x28, 0xA1, 0xD6,
+ /* O */ 0x18, 0xA2, 0xE0,
+ /* U */ 0x16, 0xA3, 0xE9,
+ /*   */ 0x39, 0xEF, 0xEF, /* and additional generated character */
+	 0
+};
+
+uchar NAME(combi5table)[] = {         /* GRAVE ACCENT */
+	/*scancode lower upper*/
+ /* A */ 0x1E, 0x85, 0xB7,
+ /* E */ 0x12, 0x8A, 0xD4,
+ /* I */ 0x17, 0xEC, 0xDE,
+ /* i */ 0x28, 0xEC, 0xDE,
+ /* O */ 0x18, 0x95, 0xE3,
+ /* U */ 0x16, 0x97, 0xEB,
+ /*   */ 0x39,  '`',  '`', /* and additional generated character */
+	 0
+};
+
+uchar NAME(combi6table)[] = {
+	/*scancode lower upper*/
+	 0
+};
+
+#endif
+
 struct KeyboardDefinition NAME(Keyboard) = {
 	"TR",                                          //char LanguageShort[4];			// "GR",
-	"TURKISH - Q layout (untested, by Davide)",    //char *Description;			// created by, "with combis"
-	DRIVER_FUNCTION_NORMAL,                        //char DriverFunctionRequired;
+	"TURKISH - Q layout with combis (untested, by Davide)",    //char *Description;		// created by, "with combis"
+	DRIVER_FUNCTION_FULL,                          //char DriverFunctionRequired;
 	NAME(scancodetable),                           //char *ScancodeTable;
 #ifdef COMBI
 	{	NAME(combi1table),NAME(combi2table),NAME(combi3table),

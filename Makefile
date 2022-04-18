@@ -51,6 +51,7 @@ keydefs = \
 	keydefSL.obj \
 	keydefUX.obj \
 	keydefTR.obj \
+	keydefTF.obj \
 
 #
 # GERMAN
@@ -172,6 +173,9 @@ keydeftr.obj: keydeftr.h  mkeyb.h
 	$(TCCCOMP) keydeftr.h
 	$(TLIB) keydef.lib -+ keydeftr.obj
 
+keydeftf.obj: keydeftf.h  mkeyb.h
+	$(TCCCOMP) keydeftf.h
+	$(TLIB) keydef.lib -+ keydeftf.obj
 
 #mkeybGRc.exe: mkeyb.c keydefGR.h $(combidepends)
 #	$(TCCLINK) -emkeybGRc -DLANG_GR -DCOMBI mKEYB.c $(combidepends)

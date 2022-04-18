@@ -95,10 +95,10 @@ uchar NAME(scancodetable)[] = {
  /* E */ ALPHA_ALTGR	(0x12, 'e',  'E',       0xD5  )
  /* I */ ALPHA		(0x17, 0x8D, 'I'              )
 #ifdef COMBI
- /* [ */ ALPHA_ALTGR	(0x1a, 0xA7, 0xA8,      COMBI2)
+ /* [ */ ALPHA_ALTGR	(0x1a, 0xA7, 0xA6,      COMBI2)
  /* ] */ ALPHA_ALTGR	(0x1b, 0x81, 0x9A,      COMBI3)
 #else
- /* [ */ ALPHA_ALTGR	(0x1a, 0xA7, 0xA8,      0xF9  )
+ /* [ */ ALPHA_ALTGR	(0x1a, 0xA7, 0xA6,      0xF9  )
  /* ] */ ALPHA_ALTGR	(0x1b, 0x81, 0x9A,      '~'   )
 #endif
 

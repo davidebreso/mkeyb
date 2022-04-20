@@ -47,26 +47,33 @@ extern void interrupt RESIDENT int2f_handler();
 
 
 #define ALTGR(scan,code) \
-        scan, 2 + _KALTGR+1, code,
+		scan, 2 + _KALTGR+1, code,
 #define ALTGRSHIFT(scan,code1,code2) \
-        scan, 2 + (_KALTGR|_KALTGRSHIFT)+2, code1, code2,
+		scan, 2 + (_KALTGR|_KALTGRSHIFT)+2, code1, code2,
 
 #define PUNCT_ALTGR(scan,lcase,ucase,alt) \
-        scan, 2 + (_KCHAR|_KALTGR)+3, lcase, ucase, alt,
+		scan, 2 + (_KCHAR|_KALTGR)+3, lcase, ucase, alt,
+
 #define ALPHA_ALTGR(scan,lcase,ucase,alt) \
-        scan, 2 + (_KCHAR|_KCAPS|_KALTGR)+3, lcase, ucase, alt,
+		scan, 2 + (_KCHAR|_KCAPS|_KALTGR)+3, lcase, ucase, alt,
+
+#define PUNCT_ALTGRSHIFT(scan,lcase,ucase,alt,altsh) \
+		scan, 2 + (_KCHAR|_KALTGR|_KALTGRSHIFT)+4, lcase, ucase, alt, altsh,
+
+#define ALPHA_ALTGRSHIFT(scan,lcase,ucase,alt,altsh) \
+		scan, 2 + (_KCHAR|_KCAPS|_KALTGR|_KALTGRSHIFT)+4, lcase, ucase, alt, altsh,
 
 #define PUNCT_CTRL_ALTGR(scan,lcase,ucase,ctrl,alt) \
-        scan, 2 + (_KCHAR|_KCTRL|_KALTGR)+4, lcase, ucase, ctrl, alt,
+		scan, 2 + (_KCHAR|_KCTRL|_KALTGR)+4, lcase, ucase, ctrl, alt,
 
 #define ALPHA_CTRL_ALTGR(scan,lcase,ucase,ctrl,alt) \
-        scan, 2 + (_KCHAR|_KCAPS|_KCTRL|_KALTGR)+4, lcase, ucase, ctrl, alt,
+		scan, 2 + (_KCHAR|_KCAPS|_KCTRL|_KALTGR)+4, lcase, ucase, ctrl, alt,
 
 #define CTRL_ALTGR(scan,ctrl,alt) \
-        scan, 2 + (_KCTRL|_KALTGR)+2, ctrl, alt,
+		scan, 2 + (_KCTRL|_KALTGR)+2, ctrl, alt,
 
 #define REPLACE(scan,code) \
-        scan, 2 + _KREPLACE+1, code,
+		scan, 2 + _KREPLACE+1, code,
 #define REPLACESCAN (2+_KREPLACE+1)
 
 

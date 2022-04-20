@@ -343,11 +343,6 @@ void UninstallKeyboard(int verbose)
 		// printf("int9 handler desinstalled\n");
 	} else {
 		freemem = (orig9 == NULL);
-		if(!freemem)
-		{
-			printf("unlinking INT 9 not possible because it points to %04x:%04x which is not mKEYB\n",
-					FP_SEG(orig9), FP_OFF(orig9));
-		}
 	}
 
 	if (FP_SEG(int16handler) == resident)
@@ -359,11 +354,6 @@ void UninstallKeyboard(int verbose)
 		// printf("int16 handler desinstalled\n");
 	} else {
 		freemem = (orig16 == NULL);
-		if(!freemem)
-		{
-			printf("unlinking INT 16 not possible because it points to %04x:%04x which is not mKEYB\n",
-					FP_SEG(orig16), FP_OFF(orig16));
-		}
 	}
 
 	if (FP_SEG(int15handler) == resident)
@@ -375,11 +365,6 @@ void UninstallKeyboard(int verbose)
 		// printf("int15 handler desinstalled\n");
 	} else {
 		freemem = (orig15 == NULL);
-		if(!freemem)
-		{
-			printf("unlinking INT 15 not possible because it points to %04x:%04x which is not mKEYB\n",
-					FP_SEG(orig15), FP_OFF(orig15));
-		}
 	}
 
 	if (FP_SEG(int2fhandler) == resident)
@@ -391,11 +376,6 @@ void UninstallKeyboard(int verbose)
 		// printf("int2f handler deinstalled\n");
 	} else {
 		freemem = (orig2f == NULL);
-		if(!freemem)
-		{
-			printf("unlinking INT 2F not possible because it points to %04x:%04x which is not mKEYB\n",
-					FP_SEG(orig2f), FP_OFF(orig2f));
-		}
 	}
 
 	if (freemem)
@@ -408,12 +388,12 @@ void UninstallKeyboard(int verbose)
 
 		*(short far*)MK_FP(resident-1, 1) = 0;   /* bums. DosFree(resident) */
 		// printf("DOS memory at %x freed\n",resident);
-	} else {
-		printf("working around the issue anyway...\n");
+		if (verbose)
+			printf("Old mKEYB deinstalled\n");
+	} else if (verbose) {
+		printf("Old mKEYB disabled. Cannot remove it from memory since it is not the last installed driver.\n");
 	}
 
-	if (verbose)
-		printf("old mKEYB deinstalled\n");
 }
 
 InstallKeyboard(struct KeyboardDefinition *kb,
@@ -798,7 +778,6 @@ int main(int argc, char *argv[])
 				case 'T': GOTSR = 0; break;
 
 				case 'U':
-						  printf("\n");
 						  UninstallKeyboard(1);
 						  exit(0);
 						  break;

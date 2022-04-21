@@ -77,7 +77,7 @@ extern void interrupt RESIDENT int2f_handler();
 #define REPLACESCAN (2+_KREPLACE+1)
 
 
-/* #define IGNORE       0x00 */
+#define IGNORE       0x00
 #define COMBI1          1
 #define COMBI2          2
 #define COMBI3          3

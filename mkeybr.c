@@ -262,9 +262,15 @@ int cdecl NAME(cint15_handler)(uchar scancode)
 		if (keyflags & _KCTRL)
 			tbl += 1;
 
-		if (keyflags & _KALTGRSHIFT &&          /* uses ALTGREY with shifts (polish) */
-			BIOSstate & 0x40)
-			tbl += 1;
+		if (BIOSstate & 0x40)					/* is Shift pressed ? */
+		{
+			if (keyflags & _KALTGRSHIFT)        /* uses ALTGREY with shifts if defined */
+			{
+				tbl += 1;
+			} else {
+				return scancode;				/* let the BIOS do its work if not */
+			}
+		}
 
 		goto simulateKeyPress;
 	}
@@ -279,9 +285,15 @@ int cdecl NAME(cint15_handler)(uchar scancode)
 			if (keyflags & _KCHAR) 		/* skip over other characters */
 				tbl+=2;
 
-			if (keyflags & _KALTGRSHIFT &&	/* uses CTRL+ALT with shifts (polish) */
-				BIOSstate & 0x40)
-				tbl += 1;
+			if (BIOSstate & 0x40)					/* is Shift pressed ? */
+			{
+				if (keyflags & _KALTGRSHIFT)        /* uses ALTGREY with shifts if defined */
+				{
+					tbl += 1;
+				} else {
+					return scancode;				/* let the BIOS do its work if not */
+				}
+			}
 
 			goto simulateKeyPress;
 		}
@@ -316,6 +328,9 @@ int cdecl NAME(cint15_handler)(uchar scancode)
 	}
 
 simulateKeyPress:
+
+	if (tbl[0] == IGNORE)
+		return scancode;	/* let BIOS do its work */
 
 #ifdef COMBI
 	if (tbl[0] <= COMBI6)

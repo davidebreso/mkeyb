@@ -11,7 +11,7 @@
 #include "mkeyb.h"
 
 #define LANGUAGE "turkish-f"
-#define STATUS   "untested, by Davide"
+#define STATUS   "by Davide"
 
 #define COMBI
 
@@ -185,7 +185,7 @@ uchar NAME(combi6table)[] = {
 
 struct KeyboardDefinition NAME(Keyboard) = {
 	"TRF",                                          //char LanguageShort[4];			// "GR",
-	"TURKISH - F layout with combis (untested, by Davide)",    //char *Description;		// created by, "with combis"
+	"TURKISH - F layout with combis (by Davide)",    //char *Description;		// created by, "with combis"
 	DRIVER_FUNCTION_FULL,                          //char DriverFunctionRequired;
 	NAME(scancodetable),                           //char *ScancodeTable;
 #ifdef COMBI

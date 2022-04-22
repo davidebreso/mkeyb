@@ -755,8 +755,8 @@ int main(int argc, char *argv[])
 {
     struct KeyboardDefinition *kb = NULL;
 	uint GOTSR = 1;
-	uint int9hChain = AutodetectInt9h();
-	uint int16hChain = AutodetectInt16h();
+	uint int9hChain = 2;	/* 0 = disabled, 1 = enabled, 2 = autodetect */
+	uint int16hChain = 2;	/* 0 = disabled, 1 = enabled, 2 = autodetect */
 	uint enhancedKeyb = AutodetectKeyboard();
 	int i, kb_idx = LENGTH(KeyDefTab);
 	uchar far *pmodel;
@@ -853,6 +853,9 @@ int main(int argc, char *argv[])
 
 	printf("%s - %s\n", kb->LanguageShort, kb->Description);
 	UninstallKeyboard(0);
+	/* BUGFIX: be sure that mKEYB is unloaded before autodetecting INT 9 and INT 16 */
+	if(int9hChain > 1) int9hChain = AutodetectInt9h();
+	if(int16hChain > 1) int16hChain = AutodetectInt16h();
 	return InstallKeyboard(kb, GOTSR, int9hChain, int16hChain);
 }
 

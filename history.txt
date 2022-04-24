@@ -135,7 +135,7 @@
     add support for int 2f 0xAD80 function (keyb install check)
     executable compressed with PKLITE
 
-0.50 - 22 april 2022
+0.50 - 23 april 2022
     Turkish Q and Turkish F layout
     better support for AltGr+Shift modifier
     less obscure uninstall warning messages

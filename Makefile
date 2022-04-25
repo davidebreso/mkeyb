@@ -3,11 +3,14 @@ all: mkeyb.exe
 INST_SIG=19309			# mKEYB fingerprint "mK"
 VERSION=50				# version number
 VERSION_STR="0.50"		# version number text
+ZIPFILE=mkeyb050.zip
 
 TCC=bcc.exe
 TASM=tasm.exe
 TLIB=tlib.exe
-PACK=pklite.exe
+#PACK=pklite.exe
+PACK=upx --8086
+ZIP=zip
 
 TCCLINK=$(TCC) -lm -O -Z -g1
 TCCCOMP=$(TCC) -c  -O -Z -g1 -a-
@@ -58,7 +61,6 @@ keydefs = \
 #
 mkeyb.exe: mkeyb.obj  $(resdep) $(depends) $(keydefs)
 	$(TCCLINK) mKEYB.obj $(resdep) $(depends) keydef.lib
-	$(PACK) mkeyb.exe
 
 mkeyb.obj: mkeyb.c mkeyb.h
 	$(TCCCOMP) -DMY_INSTALL_SIGNATURE=$(INST_SIG) -DMY_VERSION_SIGNATURE=$(VERSION) -DMY_VERSION_TEXT=$(VERSION_STR) mKEYB.c
@@ -245,10 +247,14 @@ prf.obj: prf.c
 sscani.obj: sscani.c
 	$(TCCCOMP) sscani.c
 
-
 #useful when debugging/analysing code
 mkeyb.asm: mkeyb.c mkeyb.h
 	$(TCCCOMP) -S mKEYB.c
+
+# Pack executable and create zip file for release
+release:
+	$(PACK) mkeyb.exe
+	$(ZIP) $(ZIPFILE) *.exe *.txt *.md
 
 # copy driver to INSTALLDIR
 install:
@@ -259,7 +265,7 @@ clean:
 	del /eq *.obj
 	del /eq *.lib
 	del /eq *.bak
-        del /eq *.map
+	del /eq *.map
 	del /eq mkeyb.asm
 	del /eq mkeybr.asm
 	del /eq mkeybrc.asm

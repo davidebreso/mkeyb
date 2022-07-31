@@ -14,4 +14,6 @@ mkeybrf.asm
 push.*
 pull.*
 ignore.lst
+# Mac OS garbage
+.DS_Store
 

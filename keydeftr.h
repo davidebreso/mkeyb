@@ -196,7 +196,7 @@ uchar NAME(combi6table)[] = {
 
 struct KeyboardDefinition NAME(Keyboard) = {
 	"TR",                                          //char LanguageShort[4];			// "GR",
-	"TURKISH - Q layout with combis (by Davide, verified by W. Spiegl)",    //char *Description;		// created by, "with combis"
+	"TURKISH - Q with combis (by Davide, verified by W. Spiegl, @cardpuncher)",    //char *Description;		// created by, "with combis"
 	DRIVER_FUNCTION_FULL,                          //char DriverFunctionRequired;
 	NAME(scancodetable),                           //char *ScancodeTable;
 #ifdef COMBI

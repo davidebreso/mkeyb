@@ -622,7 +622,9 @@ extern struct KeyboardDefinition
 	,Keyboard_BGP
 	,Keyboard_DK
 	,Keyboard_GR
+	,Keyboard_GRstd
 	,Keyboard_GR2
+	,Keyboard_GR2std
 	,Keyboard_IT
 	,Keyboard_ITstd
 	,Keyboard_LA
@@ -689,8 +691,8 @@ struct KeyboardDefinition *StdKeyDefTab[] =
 	,&Keyboard_BX
 	,&Keyboard_DK
 	,&Keyboard_FR
-	,&Keyboard_GR
-	,&Keyboard_GR2
+	,&Keyboard_GRstd
+	,&Keyboard_GR2std
 	,&Keyboard_HE
 	,&Keyboard_ITstd
 	,&Keyboard_LA

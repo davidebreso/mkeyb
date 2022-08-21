@@ -29,7 +29,9 @@ resdep = mKEYBA.obj mkeybrc.obj mkeybr.obj mkeybrf.obj \
 keydefs = \
 	keydefdk.obj \
 	keydefGR.obj \
+	keystdGR.obj \
 	keydefG2.obj \
+	keystdG2.obj \
 	keydefIT.obj \
 	keystdIT.obj \
 	keydefLA.obj \
@@ -69,11 +71,23 @@ keydefgr.obj:  keydefgr.h  mkeyb.h
 	$(TCCCOMP) keydefgr.h
 	$(TLIB) keydef.lib -+ keydefgr.obj
 
+# GERMAN+STANDARD
+
+keystdgr.obj:  keydefgr.h  mkeyb.h
+	$(TCCCOMP) -okeystdgr -DSTANDARD keydefgr.h
+	$(TLIB) keydef.lib -+ keystdgr.obj
+
 # GERMAN+COMBI ( '`^ + AEIOU )
 
 keydefg2.obj: keydefgr.h  mkeyb.h
 	$(TCCCOMP) -okeydefg2 -DCOMBI keydefgr.h
 	$(TLIB) keydef.lib -+ keydefg2.obj
+
+# GERMAN+COMBI+STANDARD
+
+keystdg2.obj: keydefgr.h  mkeyb.h
+	$(TCCCOMP) -okeystdg2 -DSTANDARD -DCOMBI keydefgr.h
+	$(TLIB) keydef.lib -+ keystdg2.obj
 
 keydefsp.obj: keydefsp.h  mkeyb.h
 	$(TCCCOMP) keydefsp.h
@@ -274,3 +288,4 @@ clean:
 	del /eq mkeybrsc.asm
 
 # ############## end generic ##########################
+

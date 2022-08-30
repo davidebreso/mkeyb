@@ -1,9 +1,9 @@
 all: mkeyb.exe
 
 INST_SIG=19309			# mKEYB fingerprint "mK"
-VERSION=50				# version number
-VERSION_STR="0.50"		# version number text
-ZIPFILE=mkeyb050.zip
+VERSION=51				# version number
+VERSION_STR="0.51"		# version number text
+ZIPFILE=mkeyb051.zip
 
 TCC=bcc.exe
 TASM=tasm.exe
@@ -16,12 +16,6 @@ TCCLINK=$(TCC) -lm -O -Z -g1
 TCCCOMP=$(TCC) -c  -O -Z -g1 -a-
 
 INSTALLDIR=C:\DRIVERS
-
-#
-# each language gets 2 binaries:
-# the miniminimum 'mkeybXX.exe'
-# and additional  'mkeybXXc.exe' with additional COMBI characters
-#
 
 depends=prf.obj
 resdep = mKEYBA.obj mkeybrc.obj mkeybr.obj mkeybrf.obj \
@@ -59,13 +53,15 @@ keydefs = \
 	keydefTF.obj \
 
 #
-# GERMAN
+# MAIN EXECUTABLE
 #
 mkeyb.exe: mkeyb.obj  $(resdep) $(depends) $(keydefs)
 	$(TCCLINK) mKEYB.obj $(resdep) $(depends) keydef.lib
 
 mkeyb.obj: mkeyb.c mkeyb.h
 	$(TCCCOMP) -DMY_INSTALL_SIGNATURE=$(INST_SIG) -DMY_VERSION_SIGNATURE=$(VERSION) -DMY_VERSION_TEXT=$(VERSION_STR) mKEYB.c
+
+# GERMAN
 
 keydefgr.obj:  keydefgr.h  mkeyb.h
 	$(TCCCOMP) keydefgr.h
@@ -219,7 +215,7 @@ mkeybr.asm: mkeybr.c
 	$(TCCCOMP) -mt -S -zAINIT -zCI_TEXT -zDIB -zRID -zTID -zPI_GR -zBIB -zGI_GR -zSI_GR    mKEYBr.c
 
 #
-# resident part with combiES
+# resident part with combi
 #
 mkeybrC.obj: mkeybr.c
 	$(TCCCOMP) -mt    -zAINIT -zCI_TEXT -zDIB -zRID -zTID -zPI_GR -zBIB -zGI_GR -zSI_GR    -DCOMBI -omkeybrC mKEYBr.c

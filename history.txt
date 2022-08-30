@@ -142,6 +142,10 @@
     executable compressed with UPX
 
 0.51 - 30 august 2022
-	German 84 keys layouts gr and gr2 @Korkman
-	Tweaks and cleanups to the ehnanced german layouts by @Korkman
-	(merged from pull-request https://github/davidebreso/mkeyb/pull/3)
+    German 84 keys layouts, Tweaks and cleanups by @Korkman:
+      * Add: german 84-key layout (gr and gr2)
+      * Change: section sign § now cp850 compliant
+      * Add: superscript 2 and 3 for enhanced layout
+      * Bonus key: Ctrl-Alt-4: cp437 section sign (backup for affected users)
+      * Bonus key: Ctrl-Alt-Dash = Pipe, unavailable on 84-key german layout
+    (merged from pull-request https://github/davidebreso/mkeyb/pull/3)

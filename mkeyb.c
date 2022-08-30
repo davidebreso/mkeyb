@@ -7,7 +7,8 @@
 	for details, please see readme.txt
 
 
-	Copyright (C) 2002-2005 by www.tomehlert.de
+	Copyright (C) 2002-2018 by www.tomehlert.de
+	Copyright (C) 2022 by github.com/davidebreso
 */
 
 #include <dos.h>
@@ -38,11 +39,11 @@ int _fmemcmp(void far *d, void far *s, uint len)
 
 /*
     this allocates memory as undisturbing as possible.
-	strategy choosen:
-    allocate at end of memory, in upper memory if present
+	strategy choosen: allocate at end of memory,
+	in upper memory if present and tryHigh is true
 */
 
-AllocHighMemory(uint residentsize, int makeResident)
+AllocMemory(uint residentsize, int makeResident, int tryHigh)
 {
 	union REGS r;
 	uint allocSeg;
@@ -57,18 +58,22 @@ AllocHighMemory(uint residentsize, int makeResident)
 	oldstrategy = r.h.al;
 
 	r.x.ax = 0x5803;     /* set UMB link state */
-    r.x.bx = 0x0001;
+	r.x.bx = tryHigh;	 /* 0 = no UMB link, 1 = set UMB link */
 	int86(0x21,&r,&r);
 
-    r.x.ax = 0x5801;     /* set allocation strategy */
-	r.x.bx = 0x82;       /* last fit, try high, then low */
-    int86(0x21,&r,&r);
+	r.x.ax = 0x5801;     /* set allocation strategy */
+	if (tryHigh) {
+		r.x.bx = 0x82;       /* last fit, try high, then low */
+	} else {
+		r.x.bx = 0x02;       /* last fit, low memory only */
+	}
+	int86(0x21,&r,&r);
 
-    r.x.ax = 0x4800;                       /* dosAllocMem */
-    r.x.bx = (residentsize + 15) / 16;     /* size in paragraphs */
-    int86(0x21,&r,&r);
+	r.x.ax = 0x4800;                       /* dosAllocMem */
+	r.x.bx = (residentsize + 15) / 16;     /* size in paragraphs */
+	int86(0x21,&r,&r);
 
-    if (r.x.cflag) { printf("can't allocate memory\n");exit(1); }
+	if (r.x.cflag) { printf("can't allocate memory\n");exit(1); }
 
 	allocSeg = r.x.ax;
 
@@ -397,7 +402,7 @@ void UninstallKeyboard(int verbose)
 }
 
 InstallKeyboard(struct KeyboardDefinition *kb,
-		uint GOTSR, uint int9hChain, uint int16hChain)
+		uint GOTSR, uint int9hChain, uint int16hChain, uint tryHigh)
 {
 	union  REGS r;
 	struct SREGS sregs;
@@ -520,7 +525,7 @@ InstallKeyboard(struct KeyboardDefinition *kb,
 	residentsize = FP_OFF(pres);
 
 								/* fetch enough memory for the TSR part */
-	residentSeg = AllocHighMemory(residentsize,GOTSR);
+	residentSeg = AllocMemory(residentsize, GOTSR, tryHigh);
 
 #define RESPTR(x) MK_FP(residentSeg, (void near*)x)
 
@@ -730,7 +735,7 @@ void ListLanguages(void)
 
 void usage(void)
 {
-	printf( " Copyright (c) 2002-2018 www.tomehlert.de\n");
+	printf( "(c) 2002-2018 www.tomehlert.de, (c) 2022 davidebreso\n");
 
 	printf("MKEYB usage:\n"
 		   "      MKEYB UK - United Kingdom keyboard\n"
@@ -743,6 +748,7 @@ void usage(void)
 		   "      MKEYB /S - Specifies that a standard 83/84 keys keyboard is installed\n"
 		   "      MKEYB /9 - Installs INT 9 handler (/9- to disable)\n"
 		   "      MKEYB /G - Installs INT 16 handler (/G- to disable)\n"
+		   "      MKEYB /M - Installs driver in low memory\n"
 		   "      MKEYB GR /T - Tests the GERman keyboard driver, don't go resident\n"
 		   "When loaded:\n"
 		   "      Ctrl+Alt+F1 : International (QWERTY) keyboard\n"
@@ -760,6 +766,7 @@ int main(int argc, char *argv[])
 	uint int9hChain = 2;	/* 0 = disabled, 1 = enabled, 2 = autodetect */
 	uint int16hChain = 2;	/* 0 = disabled, 1 = enabled, 2 = autodetect */
 	uint enhancedKeyb = AutodetectKeyboard();
+	uint tryHigh = 1;		/* 0 = low memory only, 1 = try high then low */
 	int i, kb_idx = LENGTH(KeyDefTab);
 	uchar far *pmodel;
 
@@ -797,6 +804,9 @@ int main(int argc, char *argv[])
 					break;
 
 				case 'G': int16hChain = (argptr[2] != '-');
+					break;
+
+				case 'M': tryHigh = 0;
 					break;
 
 				default: printf("unknown argument <%s>\n", argptr+1);
@@ -858,7 +868,7 @@ int main(int argc, char *argv[])
 	/* BUGFIX: be sure that mKEYB is unloaded before autodetecting INT 9 and INT 16 */
 	if(int9hChain > 1) int9hChain = AutodetectInt9h();
 	if(int16hChain > 1) int16hChain = AutodetectInt16h();
-	return InstallKeyboard(kb, GOTSR, int9hChain, int16hChain);
+	return InstallKeyboard(kb, GOTSR, int9hChain, int16hChain, tryHigh);
 }
 
 /*
@@ -892,7 +902,7 @@ int main(int argc, char *argv[])
                              { UNREFERENCED_PARAMETER (__stream);
                                UNREFERENCED_PARAMETER ( __buf);
                                UNREFERENCED_PARAMETER ( __type);
-			       UNREFERENCED_PARAMETER ( __size);   return 0;}
+				   UNREFERENCED_PARAMETER ( __size);   return 0;}
 
     void    _Cdecl _xfflush (void){}
     void    _Cdecl _setupio (void){}

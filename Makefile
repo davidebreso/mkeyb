@@ -263,7 +263,7 @@ mkeyb.asm: mkeyb.c mkeyb.h
 
 # Pack executable and create zip file for release
 release:
-	$(PACK) mkeyb.exe
+	-$(PACK) mkeyb.exe
 	$(ZIP) $(ZIPFILE) *.exe *.txt *.md
 
 # copy driver to INSTALLDIR

@@ -43,6 +43,10 @@ mKEYB supports both keyboard types. An enhanced keyboard layout is available for
 
 The `/E` switch forces an enhanced keyboard layout, while `/S` forces a standard keyboard layout.
 
+## Loading in low memory
+
+The driver try to load itself into high memory, if available. The switch `/M`  forces installation of the resident part of the driver in low memory.
+
 ## How to uninstall it
 
 To uninstall the driver type `mkeyb /u` or `mkeyb us` (US keyboards do not need a driver).

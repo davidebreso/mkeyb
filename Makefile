@@ -1,9 +1,9 @@
 all: mkeyb.exe
 
 INST_SIG=19309			# mKEYB fingerprint "mK"
-VERSION=50				# version number
-VERSION_STR="0.50"		# version number text
-ZIPFILE=mkeyb050.zip
+VERSION=51				# version number
+VERSION_STR="0.51"		# version number text
+ZIPFILE=mkeyb051.zip
 
 TCC=bcc.exe
 TASM=tasm.exe
@@ -17,19 +17,15 @@ TCCCOMP=$(TCC) -c  -O -Z -g1 -a-
 
 INSTALLDIR=C:\DRIVERS
 
-#
-# each language gets 2 binaries:
-# the miniminimum 'mkeybXX.exe'
-# and additional  'mkeybXXc.exe' with additional COMBI characters
-#
-
 depends=prf.obj
 resdep = mKEYBA.obj mkeybrc.obj mkeybr.obj mkeybrf.obj \
 	mkeybrs.obj mkeybrsc.obj
 keydefs = \
 	keydefdk.obj \
 	keydefGR.obj \
+	keystdGR.obj \
 	keydefG2.obj \
+	keystdG2.obj \
 	keydefIT.obj \
 	keystdIT.obj \
 	keydefLA.obj \
@@ -57,7 +53,7 @@ keydefs = \
 	keydefTF.obj \
 
 #
-# GERMAN
+# MAIN EXECUTABLE
 #
 mkeyb.exe: mkeyb.obj  $(resdep) $(depends) $(keydefs)
 	$(TCCLINK) mKEYB.obj $(resdep) $(depends) keydef.lib
@@ -65,15 +61,29 @@ mkeyb.exe: mkeyb.obj  $(resdep) $(depends) $(keydefs)
 mkeyb.obj: mkeyb.c mkeyb.h
 	$(TCCCOMP) -DMY_INSTALL_SIGNATURE=$(INST_SIG) -DMY_VERSION_SIGNATURE=$(VERSION) -DMY_VERSION_TEXT=$(VERSION_STR) mKEYB.c
 
+# GERMAN
+
 keydefgr.obj:  keydefgr.h  mkeyb.h
 	$(TCCCOMP) keydefgr.h
 	$(TLIB) keydef.lib -+ keydefgr.obj
+
+# GERMAN+STANDARD
+
+keystdgr.obj:  keydefgr.h  mkeyb.h
+	$(TCCCOMP) -okeystdgr -DSTANDARD keydefgr.h
+	$(TLIB) keydef.lib -+ keystdgr.obj
 
 # GERMAN+COMBI ( '`^ + AEIOU )
 
 keydefg2.obj: keydefgr.h  mkeyb.h
 	$(TCCCOMP) -okeydefg2 -DCOMBI keydefgr.h
 	$(TLIB) keydef.lib -+ keydefg2.obj
+
+# GERMAN+COMBI+STANDARD
+
+keystdg2.obj: keydefgr.h  mkeyb.h
+	$(TCCCOMP) -okeystdg2 -DSTANDARD -DCOMBI keydefgr.h
+	$(TLIB) keydef.lib -+ keystdg2.obj
 
 keydefsp.obj: keydefsp.h  mkeyb.h
 	$(TCCCOMP) keydefsp.h
@@ -205,7 +215,7 @@ mkeybr.asm: mkeybr.c
 	$(TCCCOMP) -mt -S -zAINIT -zCI_TEXT -zDIB -zRID -zTID -zPI_GR -zBIB -zGI_GR -zSI_GR    mKEYBr.c
 
 #
-# resident part with combiES
+# resident part with combi
 #
 mkeybrC.obj: mkeybr.c
 	$(TCCCOMP) -mt    -zAINIT -zCI_TEXT -zDIB -zRID -zTID -zPI_GR -zBIB -zGI_GR -zSI_GR    -DCOMBI -omkeybrC mKEYBr.c
@@ -274,3 +284,4 @@ clean:
 	del /eq mkeybrsc.asm
 
 # ############## end generic ##########################
+

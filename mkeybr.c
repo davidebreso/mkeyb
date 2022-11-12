@@ -84,21 +84,12 @@ extern uchar * cdecl pResidentScancodetable;
 
 
 /* use BIOS INT16/05 to enter keystroke into key buffer */
-
-#ifdef __TURBOC__
-	#define GENERATE_KEYSTROKE(scancode,keycode)        \
-		_CL = keycode,                                  \
-		_CH = scancode,                                 \
-		_AH = 5;                                        \
-		__int__(0x16);
-#else
 static void GENERATE_KEYSTROKE(uchar scancode, uchar keycode);
 #pragma aux GENERATE_KEYSTROKE =     \
              "mov ah, 5"             \
              "int 0x16"              \
              __parm   [ch] [cl]      \
-             __modify [ah];
-#endif
+             __modify [ax];
 
 /* tech note: as michael Tyc found out, this interrupt
 		_asm mov AX,0x9102;

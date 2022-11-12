@@ -274,7 +274,7 @@ void UninstallKeyboard(int verbose)
 
 	uint installed, freemem = 1;
 
-	printf("current values %8lx, %8lx, %8lx , %8lx\n",int9handler, int16handler, int15handler, int2fhandler);
+	// printf("current values %8lx, %8lx, %8lx , %8lx\n",int9handler, int16handler, int15handler, int2fhandler);
 
 	installed = DetectKeyboardDriver(&resident);
 
@@ -290,7 +290,7 @@ void UninstallKeyboard(int verbose)
 		/* Current version of mKEYB is installed */
 		/* Check if you can uninstall it 		 */
 
-		printf("resident found at %x:0\n",resident);
+		// printf("resident found at %x:0\n",resident);
 		if (_fmemcmp( ((char far *)&OldInt15)-8,
 		   ((char far *)MK_FP(resident,FP_OFF(&OldInt15)))-8, 8) != 0)
 		{
@@ -314,7 +314,7 @@ void UninstallKeyboard(int verbose)
 		r.x.ax = 0xad82;  			// Disable current driver
 		r.x.bx = 0;
 		int86(0x2f,&r,&r);
-		printf("Old keyb driver disabled\n");
+		// printf("Old keyb driver disabled\n");
 		return;
 	}
 
@@ -323,7 +323,7 @@ void UninstallKeyboard(int verbose)
 	orig15 = *(void far *far*)MK_FP(resident,FP_OFF(&OldInt15));
 	orig2f = *(void far *far*)MK_FP(resident,FP_OFF(&OldInt2F));
 
-	printf("original values %8lx, %8lx, %8lx , %8lx\n",orig9, orig16, orig15,orig2f);
+	// printf("original values %8lx, %8lx, %8lx , %8lx\n",orig9, orig16, orig15,orig2f);
 
 	if (FP_SEG(int9handler) == resident)
 	{
@@ -331,7 +331,7 @@ void UninstallKeyboard(int verbose)
 		r.x.dx  = FP_OFF(orig9);
 		sr.ds   = FP_SEG(orig9);
 		int86x(0x21,&r,&r,&sr);
-		printf("int9 handler desinstalled\n");
+		// printf("int9 handler desinstalled\n");
 	} else {
 		freemem = (orig9 == NULL);
 	}
@@ -342,7 +342,7 @@ void UninstallKeyboard(int verbose)
 		r.x.dx  = FP_OFF(orig16);
 		sr.ds   = FP_SEG(orig16);
 		int86x(0x21,&r,&r,&sr);
-		printf("int16 handler desinstalled\n");
+		// printf("int16 handler desinstalled\n");
 	} else {
 		freemem = (orig16 == NULL);
 	}
@@ -353,7 +353,7 @@ void UninstallKeyboard(int verbose)
 		r.x.dx  = FP_OFF(orig15);
 		sr.ds   = FP_SEG(orig15);
 		int86x(0x21,&r,&r,&sr);
-		printf("int15 handler desinstalled\n");
+		// printf("int15 handler desinstalled\n");
 	} else {
 		freemem = (orig15 == NULL);
 	}
@@ -364,7 +364,7 @@ void UninstallKeyboard(int verbose)
 		r.x.dx  = FP_OFF(orig2f);
 		sr.ds   = FP_SEG(orig2f);
 		int86x(0x21,&r,&r,&sr);
-		printf("int2f handler deinstalled\n");
+		// printf("int2f handler deinstalled\n");
 	} else {
 		freemem = (orig2f == NULL);
 	}
@@ -378,7 +378,7 @@ void UninstallKeyboard(int verbose)
 		int86x(0x21,&r,&r,&sr);
 
 		*(short far*)MK_FP(resident-1, 1) = 0;   /* bums. DosFree(resident) */
-		printf("DOS memory at %x freed\n",resident);
+		// printf("DOS memory at %x freed\n",resident);
 		if (verbose)
 			printf("Old mKEYB deinstalled\n");
 	} else if (verbose) {
@@ -526,7 +526,7 @@ InstallKeyboard(struct KeyboardDefinition *kb,
 		r.x.dx  = FP_OFF(pint9_handler);
 		sregs.ds   = residentSeg;
 		int86x(0x21,&r,&r,&sregs);
-		printf("INT9 installed at %04x:%04x\n", sregs.ds, r.x.dx);
+		// printf("INT9 installed at %04x:%04x\n", sregs.ds, r.x.dx);
 	}
 	if(int16hChain)		/* install 1nt16 handler if requested */
 	{
@@ -534,19 +534,19 @@ InstallKeyboard(struct KeyboardDefinition *kb,
 		r.x.dx  = FP_OFF(pint16_handler);
 		sregs.ds   = residentSeg;
 		int86x(0x21,&r,&r,&sregs);
-		printf("INT16 installed at %04x:%04x\n", sregs.ds, r.x.dx);
+		// printf("INT16 installed at %04x:%04x\n", sregs.ds, r.x.dx);
 	}
 	r.x.ax  = 0x2515;                        /* dosSetVect */
 	r.x.dx  = FP_OFF(int15_handler);
 	sregs.ds   = residentSeg;
 	int86x(0x21,&r,&r,&sregs);
-	printf("INT15 installed at %04x:%04x\n", sregs.ds, r.x.dx);
+	// printf("INT15 installed at %04x:%04x\n", sregs.ds, r.x.dx);
 
 	r.x.ax  = 0x252f;                        /* dosSetVect */
 	r.x.dx  = FP_OFF(int2f_handler);
 	sregs.ds   = residentSeg;
 	int86x(0x21,&r,&r,&sregs);
-	printf("INT2F installed at %04x:%04x\n", sregs.ds, r.x.dx);
+	// printf("INT2F installed at %04x:%04x\n", sregs.ds, r.x.dx);
 
   }	/* done with install */
 
@@ -853,41 +853,3 @@ int main(int argc, char *argv[])
 	if(int16hChain > 1) int16hChain = AutodetectInt16h();
 	return InstallKeyboard(kb, GOTSR, int9hChain, int16hChain, tryHigh);
 }
-
-/*
-	TE - some size optimizations for __TURBOC__
-
-	as printf() is redefined in PRF.C to use no stream functions,
-	rather calls DOS directly, these Stream operations are nowhere used,
-    but happen to be in the executable.
-
-    so we define some dummy functions here to save some precious bytes :-)
-
-	this is in no way necessary, but saves us some 1500 bytes
-*/
-
-#ifdef __TURBOC__
-
-    #define UNREFERENCED_PARAMETER(x) if (x);
-
-    int     _Cdecl flushall (void){return 0;}
-
-	int     _Cdecl fprintf  (FILE *__stream, const char *__format, ...)
-                             { UNREFERENCED_PARAMETER (__stream);
-                               UNREFERENCED_PARAMETER ( __format);    return 0;}
-    int     _Cdecl fseek    (FILE *__stream, long __offset, int __whence)
-                             { UNREFERENCED_PARAMETER (__stream);
-                               UNREFERENCED_PARAMETER (__offset);
-							   UNREFERENCED_PARAMETER ( __whence);
-                               return 0;}
-
-    int     _Cdecl setvbuf  (FILE *__stream, char *__buf, int __type, size_t __size)
-                             { UNREFERENCED_PARAMETER (__stream);
-                               UNREFERENCED_PARAMETER ( __buf);
-                               UNREFERENCED_PARAMETER ( __type);
-				   UNREFERENCED_PARAMETER ( __size);   return 0;}
-
-    void    _Cdecl _xfflush (void){}
-    void    _Cdecl _setupio (void){}
-
-#endif

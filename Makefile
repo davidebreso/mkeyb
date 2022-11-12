@@ -9,58 +9,60 @@ WCC=wcc
 WASM=wasm
 TLIB=wlib
 WLINK=wlink
-#PACK=pklite.exe
+WDIS=wdis
 PACK=upx --8086
 ZIP=zip
 
 WCCLINK=$(WLINK)
-WCCCOMP=$(WCC) -s -os
+WCCCOMP=$(WCC) -s
 
 INSTALLDIR=~/Dosbox/c_drive
 
 depends=
-resdep = mKEYBA.o mkeybrc.o mkeybr.o mkeybrf.o mkeybrs.o mkeybrsc.o
+resdep = mkeyba.o mkeybrc.o mkeybr.o mkeybrf.o mkeybrs.o mkeybrsc.o
 keydefs = &
 	keydefdk.o &
-	keydefGR.o &
-	keystdGR.o &
-	keydefG2.o &
-	keystdG2.o &
-	keydefIT.o &
-	keystdIT.o &
-	keydefLA.o &
-	keydefNL.o &
+	keydefgr.o &
+	keystdgr.o &
+	keydefg2.o &
+	keystdg2.o &
+	keydefit.o &
+	keystdit.o &
+	keydefla.o &
+	keydefnl.o &
 	keydefno.o &
 	keydefpl.o &
-	keydefPO.o &
+	keydefpo.o &
 	keydefru.o &
-	keydefSF.o &
-	keydefSG.o &
-	keydefSP.o &
-	keydefSU.o &
-	keydefSV.o &
+	keydefsf.o &
+	keydefsg.o &
+	keydefsp.o &
+	keydefsu.o &
+	keydefsv.o &
 	keydefuk.o &
-	keydefBR.o &
-	keydefBX.o &
-	keydefFR.o &
-	keydefHE.o &
-	keydefBE.o &
-	keydefBG.o &
-	keydefBP.o &
-	keydefSL.o &
-	keydefUX.o &
-	keydefTR.o &
-	keydefTF.o &
+	keydefbr.o &
+	keydefbx.o &
+	keydeffr.o &
+	keydefhe.o &
+	keydefbe.o &
+	keydefbg.o &
+	keydefbp.o &
+	keydefsl.o &
+	keydefux.o &
+	keydeftr.o &
+	keydeftf.o &
+
+listfiles = mkeyb.lst mkeybr.lst mkeybrc.lst mkeybrf.lst mkeybrs.lst mkeybrsc.lst
 
 #
 # MAIN EXECUTABLE
 #
 mkeyb.exe: mkeyb.o  $(resdep) $(depends) $(keydefs)
-	$(WCCLINK) system dos file {mKEYB.o $(resdep) $(depends) keydef.lib} option map=mkeyb name mkeyb
+	$(WCCLINK) system dos file {mkeyb.o $(resdep) $(depends) keydef.lib} option map=mkeyb name mkeyb
 	$(PACK) mkeyb.exe
 
 mkeyb.o: mkeyb.c mkeyb.h
-	$(WCCCOMP) -DMY_INSTALL_SIGNATURE=$(INST_SIG) -DMY_VERSION_SIGNATURE=$(VERSION) -DMY_VERSION_TEXT=$(VERSION_STR) mKEYB.c
+	$(WCCCOMP) -DMY_INSTALL_SIGNATURE=$(INST_SIG) -DMY_VERSION_SIGNATURE=$(VERSION) -DMY_VERSION_TEXT=$(VERSION_STR) mkeyb.c
 
 # GERMAN
 
@@ -191,7 +193,7 @@ keydeftf.o: keydeftf.h  mkeyb.h
 	$(TLIB) keydef.lib -+keydeftf.o
 
 #mkeybGRc.exe: mkeyb.c keydefGR.h $(combidepends)
-#	$(WCCLINK) -emkeybGRc -DLANG_GR -DCOMBI mKEYB.c $(combidepends)
+#	$(WCCLINK) -emkeybGRc -DLANG_GR -DCOMBI mkeyb.c $(combidepends)
 #	$(XUPX) mkeybGRc.exe
 
 # ############## generic ##########################
@@ -202,68 +204,65 @@ keydeftf.o: keydeftf.h  mkeyb.h
 #
 #assembly stub
 #
-mkeybA.o: mkeybA.ASM
-	$(WASM) -dMY_INSTALL_SIGNATURE=$(INST_SIG) -dMY_VERSION_SIGNATURE=$(VERSION) mKEYBA.asm
+mkeyba.o: mkeyba.asm
+	$(WASM) -dMY_INSTALL_SIGNATURE=$(INST_SIG) -dMY_VERSION_SIGNATURE=$(VERSION) mkeyba.asm
 
 #
 # resident part
 #
 
 mkeybr.o: mkeybr.c
-	$(WCCCOMP) -ms -nd=I mKEYBr.c
+	$(WCCCOMP) -ms -nd=I mkeybr.c
 
-mkeybr.asm: mkeybr.c
-	$(WCCCOMP) -ms -S     mKEYBr.c
+mkeybr.lst: mkeybr.o
+	$(WDIS) -l mkeybr
 
 #
 # resident part with combi
 #
-mkeybrC.o: mkeybr.c
-	$(WCCCOMP) -ms -nd=I -DCOMBI -fo=mkeybrC mKEYBr.c
+mkeybrc.o: mkeybr.c
+	$(WCCCOMP) -ms -nd=I -DCOMBI -fo=mkeybrc mkeybr.c
 
-mkeybrC.asm: mkeybr.c
-	$(WCCCOMP) -ms -S  -nd=I   -DCOMBI -fo=mkeybrC mKEYBr.c
+mkeybrc.lst: mkeybrc.o
+	$(WDIS) -l mkeybrc
 
 #
 # FASTSWITCH resident part without ALTGREY, REPLACESCAN, DECIMALDINGSBUMS
 # The right Ctrl toggles between native QWERTY and national keyboard
 #
 mkeybrf.o: mkeybr.c
-	$(WCCCOMP) -ms  -nd=I      -DFASTSWITCH -fo=mkeybrF mKEYBr.c
+	$(WCCCOMP) -ms  -nd=I      -DFASTSWITCH -fo=mkeybrf mkeybr.c
 
-mkeybrf.asm: mkeybr.c
-	$(WCCCOMP) -ms -S  -nd=I   -DFASTSWITCH -fo=mkeybrF mKEYBr.c
+mkeybrf.lst: mkeybrc.o
+	$(WDIS) -l mkeybrf
 
 #
 # resident part for 83 keys "standard" keyboards
 #
-mkeybrS.o: mkeybr.c
-	$(WCCCOMP) -ms   -nd=I     -DSTANDARD -fo=mkeybrS mKEYBr.c
+mkeybrs.o: mkeybr.c
+	$(WCCCOMP) -ms   -nd=I     -DSTANDARD -fo=mkeybrs mkeybr.c
 
-mkeybrS.asm: mkeybr.c
-	$(WCCCOMP) -ms -S  -nd=I   -DSTANDARD -fo=mkeybrS mKEYBr.c
+mkeybrs.lst: mkeybrc.o
+	$(WDIS) -l mkeybrs
 
 #
 # resident part for 83 keys "standard" keyboards with COMBI
 #
-mkeybrSC.o: mkeybr.c
-	$(WCCCOMP) -ms   -nd=I     -DSTD_FULL -fo=mkeybrSC mKEYBr.c
+mkeybrsc.o: mkeybr.c
+	$(WCCCOMP) -ms   -nd=I     -DSTD_FULL -fo=mkeybrsc mkeybr.c
 
-mkeybrSC.asm: mkeybr.c
-	$(WCCCOMP) -ms -S  -nd=I   -DSTD_FULL -fo=mkeybrSC mKEYBr.c
-
-prf.o: prf.c
-	$(WCCCOMP) -DFORSYS prf.c
-
-sscani.o: sscani.c
-	$(WCCCOMP) sscani.c
+mkeybrsc.lst: mkeybrc.o
+	$(WDIS) -l mkeybrsc
 
 #useful when debugging/analysing code
-mkeyb.asm: mkeyb.c mkeyb.h
-	$(WCCCOMP) -S mKEYB.c
+mkeyb.lst: mkeyb.o
+	$(WDIS) -l mkeyb
+	
+listings: $(listfiles)
 
 # Create zip file for release
 release
+	rm -f $(ZIPFILE)
 	$(ZIP) $(ZIPFILE) *.exe *.txt *.md
 
 # copy driver to INSTALLDIR
@@ -276,13 +275,11 @@ clean
 	rm -f *.lib
 	rm -f *.bak
 	rm -f *.map
-	rm -f mkeyb.asm
-	rm -f mkeybr.asm
-	rm -f mkeybrc.asm
-	rm -f mkeybrf.asm
-	rm -f mkeybrs.asm
-	rm -f mkeybrsc.asm
+	rm -f *.lst
 	
+distclean: clean .SYMBOLIC
+	rm -f mkeyb.exe
+	rm -f $(ZIPFILE)
 
 # ############## end generic ##########################
 

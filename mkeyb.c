@@ -14,28 +14,14 @@
 #include <dos.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <ctype.h>
+#include <string.h>
 
 #include "mkeyb.h"
 
 #define MY_MEMORY_SIGNATURE "mKEYB   "
 
 #define DBGprintf printf
-
-void fmemcpy(void far *d, void far *s, uint len)
-{
-	uchar far *dc = d,far *sc = s;
-	for (; len; len--)
-	*dc++ = *sc++;
-}
-
-int _fmemcmp(void far *d, void far *s, uint len)
-{
-	uchar far *dc = d,far *sc = s;
-	for (; len; len--)
-	if (*dc++ != *sc++)
-		return 1;
-    return 0;
-}
 
 /*
     this allocates memory as undisturbing as possible.
@@ -80,7 +66,7 @@ AllocMemory(uint residentsize, int makeResident, int tryHigh)
 	if (makeResident)
 	{
 		*(short far*)MK_FP(allocSeg-1, 1) = allocSeg;   /* makes it selfreferencing */
-		fmemcpy(MK_FP(allocSeg-1, 8), MY_MEMORY_SIGNATURE, 8);   /* mark our name */
+		_fmemcpy(MK_FP(allocSeg-1, 8), MY_MEMORY_SIGNATURE, 8);   /* mark our name */
 	}
 
 	r.x.ax = 0x5803;     /* reset UMB link state */
@@ -173,7 +159,7 @@ int AutodetectInt9h()
 
 	r.h.ah = 0xc0;
 	int86x(0x15, &r, &r, &sr);		/* INT 15,C0: Get system configuration */
-	if ((r.x.flags & 0x01) == 0)  	/* CF = 0 */
+	if ((r.x.cflag & 0x01) == 0)  	/* CF = 0 */
 	{
 		/* ROM Table is at ES:BX, feature byte 1 at offset 5 */
 		uchar fbyte = *(uchar far *)MK_FP(sr.es, r.x.bx + 5);
@@ -201,7 +187,7 @@ int AutodetectInt16h()
 	int86(0x16, &r, &r);	/* try to add keystroke into buffer */
 	r.h.ah = 01;
 	int86(0x16, &r, &r);	/* check for keystroke */
-	if((r.x.flags & 0x40) == 0)     /* ZF = 0 */
+	if((r.x.cflag & 0x40) == 0)     /* ZF = 0 */
 	{
 		// printf("Keystroke: %04x\n", r.x.ax);
 		/* Clear buffer */
@@ -280,7 +266,7 @@ void UninstallKeyboard(int verbose)
 	void far *int16handler = *(void far *far *)MK_FP(0,4*0x16);
 	void far *int15handler = *(void far *far *)MK_FP(0,4*0x15);
 	void far *int2fhandler = *(void far *far *)MK_FP(0,4*0x2f);
-	unsigned resident = NULL;
+	unsigned resident = (unsigned)NULL;
 	void far *orig9, far *orig16, far *orig15, far *orig2f;
 
 	union  REGS r;
@@ -288,7 +274,7 @@ void UninstallKeyboard(int verbose)
 
 	uint installed, freemem = 1;
 
-	// printf("current values %8lx, %8lx, %8lx , %8lx\n",int9handler, int16handler, int15handler, int2fhandler);
+	printf("current values %8lx, %8lx, %8lx , %8lx\n",int9handler, int16handler, int15handler, int2fhandler);
 
 	installed = DetectKeyboardDriver(&resident);
 
@@ -304,7 +290,7 @@ void UninstallKeyboard(int verbose)
 		/* Current version of mKEYB is installed */
 		/* Check if you can uninstall it 		 */
 
-		// printf("resident found at %x:0\n",resident);
+		printf("resident found at %x:0\n",resident);
 		if (_fmemcmp( ((char far *)&OldInt15)-8,
 		   ((char far *)MK_FP(resident,FP_OFF(&OldInt15)))-8, 8) != 0)
 		{
@@ -328,7 +314,7 @@ void UninstallKeyboard(int verbose)
 		r.x.ax = 0xad82;  			// Disable current driver
 		r.x.bx = 0;
 		int86(0x2f,&r,&r);
-		// printf("Old keyb driver disabled\n");
+		printf("Old keyb driver disabled\n");
 		return;
 	}
 
@@ -337,7 +323,7 @@ void UninstallKeyboard(int verbose)
 	orig15 = *(void far *far*)MK_FP(resident,FP_OFF(&OldInt15));
 	orig2f = *(void far *far*)MK_FP(resident,FP_OFF(&OldInt2F));
 
-	// printf("original values %8lx, %8lx, %8lx , %8lx\n",orig9, orig16, orig15,orig2f);
+	printf("original values %8lx, %8lx, %8lx , %8lx\n",orig9, orig16, orig15,orig2f);
 
 	if (FP_SEG(int9handler) == resident)
 	{
@@ -345,7 +331,7 @@ void UninstallKeyboard(int verbose)
 		r.x.dx  = FP_OFF(orig9);
 		sr.ds   = FP_SEG(orig9);
 		int86x(0x21,&r,&r,&sr);
-		// printf("int9 handler desinstalled\n");
+		printf("int9 handler desinstalled\n");
 	} else {
 		freemem = (orig9 == NULL);
 	}
@@ -356,7 +342,7 @@ void UninstallKeyboard(int verbose)
 		r.x.dx  = FP_OFF(orig16);
 		sr.ds   = FP_SEG(orig16);
 		int86x(0x21,&r,&r,&sr);
-		// printf("int16 handler desinstalled\n");
+		printf("int16 handler desinstalled\n");
 	} else {
 		freemem = (orig16 == NULL);
 	}
@@ -367,7 +353,7 @@ void UninstallKeyboard(int verbose)
 		r.x.dx  = FP_OFF(orig15);
 		sr.ds   = FP_SEG(orig15);
 		int86x(0x21,&r,&r,&sr);
-		// printf("int15 handler desinstalled\n");
+		printf("int15 handler desinstalled\n");
 	} else {
 		freemem = (orig15 == NULL);
 	}
@@ -378,7 +364,7 @@ void UninstallKeyboard(int verbose)
 		r.x.dx  = FP_OFF(orig2f);
 		sr.ds   = FP_SEG(orig2f);
 		int86x(0x21,&r,&r,&sr);
-		// printf("int2f handler deinstalled\n");
+		printf("int2f handler deinstalled\n");
 	} else {
 		freemem = (orig2f == NULL);
 	}
@@ -392,7 +378,7 @@ void UninstallKeyboard(int verbose)
 		int86x(0x21,&r,&r,&sr);
 
 		*(short far*)MK_FP(resident-1, 1) = 0;   /* bums. DosFree(resident) */
-		// printf("DOS memory at %x freed\n",resident);
+		printf("DOS memory at %x freed\n",resident);
 		if (verbose)
 			printf("Old mKEYB deinstalled\n");
 	} else if (verbose) {
@@ -434,10 +420,10 @@ InstallKeyboard(struct KeyboardDefinition *kb,
 	 * Do this before copying.
 	 * Save only the handlers that will be installed.
 	 */
-	if(int9hChain) 	OldInt9 = getvect(0x9);
-	if(int16hChain) OldInt16 = getvect(0x16);
-	OldInt15 = getvect(0x15);
-	OldInt2F = getvect(0x2f);
+	if(int9hChain) 	OldInt9 = _dos_getvect(0x9);
+	if(int16hChain) OldInt16 = _dos_getvect(0x16);
+	OldInt15 = _dos_getvect(0x15);
+	OldInt2F = _dos_getvect(0x2f);
 
   {	/* install the resident part */
 	void far *pint15_handler;
@@ -487,14 +473,14 @@ InstallKeyboard(struct KeyboardDefinition *kb,
 	}
 
 	pres = (void far *)cint15_handler_full;
-	fmemcpy(pres, pint15_handler, int15_handler_size);
+	_fmemcpy(pres, pint15_handler, int15_handler_size);
 	pres += int15_handler_size;
 	if(int9hChain)
 	{
 		/* copy the INT9 handler */
 		pint9_handler = pres;
 		int9_handler_size = FP_OFF(int16_handler) - FP_OFF(int9_handler);
-		fmemcpy(pres, int9_handler, int9_handler_size);
+		_fmemcpy(pres, int9_handler, int9_handler_size);
 		pres += int9_handler_size;
 	}
 	if(int16hChain)
@@ -502,7 +488,7 @@ InstallKeyboard(struct KeyboardDefinition *kb,
 		/* copy the INT16 handler */
 		pint16_handler = pres;
 		int16_handler_size = FP_OFF(END_int16_handler) - FP_OFF(int16_handler);
-		fmemcpy(pres, int16_handler, int16_handler_size);
+		_fmemcpy(pres, int16_handler, int16_handler_size);
 		pres += int16_handler_size;
 	}
 
@@ -514,7 +500,7 @@ InstallKeyboard(struct KeyboardDefinition *kb,
 						(kb->CombicodeTables[i-COMBI1] - kb->ScancodeTable);
 	}
 
-	fmemcpy(pres, kb->ScancodeTable, (char *)kb - (char *)kb->ScancodeTable);
+	_fmemcpy(pres, kb->ScancodeTable, (char *)kb - (char *)kb->ScancodeTable);
 	pres += (char *)kb - (char *)(kb->ScancodeTable);
 
 	DecimalDingsBums = kb->DezimalDingsbums;
@@ -530,7 +516,7 @@ InstallKeyboard(struct KeyboardDefinition *kb,
 #define RESPTR(x) MK_FP(residentSeg, (void near*)x)
 
 							/* copy code and data up into (high) memory */
-	fmemcpy(RESPTR(0),
+	_fmemcpy(RESPTR(0),
 		MK_FP(FP_SEG(int15_handler),0),
 		residentsize);
 
@@ -540,7 +526,7 @@ InstallKeyboard(struct KeyboardDefinition *kb,
 		r.x.dx  = FP_OFF(pint9_handler);
 		sregs.ds   = residentSeg;
 		int86x(0x21,&r,&r,&sregs);
-		// printf("INT9 installed at %04x:%04x\n", sregs.ds, r.x.dx);
+		printf("INT9 installed at %04x:%04x\n", sregs.ds, r.x.dx);
 	}
 	if(int16hChain)		/* install 1nt16 handler if requested */
 	{
@@ -548,19 +534,19 @@ InstallKeyboard(struct KeyboardDefinition *kb,
 		r.x.dx  = FP_OFF(pint16_handler);
 		sregs.ds   = residentSeg;
 		int86x(0x21,&r,&r,&sregs);
-		// printf("INT16 installed at %04x:%04x\n", sregs.ds, r.x.dx);
+		printf("INT16 installed at %04x:%04x\n", sregs.ds, r.x.dx);
 	}
 	r.x.ax  = 0x2515;                        /* dosSetVect */
 	r.x.dx  = FP_OFF(int15_handler);
 	sregs.ds   = residentSeg;
 	int86x(0x21,&r,&r,&sregs);
-	// printf("INT15 installed at %04x:%04x\n", sregs.ds, r.x.dx);
+	printf("INT15 installed at %04x:%04x\n", sregs.ds, r.x.dx);
 
 	r.x.ax  = 0x252f;                        /* dosSetVect */
 	r.x.dx  = FP_OFF(int2f_handler);
 	sregs.ds   = residentSeg;
 	int86x(0x21,&r,&r,&sregs);
-	// printf("INT2F installed at %04x:%04x\n", sregs.ds, r.x.dx);
+	printf("INT2F installed at %04x:%04x\n", sregs.ds, r.x.dx);
 
   }	/* done with install */
 
@@ -601,7 +587,7 @@ InstallKeyboard(struct KeyboardDefinition *kb,
 
 		r.h.ah = 0x01;
 		int86(0x16,&r,&r);
-		if ((r.x.flags & 0x40) == 0)  /* ZF = 0 */
+		if ((r.x.cflag & 0x40) == 0)  /* ZF = 0 */
 		{
 			r.h.ah = 0x00;
 			int86(0x16,&r,&r);
@@ -611,10 +597,10 @@ InstallKeyboard(struct KeyboardDefinition *kb,
 	}
 	while (last_scancode != 1);
   } /* end debug */
-	if(int9hChain) 	setvect(0x9,OldInt9);
-	if(int16hChain) setvect(0x16,OldInt16);
-	setvect(0x15,OldInt15);
-	setvect(0x2f,OldInt2F);
+	if(int9hChain) 	_dos_setvect(0x9,OldInt9);
+	if(int16hChain) _dos_setvect(0x16,OldInt16);
+	_dos_setvect(0x15,OldInt15);
+	_dos_setvect(0x2f,OldInt2F);
 
 	printf(" mKEYB - uninstalled\n");
 
@@ -770,9 +756,6 @@ int main(int argc, char *argv[])
 	int i, kb_idx = LENGTH(KeyDefTab);
 	uchar far *pmodel;
 
-	if (argv);
-	if (argc);
-
 	printf("mKEYB " MY_VERSION_TEXT " [" __DATE__ "] - " );
 
 	for (i = 1; i < argc; i++)
@@ -818,7 +801,7 @@ int main(int argc, char *argv[])
 		} else {
 			for (kb_idx = 0; kb_idx < LENGTH(KeyDefTab); kb_idx++)
 			{
-				if (stricmp(argptr,KeyDefTab[kb_idx]->LanguageShort) == 0)
+				if (_stricmp(argptr,KeyDefTab[kb_idx]->LanguageShort) == 0)
 				{
 					break;
 				}

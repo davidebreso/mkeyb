@@ -149,3 +149,7 @@
       * Bonus key: Ctrl-Alt-4: cp437 section sign (backup for affected users)
       * Bonus key: Ctrl-Alt-Dash = Pipe, unavailable on 84-key german layout
     Option /M to install the driver in low memory
+    
+0.52 - 12 November 2022
+    Code ported to Open Watcom v2. Now mKEYB can be compiled on modern system
+    without the need of a DOS machine or a DOS emulator. 

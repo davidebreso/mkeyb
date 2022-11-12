@@ -1,196 +1,197 @@
 all: mkeyb.exe
 
 INST_SIG=19309			# mKEYB fingerprint "mK"
-VERSION=51				# version number
-VERSION_STR="0.51"		# version number text
-ZIPFILE=mkeyb051.zip
+VERSION=52				# version number
+VERSION_STR=\"0.52\"		# version number text
+ZIPFILE=mkeyb052.zip
 
-TCC=bcc.exe
-TASM=tasm.exe
-TLIB=tlib.exe
+WCC=wcc
+WASM=wasm
+TLIB=wlib
+WLINK=wlink
 #PACK=pklite.exe
 PACK=upx --8086
 ZIP=zip
 
-TCCLINK=$(TCC) -lm -O -Z -g1
-TCCCOMP=$(TCC) -c  -O -Z -g1 -a-
+WCCLINK=$(WLINK)
+WCCCOMP=$(WCC) -s -os
 
-INSTALLDIR=C:\DRIVERS
+INSTALLDIR=~/Dosbox/c_drive
 
-depends=prf.obj
-resdep = mKEYBA.obj mkeybrc.obj mkeybr.obj mkeybrf.obj \
-	mkeybrs.obj mkeybrsc.obj
-keydefs = \
-	keydefdk.obj \
-	keydefGR.obj \
-	keystdGR.obj \
-	keydefG2.obj \
-	keystdG2.obj \
-	keydefIT.obj \
-	keystdIT.obj \
-	keydefLA.obj \
-	keydefNL.obj \
-	keydefno.obj \
-	keydefpl.obj \
-	keydefPO.obj \
-	keydefru.obj \
-	keydefSF.obj \
-	keydefSG.obj \
-	keydefSP.obj \
-	keydefSU.obj \
-	keydefSV.obj \
-	keydefuk.obj \
-	keydefBR.obj \
-	keydefBX.obj \
-	keydefFR.obj \
-	keydefHE.obj \
-	keydefBE.obj \
-	keydefBG.obj \
-	keydefBP.obj \
-	keydefSL.obj \
-	keydefUX.obj \
-	keydefTR.obj \
-	keydefTF.obj \
+depends=
+resdep = mKEYBA.o mkeybrc.o mkeybr.o mkeybrf.o mkeybrs.o mkeybrsc.o
+keydefs = &
+	keydefdk.o &
+	keydefGR.o &
+	keystdGR.o &
+	keydefG2.o &
+	keystdG2.o &
+	keydefIT.o &
+	keystdIT.o &
+	keydefLA.o &
+	keydefNL.o &
+	keydefno.o &
+	keydefpl.o &
+	keydefPO.o &
+	keydefru.o &
+	keydefSF.o &
+	keydefSG.o &
+	keydefSP.o &
+	keydefSU.o &
+	keydefSV.o &
+	keydefuk.o &
+	keydefBR.o &
+	keydefBX.o &
+	keydefFR.o &
+	keydefHE.o &
+	keydefBE.o &
+	keydefBG.o &
+	keydefBP.o &
+	keydefSL.o &
+	keydefUX.o &
+	keydefTR.o &
+	keydefTF.o &
 
 #
 # MAIN EXECUTABLE
 #
-mkeyb.exe: mkeyb.obj  $(resdep) $(depends) $(keydefs)
-	$(TCCLINK) mKEYB.obj $(resdep) $(depends) keydef.lib
+mkeyb.exe: mkeyb.o  $(resdep) $(depends) $(keydefs)
+	$(WCCLINK) system dos file {mKEYB.o $(resdep) $(depends) keydef.lib} option map=mkeyb name mkeyb
+	$(PACK) mkeyb.exe
 
-mkeyb.obj: mkeyb.c mkeyb.h
-	$(TCCCOMP) -DMY_INSTALL_SIGNATURE=$(INST_SIG) -DMY_VERSION_SIGNATURE=$(VERSION) -DMY_VERSION_TEXT=$(VERSION_STR) mKEYB.c
+mkeyb.o: mkeyb.c mkeyb.h
+	$(WCCCOMP) -DMY_INSTALL_SIGNATURE=$(INST_SIG) -DMY_VERSION_SIGNATURE=$(VERSION) -DMY_VERSION_TEXT=$(VERSION_STR) mKEYB.c
 
 # GERMAN
 
-keydefgr.obj:  keydefgr.h  mkeyb.h
-	$(TCCCOMP) keydefgr.h
-	$(TLIB) keydef.lib -+ keydefgr.obj
+keydefgr.o:  keydefgr.h  mkeyb.h
+	$(WCCCOMP) keydefgr.h
+	$(TLIB) keydef.lib -+keydefgr.o
 
 # GERMAN+STANDARD
 
-keystdgr.obj:  keydefgr.h  mkeyb.h
-	$(TCCCOMP) -okeystdgr -DSTANDARD keydefgr.h
-	$(TLIB) keydef.lib -+ keystdgr.obj
+keystdgr.o:  keydefgr.h  mkeyb.h
+	$(WCCCOMP) -fo=keystdgr -DSTANDARD keydefgr.h
+	$(TLIB) keydef.lib -+keystdgr.o
 
 # GERMAN+COMBI ( '`^ + AEIOU )
 
-keydefg2.obj: keydefgr.h  mkeyb.h
-	$(TCCCOMP) -okeydefg2 -DCOMBI keydefgr.h
-	$(TLIB) keydef.lib -+ keydefg2.obj
+keydefg2.o: keydefgr.h  mkeyb.h
+	$(WCCCOMP) -fo=keydefg2 -DCOMBI keydefgr.h
+	$(TLIB) keydef.lib -+keydefg2.o
 
 # GERMAN+COMBI+STANDARD
 
-keystdg2.obj: keydefgr.h  mkeyb.h
-	$(TCCCOMP) -okeystdg2 -DSTANDARD -DCOMBI keydefgr.h
-	$(TLIB) keydef.lib -+ keystdg2.obj
+keystdg2.o: keydefgr.h  mkeyb.h
+	$(WCCCOMP) -fo=keystdg2 -DSTANDARD -DCOMBI keydefgr.h
+	$(TLIB) keydef.lib -+keystdg2.o
 
-keydefsp.obj: keydefsp.h  mkeyb.h
-	$(TCCCOMP) keydefsp.h
-	$(TLIB) keydef.lib -+ keydefsp.obj
+keydefsp.o: keydefsp.h  mkeyb.h
+	$(WCCCOMP) keydefsp.h
+	$(TLIB) keydef.lib -+keydefsp.o
 
-keydefru.obj: keydefru.h  mkeyb.h
-	$(TCCCOMP) keydefru.h
-	$(TLIB) keydef.lib -+ keydefru.obj
+keydefru.o: keydefru.h  mkeyb.h
+	$(WCCCOMP) keydefru.h
+	$(TLIB) keydef.lib -+keydefru.o
 
-keydefdk.obj: keydefdk.h  mkeyb.h
-	$(TCCCOMP) keydefdk.h
-	$(TLIB) keydef.lib -+ keydefdk.obj
+keydefdk.o: keydefdk.h  mkeyb.h
+	$(WCCCOMP) keydefdk.h
+	$(TLIB) keydef.lib -+keydefdk.o
 
-keydefit.obj: keydefit.h  mkeyb.h
-	$(TCCCOMP) keydefit.h
-	$(TLIB) keydef.lib -+ keydefit.obj
+keydefit.o: keydefit.h  mkeyb.h
+	$(WCCCOMP) keydefit.h
+	$(TLIB) keydef.lib -+keydefit.o
 
-keystdit.obj: keydefit.h  mkeyb.h
-	$(TCCCOMP) -okeystdit -DSTANDARD keydefit.h
-	$(TLIB) keydef.lib -+ keystdit.obj
+keystdit.o: keydefit.h  mkeyb.h
+	$(WCCCOMP) -fo=keystdit -DSTANDARD keydefit.h
+	$(TLIB) keydef.lib -+keystdit.o
 
-keydefla.obj: keydefla.h  mkeyb.h
-	$(TCCCOMP) keydefla.h
-	$(TLIB) keydef.lib -+ keydefla.obj
+keydefla.o: keydefla.h  mkeyb.h
+	$(WCCCOMP) keydefla.h
+	$(TLIB) keydef.lib -+keydefla.o
 
-keydefnl.obj: keydefnl.h  mkeyb.h
-	$(TCCCOMP) keydefnl.h
-	$(TLIB) keydef.lib -+ keydefnl.obj
+keydefnl.o: keydefnl.h  mkeyb.h
+	$(WCCCOMP) keydefnl.h
+	$(TLIB) keydef.lib -+keydefnl.o
 
-keydefno.obj: keydefno.h  mkeyb.h
-	$(TCCCOMP) keydefno.h
-	$(TLIB) keydef.lib -+ keydefno.obj
+keydefno.o: keydefno.h  mkeyb.h
+	$(WCCCOMP) keydefno.h
+	$(TLIB) keydef.lib -+keydefno.o
 
-keydefpl.obj: keydefpl.h  mkeyb.h
-	$(TCCCOMP) keydefpl.h
-	$(TLIB) keydef.lib -+ keydefpl.obj
+keydefpl.o: keydefpl.h  mkeyb.h
+	$(WCCCOMP) keydefpl.h
+	$(TLIB) keydef.lib -+keydefpl.o
 
-keydefpo.obj: keydefpo.h  mkeyb.h
-	$(TCCCOMP) keydefpo.h
-	$(TLIB) keydef.lib -+ keydefpo.obj
+keydefpo.o: keydefpo.h  mkeyb.h
+	$(WCCCOMP) keydefpo.h
+	$(TLIB) keydef.lib -+keydefpo.o
 
-keydefsf.obj: keydefsf.h  mkeyb.h
-	$(TCCCOMP) keydefsf.h
-	$(TLIB) keydef.lib -+ keydefsf.obj
+keydefsf.o: keydefsf.h  mkeyb.h
+	$(WCCCOMP) keydefsf.h
+	$(TLIB) keydef.lib -+keydefsf.o
 
-keydefsg.obj: keydefsg.h  mkeyb.h
-	$(TCCCOMP) keydefsg.h
-	$(TLIB) keydef.lib -+ keydefsg.obj
+keydefsg.o: keydefsg.h  mkeyb.h
+	$(WCCCOMP) keydefsg.h
+	$(TLIB) keydef.lib -+keydefsg.o
 
-keydefsu.obj: keydefsu.h  mkeyb.h
-	$(TCCCOMP) keydefsu.h
-	$(TLIB) keydef.lib -+ keydefsu.obj
+keydefsu.o: keydefsu.h  mkeyb.h
+	$(WCCCOMP) keydefsu.h
+	$(TLIB) keydef.lib -+keydefsu.o
 
-keydefsv.obj: keydefsv.h  mkeyb.h
-	$(TCCCOMP) keydefsv.h
-	$(TLIB) keydef.lib -+ keydefsv.obj
+keydefsv.o: keydefsv.h  mkeyb.h
+	$(WCCCOMP) keydefsv.h
+	$(TLIB) keydef.lib -+keydefsv.o
 
-keydefuk.obj: keydefuk.h  mkeyb.h
-	$(TCCCOMP) keydefuk.h
-	$(TLIB) keydef.lib -+ keydefuk.obj
+keydefuk.o: keydefuk.h  mkeyb.h
+	$(WCCCOMP) keydefuk.h
+	$(TLIB) keydef.lib -+keydefuk.o
 
-keydefbr.obj: keydefbr.h  mkeyb.h
-	$(TCCCOMP) keydefbr.h
-	$(TLIB) keydef.lib -+ keydefbr.obj
+keydefbr.o: keydefbr.h  mkeyb.h
+	$(WCCCOMP) keydefbr.h
+	$(TLIB) keydef.lib -+keydefbr.o
 
-keydefbx.obj: keydefbx.h  mkeyb.h
-	$(TCCCOMP) keydefbx.h
-	$(TLIB) keydef.lib -+ keydefbx.obj
+keydefbx.o: keydefbx.h  mkeyb.h
+	$(WCCCOMP) keydefbx.h
+	$(TLIB) keydef.lib -+keydefbx.o
 
-keydeffr.obj: keydeffr.h  mkeyb.h
-	$(TCCCOMP) keydeffr.h
-	$(TLIB) keydef.lib -+ keydeffr.obj
+keydeffr.o: keydeffr.h  mkeyb.h
+	$(WCCCOMP) keydeffr.h
+	$(TLIB) keydef.lib -+keydeffr.o
 
-keydefhe.obj: keydefhe.h  mkeyb.h
-	$(TCCCOMP) keydefhe.h
-	$(TLIB) keydef.lib -+ keydefhe.obj
+keydefhe.o: keydefhe.h  mkeyb.h
+	$(WCCCOMP) keydefhe.h
+	$(TLIB) keydef.lib -+keydefhe.o
 
-keydefbe.obj: keydefbe.h  mkeyb.h
-	$(TCCCOMP) keydefbe.h
-	$(TLIB) keydef.lib -+ keydefbe.obj
+keydefbe.o: keydefbe.h  mkeyb.h
+	$(WCCCOMP) keydefbe.h
+	$(TLIB) keydef.lib -+keydefbe.o
 
-keydefbg.obj: keydefbg.h  mkeyb.h
-	$(TCCCOMP) keydefbg.h
-	$(TLIB) keydef.lib -+ keydefbg.obj
+keydefbg.o: keydefbg.h  mkeyb.h
+	$(WCCCOMP) keydefbg.h
+	$(TLIB) keydef.lib -+keydefbg.o
 
-keydefbp.obj: keydefbp.h  mkeyb.h
-	$(TCCCOMP) keydefbp.h
-	$(TLIB) keydef.lib -+ keydefbp.obj
+keydefbp.o: keydefbp.h  mkeyb.h
+	$(WCCCOMP) keydefbp.h
+	$(TLIB) keydef.lib -+keydefbp.o
 
-keydefsl.obj: keydefsl.h  mkeyb.h
-	$(TCCCOMP) keydefsl.h
-	$(TLIB) keydef.lib -+ keydefsl.obj
+keydefsl.o: keydefsl.h  mkeyb.h
+	$(WCCCOMP) keydefsl.h
+	$(TLIB) keydef.lib -+keydefsl.o
 
-keydefux.obj: keydefux.h  mkeyb.h
-	$(TCCCOMP) keydefux.h
-	$(TLIB) keydef.lib -+ keydefux.obj
+keydefux.o: keydefux.h  mkeyb.h
+	$(WCCCOMP) keydefux.h
+	$(TLIB) keydef.lib -+keydefux.o
 
-keydeftr.obj: keydeftr.h  mkeyb.h
-	$(TCCCOMP) keydeftr.h
-	$(TLIB) keydef.lib -+ keydeftr.obj
+keydeftr.o: keydeftr.h  mkeyb.h
+	$(WCCCOMP) keydeftr.h
+	$(TLIB) keydef.lib -+keydeftr.o
 
-keydeftf.obj: keydeftf.h  mkeyb.h
-	$(TCCCOMP) keydeftf.h
-	$(TLIB) keydef.lib -+ keydeftf.obj
+keydeftf.o: keydeftf.h  mkeyb.h
+	$(WCCCOMP) keydeftf.h
+	$(TLIB) keydef.lib -+keydeftf.o
 
 #mkeybGRc.exe: mkeyb.c keydefGR.h $(combidepends)
-#	$(TCCLINK) -emkeybGRc -DLANG_GR -DCOMBI mKEYB.c $(combidepends)
+#	$(WCCLINK) -emkeybGRc -DLANG_GR -DCOMBI mKEYB.c $(combidepends)
 #	$(XUPX) mkeybGRc.exe
 
 # ############## generic ##########################
@@ -201,87 +202,87 @@ keydeftf.obj: keydeftf.h  mkeyb.h
 #
 #assembly stub
 #
-mkeybA.obj: mkeybA.ASM
-	$(TASM) /mx /dMY_INSTALL_SIGNATURE=$(INST_SIG) /dMY_VERSION_SIGNATURE=$(VERSION) mKEYBA.asm
+mkeybA.o: mkeybA.ASM
+	$(WASM) -dMY_INSTALL_SIGNATURE=$(INST_SIG) -dMY_VERSION_SIGNATURE=$(VERSION) mKEYBA.asm
 
 #
 # resident part
 #
 
-mkeybr.obj: mkeybr.c
-	$(TCCCOMP) -mt    -zAINIT -zCI_TEXT -zDIB -zRID -zTID -zPI_GR -zBIB -zGI_GR -zSI_GR    mKEYBr.c
+mkeybr.o: mkeybr.c
+	$(WCCCOMP) -ms -nd=I mKEYBr.c
 
 mkeybr.asm: mkeybr.c
-	$(TCCCOMP) -mt -S -zAINIT -zCI_TEXT -zDIB -zRID -zTID -zPI_GR -zBIB -zGI_GR -zSI_GR    mKEYBr.c
+	$(WCCCOMP) -ms -S     mKEYBr.c
 
 #
 # resident part with combi
 #
-mkeybrC.obj: mkeybr.c
-	$(TCCCOMP) -mt    -zAINIT -zCI_TEXT -zDIB -zRID -zTID -zPI_GR -zBIB -zGI_GR -zSI_GR    -DCOMBI -omkeybrC mKEYBr.c
+mkeybrC.o: mkeybr.c
+	$(WCCCOMP) -ms -nd=I -DCOMBI -fo=mkeybrC mKEYBr.c
 
 mkeybrC.asm: mkeybr.c
-	$(TCCCOMP) -mt -S -zAINIT -zCI_TEXT -zDIB -zRID -zTID -zPI_GR -zBIB -zGI_GR -zSI_GR    -DCOMBI -omkeybrC mKEYBr.c
+	$(WCCCOMP) -ms -S  -nd=I   -DCOMBI -fo=mkeybrC mKEYBr.c
 
 #
 # FASTSWITCH resident part without ALTGREY, REPLACESCAN, DECIMALDINGSBUMS
 # The right Ctrl toggles between native QWERTY and national keyboard
 #
-mkeybrf.obj: mkeybr.c
-	$(TCCCOMP) -mt    -zAINIT -zCI_TEXT -zDIB -zRID -zTID -zPI_GR -zBIB -zGI_GR -zSI_GR    -DFASTSWITCH -omkeybrF mKEYBr.c
+mkeybrf.o: mkeybr.c
+	$(WCCCOMP) -ms  -nd=I      -DFASTSWITCH -fo=mkeybrF mKEYBr.c
 
 mkeybrf.asm: mkeybr.c
-	$(TCCCOMP) -mt -S -zAINIT -zCI_TEXT -zDIB -zRID -zTID -zPI_GR -zBIB -zGI_GR -zSI_GR    -DFASTSWITCH -omkeybrF mKEYBr.c
+	$(WCCCOMP) -ms -S  -nd=I   -DFASTSWITCH -fo=mkeybrF mKEYBr.c
 
 #
 # resident part for 83 keys "standard" keyboards
 #
-mkeybrS.obj: mkeybr.c
-	$(TCCCOMP) -mt    -zAINIT -zCI_TEXT -zDIB -zRID -zTID -zPI_GR -zBIB -zGI_GR -zSI_GR    -DSTANDARD -omkeybrS mKEYBr.c
+mkeybrS.o: mkeybr.c
+	$(WCCCOMP) -ms   -nd=I     -DSTANDARD -fo=mkeybrS mKEYBr.c
 
 mkeybrS.asm: mkeybr.c
-	$(TCCCOMP) -mt -S -zAINIT -zCI_TEXT -zDIB -zRID -zTID -zPI_GR -zBIB -zGI_GR -zSI_GR    -DSTANDARD -omkeybrS mKEYBr.c
+	$(WCCCOMP) -ms -S  -nd=I   -DSTANDARD -fo=mkeybrS mKEYBr.c
 
 #
 # resident part for 83 keys "standard" keyboards with COMBI
 #
-mkeybrSC.obj: mkeybr.c
-	$(TCCCOMP) -mt    -zAINIT -zCI_TEXT -zDIB -zRID -zTID -zPI_GR -zBIB -zGI_GR -zSI_GR    -DSTD_FULL -omkeybrSC mKEYBr.c
+mkeybrSC.o: mkeybr.c
+	$(WCCCOMP) -ms   -nd=I     -DSTD_FULL -fo=mkeybrSC mKEYBr.c
 
 mkeybrSC.asm: mkeybr.c
-	$(TCCCOMP) -mt -S -zAINIT -zCI_TEXT -zDIB -zRID -zTID -zPI_GR -zBIB -zGI_GR -zSI_GR    -DSTD_FULL -omkeybrSC mKEYBr.c
+	$(WCCCOMP) -ms -S  -nd=I   -DSTD_FULL -fo=mkeybrSC mKEYBr.c
 
-prf.obj: prf.c
-	$(TCCCOMP) -DFORSYS prf.c
+prf.o: prf.c
+	$(WCCCOMP) -DFORSYS prf.c
 
-sscani.obj: sscani.c
-	$(TCCCOMP) sscani.c
+sscani.o: sscani.c
+	$(WCCCOMP) sscani.c
 
 #useful when debugging/analysing code
 mkeyb.asm: mkeyb.c mkeyb.h
-	$(TCCCOMP) -S mKEYB.c
+	$(WCCCOMP) -S mKEYB.c
 
-# Pack executable and create zip file for release
-release:
-	-$(PACK) mkeyb.exe
+# Create zip file for release
+release
 	$(ZIP) $(ZIPFILE) *.exe *.txt *.md
 
 # copy driver to INSTALLDIR
-install:
-	xcopy mkeyb.exe $(INSTALLDIR)
+install
+	cp mkeyb.exe $(INSTALLDIR)
 
 # cleanup
-clean:
-	del /eq *.obj
-	del /eq *.lib
-	del /eq *.bak
-	del /eq *.map
-	del /eq mkeyb.asm
-	del /eq mkeybr.asm
-	del /eq mkeybrc.asm
-	del /eq mkeybrf.asm
-	del /eq mkeybrs.asm
-	del /eq mkeybrsc.asm
+clean
+	rm -f *.o
+	rm -f *.lib
+	rm -f *.bak
+	rm -f *.map
+	rm -f mkeyb.asm
+	rm -f mkeybr.asm
+	rm -f mkeybrc.asm
+	rm -f mkeybrf.asm
+	rm -f mkeybrs.asm
+	rm -f mkeybrsc.asm
+	
 
 # ############## end generic ##########################
 

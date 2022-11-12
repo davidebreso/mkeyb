@@ -35,17 +35,17 @@ uchar NAME(scancodetable)[] = {
 
 
  /* 1 */       ALTGR    (0x02,               '~')
- /* 2 */ PUNCT_ALTGR    (0x03, '2', '"',     '')  // wrong altgrey
+ /* 2 */ PUNCT_ALTGR    (0x03, '2', '"',     0)  // wrong altgrey
  /* 3 */       ALTGR    (0x04,               '^')
- /* 4 */       ALTGR    (0x05,               '')
- /* 5 */       ALTGR    (0x06,               '')
- /* 6 */ PUNCT_ALTGR    (0x07, '6', '&',     '')
+ /* 4 */       ALTGR    (0x05,               0)
+ /* 5 */       ALTGR    (0x06,               0)
+ /* 6 */ PUNCT_ALTGR    (0x07, '6', '&',     0)
  /* 7 */ PUNCT_ALTGR    (0x08, '7', '/',     '`')
- /* 8 */ PUNCT_ALTGR    (0x09, '8', '(',     '')
- /* 9 */ PUNCT_ALTGR    (0x0a, '9', ')',     '')
- /* 0 */ PUNCT_ALTGR    (0x0b, '0', '=',     '')
- /* - */ PUNCT_ALTGR    (0x0c, 39,'?',     '')
- /* = */ PUNCT_ALTGR    (0x0d, '+', '*',     '')
+ /* 8 */ PUNCT_ALTGR    (0x09, '8', '(',     0)
+ /* 9 */ PUNCT_ALTGR    (0x0a, '9', ')',     0)
+ /* 0 */ PUNCT_ALTGR    (0x0b, '0', '=',     0)
+ /* - */ PUNCT_ALTGR    (0x0c, 39,'?',     0)
+ /* = */ PUNCT_ALTGR    (0x0d, '+', '*',     0)
 
 
  /* q */       ALTGR    (0x10,               '\\')
@@ -59,7 +59,7 @@ uchar NAME(scancodetable)[] = {
 
  /* k */       ALTGR    (0x25,              'à')
  /* l */       ALTGR    (0x26,              'ù')
- /* ; */ ALPHA_ALTGR    (0x27, 'ü','¨',     '')
+ /* ; */ ALPHA_ALTGR    (0x27, 'ü','¨',     0)
  /* ' */ ALPHA_ALTGR    (0x28, 'Ü','è',     '·')
  /*   */ ALPHA_ALTGR    (0x2b, 'ß','¶',     '')
 

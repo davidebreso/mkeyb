@@ -1,15 +1,15 @@
-I_GR group I_ASMTEXT, I_TEXT, I_AUXTEXT
+I_GROUP group I_ASMTEXT, I_TEXT, I_AUXTEXT
 
 I_ASMTEXT SEGMENT BYTE PUBLIC 'INIT'
 
 ASSUME CS:I_ASMTEXT
 
-public _int2f_handler,_OldInt2F
-public _int15_handler,_OldInt15
+public int2f_handler_,_OldInt2F
+public int15_handler_,_OldInt15
 
 ; SEGMENT_START:
 
-_int2f_handler:
+int2f_handler_:
 	cmp ax, 0ad80h
 	jne int2f_82
 	mov ax, MY_INSTALL_SIGNATURE	; Report mKEYB installed
@@ -36,9 +36,9 @@ chain_int2f:
 _OldInt2F  	dd 0
 
 
-extrn  _cint15_handler_full:near
+extrn  cint15_handler_full_:near
 
-_int15_handler:
+int15_handler_:
 	jnc chain_int15_non_carry
 
 	cmp ah,04fh
@@ -52,10 +52,10 @@ _int15_handler:
 
 	push cs
 	pop  ds
-	push ax
-
-	call _cint15_handler_full
-	pop cx						; pop argument from stack
+;	push ax     ; not needed since OWatcom pass argument on AX
+    xor ah, ah  ; clear high byte of AX to pass a byte
+	call cint15_handler_full_
+;	pop cx						; pop argument from stack
 
 	pop es
 	pop ds
@@ -102,7 +102,7 @@ public _lastisctrl_flag
 public _debug_scancode,_currentCombi
 public _ResidentCombiTables, _DecimalDingsBums,_SilentKeyboard
 public _pResidentScancodetable
-extrn _ResidentScancodetable
+;extrn _ResidentScancodetable
 
 _OldInt9 dd 0
 _OldInt16 dd 0
@@ -123,13 +123,13 @@ I_TEXT ENDS
 
 I_AUXTEXT SEGMENT BYTE PUBLIC 'INIT'
 
-public _int9_handler
-public _int16_handler,_END_int16_handler
+public int9_handler_
+public int16_handler_,END_int16_handler_
 
-ASSUME CS:I_GR
+ASSUME CS:I_GROUP
 
 ; Optional handlers for INT9 and INT16
-_int9_handler:
+int9_handler_:
 	jmp int9_start			; Workaround for APL software
 int9_isActiveF dw 1    		; Modified by APL software
 int9_start:
@@ -164,7 +164,7 @@ leave_int9:
 	pop ax
 	iret
 
-_int16_handler:
+int16_handler_:
 	cmp ah, 05 		; check INT 16 function number
 	jne chain_int16		; call old handler if != 05
 	; save registers
@@ -194,7 +194,7 @@ int16_3:
 chain_int16:
 	jmp [cs:_OldInt16]
 
-_END_int16_handler:
+END_int16_handler_:
 	nop
 
 I_AUXTEXT ENDS

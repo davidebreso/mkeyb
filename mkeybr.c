@@ -46,6 +46,9 @@
 	#define NAME(x) x##_normal
 #endif
 
+/* all the resident code and data goes to segment 'I_TEXT' of special class 'INIT' */
+#pragma code_seg(I_TEXT, INIT)
+// #pragma data_seg(I_TEXT, INIT)
 
 /** 'normal' data **********************************/
 
@@ -89,11 +92,12 @@ extern uchar * cdecl pResidentScancodetable;
 		_AH = 5;                                        \
 		__int__(0x16);
 #else
-	#define GENERATE_KEYSTROKE(scancode,keycode)        \
-		_asm mov cl,byte ptr keycode;                   \
-		_asm mov ch,byte ptr scancode;                  \
-		_asm mov ah,5;                                  \
-		_asm int 0x16;
+static void GENERATE_KEYSTROKE(uchar scancode, uchar keycode);
+#pragma aux GENERATE_KEYSTROKE =     \
+             "mov ah, 5"             \
+             "int 0x16"              \
+             __parm   [ch] [cl]      \
+             __modify [ah];
 #endif
 
 /* tech note: as michael Tyc found out, this interrupt
@@ -107,7 +111,7 @@ extern uchar * cdecl pResidentScancodetable;
 
 
 
-int cdecl NAME(cint15_handler)(uchar scancode)
+int NAME(cint15_handler)(uchar scancode)
 {
 	uchar  RESIDENT *tbl;
 	ushort BIOSstate;
@@ -201,14 +205,11 @@ int cdecl NAME(cint15_handler)(uchar scancode)
 			if (tbl[0] == scancode)
 			{                                /* these character all use CAPS */
 				GENERATE_KEYSTROKE(0, BIOSstate & 0x40 ? tbl[2] : tbl[1]);
-
 				return 0;
 			}
 		}
 		/* not found ? then the last entry before holds the character to generate */
-
 		GENERATE_KEYSTROKE(0, BIOSstate & 0x40 ? tbl[-3+2] : tbl[-3+1]);
-
 		/* and fall through to generate the key */
 	}
 #endif
@@ -351,5 +352,8 @@ simulateKeyPress:
 	return 0;
 }
 
-void NAME(END_cint15_handler)(void){}	// MARKER for end of resident part
+// MARKER for end of resident part
+void __declspec(naked) NAME(END_cint15_handler)(void){
+    _asm{ nop };
+}	
 

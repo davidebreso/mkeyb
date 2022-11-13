@@ -260,6 +260,10 @@ mkeyb.lst: mkeyb.o
 	
 listings: $(listfiles)
 
+# Utility TSR to reserve UMB memory
+eatumbs.exe: eatumbs.c eatumbsr.asm
+	wcl eatumbs.c eatumbsr.asm -fm=eatumbs
+
 # Create zip file for release
 release
 	rm -f $(ZIPFILE)
@@ -276,9 +280,10 @@ clean
 	rm -f *.bak
 	rm -f *.map
 	rm -f *.lst
+	rm -f *.err
 	
 distclean: clean .SYMBOLIC
-	rm -f mkeyb.exe
+	rm -f *.exe
 	rm -f $(ZIPFILE)
 
 # ############## end generic ##########################

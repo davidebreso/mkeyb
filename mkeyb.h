@@ -9,17 +9,17 @@ typedef unsigned int    uint;
 typedef unsigned short  ushort;
 typedef unsigned char   uchar;
 
-extern uchar *RESIDENT cdecl pResidentScancodetable;
-extern char  *RESIDENT cdecl ResidentCombiTables[6];
-extern uchar  RESIDENT cdecl DecimalDingsBums; /* grey , or . */
-extern uchar  RESIDENT cdecl SilentKeyboard; /* absorb all keyboard input except CtrlAltDel */
+extern uchar *RESIDENT pResidentScancodetable;
+extern char  *RESIDENT ResidentCombiTables[6];
+extern uchar  RESIDENT DecimalDingsBums; /* grey , or . */
+extern uchar  RESIDENT SilentKeyboard; /* absorb all keyboard input except CtrlAltDel */
 
-extern uchar RESIDENT  cdecl usebiosonly_flag;
+extern uchar RESIDENT  usebiosonly_flag;
 
-extern void (interrupt far *RESIDENT cdecl OldInt9)();
-extern void (interrupt far *RESIDENT cdecl OldInt16)();
-extern void (interrupt far *RESIDENT cdecl OldInt15)();
-extern void (interrupt far *RESIDENT cdecl OldInt2F)();
+extern void (interrupt far *RESIDENT OldInt9)();
+extern void (interrupt far *RESIDENT OldInt16)();
+extern void (interrupt far *RESIDENT OldInt15)();
+extern void (interrupt far *RESIDENT OldInt2F)();
 
 extern void interrupt RESIDENT int9_handler();
 extern void interrupt RESIDENT int16_handler();

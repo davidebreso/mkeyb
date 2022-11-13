@@ -46,22 +46,21 @@
 	#define NAME(x) x##_normal
 #endif
 
-/* all the resident code and data goes to segment 'I_TEXT' of special class 'INIT' */
+/* all the resident code goes to segment 'I_TEXT' of special class 'INIT' */
 #pragma code_seg(I_TEXT, INIT)
-// #pragma data_seg(I_TEXT, INIT)
 
 /** 'normal' data **********************************/
 
-extern uchar cdecl usebiosonly_flag;
-extern uchar cdecl lastisctrl_flag;
-extern uchar cdecl debug_scancode;
+extern uchar usebiosonly_flag;
+extern uchar lastisctrl_flag;
+extern uchar debug_scancode;
 
-extern uint  RESIDENT cdecl currentCombi             ;
-extern char *RESIDENT cdecl ResidentCombiTables[6]   ;
-extern uchar RESIDENT cdecl DecimalDingsBums         ;    /* grey , or . */
+extern uint  RESIDENT currentCombi             ;
+extern char *RESIDENT ResidentCombiTables[6]   ;
+extern uchar RESIDENT DecimalDingsBums         ;    /* grey , or . */
 
 /* MUST BE LAST DATA MEMBER */
-extern uchar * cdecl pResidentScancodetable;
+extern uchar *pResidentScancodetable;
 
 
 /** normal data end, ONE last member - the scan code translation table

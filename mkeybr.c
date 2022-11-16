@@ -307,8 +307,24 @@ int cdecl NAME(cint15_handler)(uchar scancode)
 				return scancode;
 		if(keyflags & _KCHAR)
 			tbl += 2;
+#ifdef COMBI
+		/* Duplicate simulateKeyPress code to avoid COMBIs clash with ^A */
+		if (tbl[0] == IGNORE)
+			return scancode;	/* let BIOS do its work */
 
+								/* strange, but necessary */
+		if (tbl[0] == 0xf0 ||   /* this is a BIOS 'feature' */
+			tbl[0] == 0xe0)     /* this too               */
+		{
+			scancode = 0;
+		}
+
+		GENERATE_KEYSTROKE(scancode,tbl[0]);
+		
+		return 0;
+#else
 		goto simulateKeyPress;
+#endif
 	}
 
 	if ((keyflags & _KCHAR)  == 0)  /* it should have _KCHAR defined */

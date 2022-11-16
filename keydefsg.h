@@ -3,6 +3,7 @@
 /*
  * history
  * 27 apr 02: tom ehlert - creation
+ * 16 nov 22: davide bresolin - review
  */
 
 #define NAME(x) x##_SG
@@ -47,8 +48,8 @@ uchar NAME(scancodetable)[] = {
  //* Y */ REPLACE	 (0x15,0x2C		    ) /* 21C z  Z  #26 . . */
  //* Z */ REPLACE	 (0x2C,0x15		    ) /* 44C y  Y  #25 . . */
 
- /* Z */ PUNCT_ALTGR	(0x2C, 'y', 'Y', 0x19		)
- /* Y */ PUNCT_ALTGR	(0x15, 'z', 'Z', 0x1A		)
+ /* Z */ ALPHA_CTRL 	(0x2C, 'y', 'Y', 0x19		)
+ /* Y */ ALPHA_CTRL 	(0x15, 'z', 'Z', 0x1A		)
 
 
 

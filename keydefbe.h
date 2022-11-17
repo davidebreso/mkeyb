@@ -5,6 +5,7 @@
 /*
  * history
  * 10 feb 03: tom ehlert - creation (experimental)
+ * 16 nov 22: davide bresolin - review
  *
  * the COMBInations below should be generated, 
  * but where are the COMBI characters generated?
@@ -58,11 +59,11 @@ uchar NAME(scancodetable)[] = {
 // /* Z */ REPLACE        (0x2c, 0x11             )   // Z-->W
 // /* ; */ REPLACE        (0x27, 0x32             )   // ;-->M     
 
- /* Q */ PUNCT_ALTGR	(0x10, 'a', 'A', 'a' & 0x1f )
- /* A */ PUNCT_ALTGR	(0x1e, 'q', 'Q', 'q' & 0x1f )
- /* W */ PUNCT_ALTGR	(0x11, 'z', 'Z', 'z' & 0x1f )
- /* Z */ PUNCT_ALTGR	(0x2c, 'w', 'W', 'w' & 0x1f )
- /* ; */ PUNCT_ALTGR	(0x27, 'm', 'M', 'm' & 0x1f )
+ /* Q */ ALPHA_CTRL     (0x10, 'a', 'A', 'a' & 0x1f )
+ /* A */ ALPHA_CTRL     (0x1e, 'q', 'Q', 'q' & 0x1f )
+ /* W */ ALPHA_CTRL     (0x11, 'z', 'Z', 'z' & 0x1f )
+ /* Z */ ALPHA_CTRL     (0x2c, 'w', 'W', 'w' & 0x1f )
+ /* ; */ ALPHA_CTRL     (0x27, 'm', 'M', 'm' & 0x1f )
 
 
 

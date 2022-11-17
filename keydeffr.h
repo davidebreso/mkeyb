@@ -7,6 +7,7 @@
  * 25 aug 02: tom ehlert - creation
  * 21 oct 02: Snoopy 81 modifications & combos.
  Mail:Snoopy81@ifrance.om
+ * 16 nov 22: davide bresolin - review
  */
 
 
@@ -45,11 +46,11 @@ uchar NAME(scancodetable)[] = {
 // /* Z */ REPLACE        (0x2c, 0x11             )   // Z-->W
 // /* ; */ REPLACE        (0x27, 0x32             )   // ;-->M     
                                                            
- /* Q */ PUNCT_ALTGR	(0x10, 'a', 'A', 'a' & 0x1f )
- /* A */ PUNCT_ALTGR	(0x1e, 'q', 'Q', 'q' & 0x1f )
- /* W */ PUNCT_ALTGR	(0x11, 'z', 'Z', 'z' & 0x1f )
- /* Z */ PUNCT_ALTGR	(0x2c, 'w', 'W', 'w' & 0x1f )
- /* ; */ PUNCT_ALTGR	(0x27, 'm', 'M', 'm' & 0x1f )
+ /* Q */ ALPHA_CTRL     (0x10, 'a', 'A', 'a' & 0x1f )
+ /* A */ ALPHA_CTRL     (0x1e, 'q', 'Q', 'q' & 0x1f )
+ /* W */ ALPHA_CTRL     (0x11, 'z', 'Z', 'z' & 0x1f )
+ /* Z */ ALPHA_CTRL     (0x2c, 'w', 'W', 'w' & 0x1f )
+ /* ; */ ALPHA_CTRL     (0x27, 'm', 'M', 'm' & 0x1f )
 
                                                            
                                                            

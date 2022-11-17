@@ -18,7 +18,6 @@
 #include <ctype.h>
 #include <string.h>
 
-
 #include "mkeyb.h"
 
 #define MY_MEMORY_SIGNATURE "mKEYB   "
@@ -813,7 +812,7 @@ int main(int argc, char *argv[])
 
 			if (kb_idx == LENGTH(KeyDefTab))
 			{
-				if (stricmp(argptr,"US") == 0)
+				if (_stricmp(argptr,"US") == 0)
 				{
 					printf("US keyboards don't need a keyboard handler\n");
 					UninstallKeyboard(0);

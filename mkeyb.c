@@ -13,16 +13,19 @@
 
 
 #include <dos.h>
-#include <stdio.h>
+/* #include <stdio.h> */
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
+
 
 #include "mkeyb.h"
 
 #define MY_MEMORY_SIGNATURE "mKEYB   "
 
 #define DBGprintf printf
+
+short printf(const char * fmt, ...);
 
 /*
     this allocates memory as undisturbing as possible.

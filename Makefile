@@ -14,11 +14,11 @@ PACK=upx --8086
 ZIP=zip
 
 WCCLINK=$(WLINK)
-WCCCOMP=$(WCC) -s
+WCCCOMP=$(WCC) -s -ms
 
 INSTALLDIR=~/Dosbox/c_drive
 
-depends=
+depends= prf.o
 resdep = mkeyba.o mkeybrc.o mkeybr.o mkeybrf.o mkeybrs.o mkeybrsc.o
 keydefs = &
 	keydefdk.o &
@@ -212,7 +212,7 @@ mkeyba.o: mkeyba.asm
 #
 
 mkeybr.o: mkeybr.c
-	$(WCCCOMP) -ms -nd=I mkeybr.c
+	$(WCCCOMP) -nd=I mkeybr.c
 
 mkeybr.lst: mkeybr.o
 	$(WDIS) -l mkeybr
@@ -221,7 +221,7 @@ mkeybr.lst: mkeybr.o
 # resident part with combi
 #
 mkeybrc.o: mkeybr.c
-	$(WCCCOMP) -ms -nd=I -DCOMBI -fo=mkeybrc mkeybr.c
+	$(WCCCOMP) -nd=I -DCOMBI -fo=mkeybrc mkeybr.c
 
 mkeybrc.lst: mkeybrc.o
 	$(WDIS) -l mkeybrc
@@ -231,7 +231,7 @@ mkeybrc.lst: mkeybrc.o
 # The right Ctrl toggles between native QWERTY and national keyboard
 #
 mkeybrf.o: mkeybr.c
-	$(WCCCOMP) -ms  -nd=I      -DFASTSWITCH -fo=mkeybrf mkeybr.c
+	$(WCCCOMP)  -nd=I      -DFASTSWITCH -fo=mkeybrf mkeybr.c
 
 mkeybrf.lst: mkeybrc.o
 	$(WDIS) -l mkeybrf
@@ -240,7 +240,7 @@ mkeybrf.lst: mkeybrc.o
 # resident part for 83 keys "standard" keyboards
 #
 mkeybrs.o: mkeybr.c
-	$(WCCCOMP) -ms   -nd=I     -DSTANDARD -fo=mkeybrs mkeybr.c
+	$(WCCCOMP)   -nd=I     -DSTANDARD -fo=mkeybrs mkeybr.c
 
 mkeybrs.lst: mkeybrc.o
 	$(WDIS) -l mkeybrs
@@ -249,10 +249,14 @@ mkeybrs.lst: mkeybrc.o
 # resident part for 83 keys "standard" keyboards with COMBI
 #
 mkeybrsc.o: mkeybr.c
-	$(WCCCOMP) -ms   -nd=I     -DSTD_FULL -fo=mkeybrsc mkeybr.c
+	$(WCCCOMP)   -nd=I     -DSTD_FULL -fo=mkeybrsc mkeybr.c
 
 mkeybrsc.lst: mkeybrc.o
 	$(WDIS) -l mkeybrsc
+	
+prf.o: prf.c portab.h
+	$(WCCCOMP)  -DFORSYS prf.c
+
 
 #useful when debugging/analysing code
 mkeyb.lst: mkeyb.o

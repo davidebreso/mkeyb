@@ -46,8 +46,10 @@
 	#define NAME(x) x##_normal
 #endif
 
-/* all the resident code goes to segment 'I_TEXT' of special class 'INIT' */
-#pragma code_seg(I_TEXT, INIT)
+#ifdef __WATCOMC__
+	/* all the resident code goes to segment 'I_TEXT' of special class 'INIT' */
+	#pragma code_seg(I_TEXT, INIT)
+#endif
 
 /** 'normal' data **********************************/
 
@@ -83,13 +85,20 @@ extern uchar *pResidentScancodetable;
 
 
 /* use BIOS INT16/05 to enter keystroke into key buffer */
-static void GENERATE_KEYSTROKE(uchar scancode, uchar keycode);
-#pragma aux GENERATE_KEYSTROKE =     \
-             "mov ah, 5"             \
-             "int 0x16"              \
-             __parm   [ch] [cl]      \
-             __modify [ax];
-
+#ifdef __WATCOMC__
+	static void GENERATE_KEYSTROKE(uchar scancode, uchar keycode);
+	#pragma aux GENERATE_KEYSTROKE =     \
+				 "mov ah, 5"             \
+				 "int 0x16"              \
+				 __parm   [ch] [cl]      \
+				 __modify [ax];
+#else
+	#define GENERATE_KEYSTROKE(scancode,keycode)        \
+		_CL = keycode,                                  \
+		_CH = scancode,                                 \
+		_AH = 5;                                        \
+		__int__(0x16);
+#endif
 /* tech note: as michael Tyc found out, this interrupt
 		_asm mov AX,0x9102;
 		_asm int 0x15;
@@ -101,7 +110,7 @@ static void GENERATE_KEYSTROKE(uchar scancode, uchar keycode);
 
 
 
-int NAME(cint15_handler)(uchar scancode)
+int cdecl NAME(cint15_handler)(uchar scancode)
 {
 	uchar  RESIDENT *tbl;
 	ushort BIOSstate;
@@ -346,7 +355,12 @@ simulateCtrlKeyPress:
 }
 
 // MARKER for end of resident part
-void __declspec(naked) NAME(END_cint15_handler)(void){
-    _asm{ nop };
-}	
+#ifdef __WATCOMC__
+	void __declspec(naked) NAME(END_cint15_handler)(void){
+	  _asm{ nop };
+	}
+	#pragma aux NAME(END_cint15_handler) "_*"
+#else
+	void NAME(END_cint15_handler)(void){};
+#endif
 

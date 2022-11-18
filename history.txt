@@ -151,5 +151,8 @@
     Option /M to install the driver in low memory
     
 0.52 - 12 November 2022
-    Code ported to Open Watcom v2. Now mKEYB can be compiled on modern system
-    without the need of a DOS machine or a DOS emulator. 
+    Fix incorrect behaviour of CTRL key in QWERTZ and AZERTY layouts
+    Code ported to Open Watcom v2. Now mKEYB can be compiled either with
+    Borland's BCC and TASM (on a DOS environment) or with Open Watcom's WCC/WASM
+    on modern systems. With Open Watcom you get a bigger executable but a smaller
+    resident memory footprint. 

@@ -4,6 +4,14 @@
  #define RESIDENT far
 #endif
 
+#if __WATCOMC__
+    #define CDECL __cdecl
+    #define getvect _dos_getvect
+    #define setvect _dos_setvect
+#else
+    #define CDECL
+#endif
+
 typedef unsigned long   ulong;
 typedef unsigned int    uint;
 typedef unsigned short  ushort;
@@ -21,10 +29,11 @@ extern void (interrupt far *RESIDENT OldInt16)();
 extern void (interrupt far *RESIDENT OldInt15)();
 extern void (interrupt far *RESIDENT OldInt2F)();
 
-extern void interrupt RESIDENT int9_handler();
-extern void interrupt RESIDENT int16_handler();
-extern void interrupt RESIDENT int15_handler();
-extern void interrupt RESIDENT int2f_handler();
+extern void CDECL interrupt RESIDENT int9_handler();
+extern void CDECL interrupt RESIDENT int16_handler();
+extern void CDECL interrupt RESIDENT int15_handler();
+extern void CDECL interrupt RESIDENT int2f_handler();
+
 /* magic constants in keycode table */
 
 #define _KCAPS       0x80               /* key uses caps lock */

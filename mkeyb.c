@@ -13,10 +13,13 @@
 
 
 #include <dos.h>
-/* #include <stdio.h> */
 #include <stdlib.h>
-#include <ctype.h>
-#include <string.h>
+#ifdef __WATCOMC__
+	#include <ctype.h>
+	#include <string.h>
+#else
+    #include <stdio.h>
+#endif
 
 #include "mkeyb.h"
 
@@ -24,7 +27,25 @@
 
 #define DBGprintf printf
 
-short printf(const char * fmt, ...);
+#ifdef __WATCOMC__
+    short printf(const char * fmt, ...);
+#else
+void _fmemcpy(void far *d, void far *s, uint len)
+{
+	uchar far *dc = d,far *sc = s;
+	for (; len; len--)
+	*dc++ = *sc++;
+}
+
+int _fmemcmp(void far *d, void far *s, uint len)
+{
+	uchar far *dc = d,far *sc = s;
+	for (; len; len--)
+	if (*dc++ != *sc++)
+		return 1;
+    return 0;
+}
+#endif
 
 /*
     this allocates memory as undisturbing as possible.
@@ -423,10 +444,10 @@ InstallKeyboard(struct KeyboardDefinition *kb,
 	 * Do this before copying.
 	 * Save only the handlers that will be installed.
 	 */
-	if(int9hChain) 	OldInt9 = _dos_getvect(0x9);
-	if(int16hChain) OldInt16 = _dos_getvect(0x16);
-	OldInt15 = _dos_getvect(0x15);
-	OldInt2F = _dos_getvect(0x2f);
+	if(int9hChain) 	OldInt9 = getvect(0x9);
+	if(int16hChain) OldInt16 = getvect(0x16);
+	OldInt15 = getvect(0x15);
+	OldInt2F = getvect(0x2f);
 
   {	/* install the resident part */
 	void far *pint15_handler;
@@ -435,17 +456,17 @@ InstallKeyboard(struct KeyboardDefinition *kb,
 	uint	  int16_handler_size;
 	uchar far *pres;
 
-	extern int  far cint15_handler_full(int);
-	extern void far END_cint15_handler_full(void);
-	extern int  far cint15_handler_normal(int);
-	extern void far END_cint15_handler_normal(void);
-	extern int  far cint15_handler_fastswitch(int);
-	extern void far END_cint15_handler_fastswitch(void);
-	extern int  far cint15_handler_standard(int);
-	extern void far END_cint15_handler_standard(void);
-	extern int  far cint15_handler_stdfull(int);
-	extern void far END_cint15_handler_stdfull(void);
-	extern void far END_int16_handler(void);
+	extern int  cdecl far cint15_handler_full(int);
+	extern void cdecl far END_cint15_handler_full(void);
+	extern int  cdecl far cint15_handler_normal(int);
+	extern void cdecl far END_cint15_handler_normal(void);
+	extern int  cdecl far cint15_handler_fastswitch(int);
+	extern void cdecl far END_cint15_handler_fastswitch(void);
+	extern int  cdecl far cint15_handler_standard(int);
+	extern void cdecl far END_cint15_handler_standard(void);
+	extern int  cdecl far cint15_handler_stdfull(int);
+	extern void cdecl far END_cint15_handler_stdfull(void);
+	extern void cdecl far END_int16_handler(void);
 
 	switch(kb->DriverFunctionRequired)
 	{
@@ -600,10 +621,10 @@ InstallKeyboard(struct KeyboardDefinition *kb,
 	}
 	while (last_scancode != 1);
   } /* end debug */
-	if(int9hChain) 	_dos_setvect(0x9,OldInt9);
-	if(int16hChain) _dos_setvect(0x16,OldInt16);
-	_dos_setvect(0x15,OldInt15);
-	_dos_setvect(0x2f,OldInt2F);
+	if(int9hChain) 	setvect(0x9,OldInt9);
+	if(int16hChain) setvect(0x16,OldInt16);
+	setvect(0x15,OldInt15);
+	setvect(0x2f,OldInt2F);
 
 	printf(" mKEYB - uninstalled\n");
 
@@ -804,7 +825,7 @@ int main(int argc, char *argv[])
 		} else {
 			for (kb_idx = 0; kb_idx < LENGTH(KeyDefTab); kb_idx++)
 			{
-				if (_stricmp(argptr,KeyDefTab[kb_idx]->LanguageShort) == 0)
+				if (stricmp(argptr,KeyDefTab[kb_idx]->LanguageShort) == 0)
 				{
 					break;
 				}
@@ -812,7 +833,7 @@ int main(int argc, char *argv[])
 
 			if (kb_idx == LENGTH(KeyDefTab))
 			{
-				if (_stricmp(argptr,"US") == 0)
+				if (stricmp(argptr,"US") == 0)
 				{
 					printf("US keyboards don't need a keyboard handler\n");
 					UninstallKeyboard(0);
@@ -856,3 +877,41 @@ int main(int argc, char *argv[])
 	if(int16hChain > 1) int16hChain = AutodetectInt16h();
 	return InstallKeyboard(kb, GOTSR, int9hChain, int16hChain, tryHigh);
 }
+
+/*
+	TE - some size optimizations for __TURBOC__
+
+	as printf() is redefined in PRF.C to use no stream functions,
+	rather calls DOS directly, these Stream operations are nowhere used,
+    but happen to be in the executable.
+
+    so we define some dummy functions here to save some precious bytes :-)
+
+	this is in no way necessary, but saves us some 1500 bytes
+*/
+
+#ifdef __TURBOC__
+
+    #define UNREFERENCED_PARAMETER(x) if (x);
+
+    int     _Cdecl flushall (void){return 0;}
+
+	int     _Cdecl fprintf  (FILE *__stream, const char *__format, ...)
+                             { UNREFERENCED_PARAMETER (__stream);
+                               UNREFERENCED_PARAMETER ( __format);    return 0;}
+    int     _Cdecl fseek    (FILE *__stream, long __offset, int __whence)
+                             { UNREFERENCED_PARAMETER (__stream);
+                               UNREFERENCED_PARAMETER (__offset);
+							   UNREFERENCED_PARAMETER ( __whence);
+                               return 0;}
+
+    int     _Cdecl setvbuf  (FILE *__stream, char *__buf, int __type, size_t __size)
+                             { UNREFERENCED_PARAMETER (__stream);
+                               UNREFERENCED_PARAMETER ( __buf);
+                               UNREFERENCED_PARAMETER ( __type);
+				   UNREFERENCED_PARAMETER ( __size);   return 0;}
+
+    void    _Cdecl _xfflush (void){}
+    void    _Cdecl _setupio (void){}
+
+#endif

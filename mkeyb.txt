@@ -4,42 +4,42 @@ mKEYB readme.txt
 
 mKEYB is a minimum keyboard driver for xxDOS, requiring
 only ~500 bytes of memory to support international keyboards
-	(russian 452, german 474, spanish 718 byte)
+    (russian 452, german 474, spanish 718 byte)
 
 mKEYB is also an interesting demonstration of
 
-	'The Art of writing small TSR's in High Level Language'
+    'The Art of writing small TSR's in High Level Language'
 
 ** provided drivers **********************
 
 ***languages that seem to be OK (verified by one national user)
 
-	mkeyb BE  - belgium
-	mkeyb GR  - german
-	mkeyb GRC - german with COMBI's
-	mkeyb SP  - spanish (with COMBI's) (codepage 850)
-	mkeyb NL  - dutch
-	mkeyb UK  - united kingdom
-	mkeyb BR  - Brazil (portugese)
-	mkeyb BX  - Brazil (portuges) extended
-	mkeyb RU  - russian - to be used with codepage 866
-	mkeyb PL  - polish
-	mkeyb HE  - hebrew
-	mkeyb FR  - french (by snoopy81)
+    mkeyb BE  - belgium
+    mkeyb GR  - german
+    mkeyb GRC - german with COMBI's
+    mkeyb SP  - spanish (with COMBI's) (codepage 850)
+    mkeyb NL  - dutch
+    mkeyb UK  - united kingdom
+    mkeyb BR  - Brazil (portugese)
+    mkeyb BX  - Brazil (portuges) extended
+    mkeyb RU  - russian - to be used with codepage 866
+    mkeyb PL  - polish
+    mkeyb HE  - hebrew
+    mkeyb FR  - french (by snoopy81)
 
 ***languages  that are not verified, just more or less correct
 ***translated from the Xkeyb keyboard definition tables
 
-	mkeyb NO  - norwegian
-	mkeyb LA  - latin america
-	mkeyb IT  - italy
-	mkeyb DK  - daenish
-	mkeyb PO  - portugese
-	mkeyb SU  - finnish
-	mkeyb SV  - swedish
-	mkeyb SF  - swiss french
-	mkeyb SG  - swiss german
-	mkeyb SL  - slovenian
+    mkeyb NO  - norwegian
+    mkeyb LA  - latin america
+    mkeyb IT  - italy
+    mkeyb DK  - daenish
+    mkeyb PO  - portugese
+    mkeyb SU  - finnish
+    mkeyb SV  - swedish
+    mkeyb SF  - swiss french
+    mkeyb SG  - swiss german
+    mkeyb SL  - slovenian
 
 
 
@@ -59,8 +59,8 @@ mKEYB is also an interesting demonstration of
     and only exchanges a few keys, as required by the national
     keyboard layout.
 
-	mKEYBxx loads itself as high as possible; there is no need
-	to LOADHIGH mKEYBXX
+    mKEYBxx loads itself as high as possible; there is no need
+    to LOADHIGH mKEYBXX
 
 
 
@@ -92,28 +92,28 @@ mKEYB is also an interesting demonstration of
 
     All keyboard definitions should be created, using some 
     predefined MACROS. these are
-	
+    
 
     PUNCT(scan,lcase,ucase) 
-    	upper and lower case character definition
+        upper and lower case character definition
     ALPHA(scan,lcase,ucase) 
-    	like PUNCT, but obeys CAPSLOCK rules
-    	
+        like PUNCT, but obeys CAPSLOCK rules
+        
     PUNCT_CTRL(scan,lcase,ucase,ctrl) 
     ALPHA_CTRL(scan,lcase,ucase,ctrl) 
-    	like above, but additionally a CtrlCharacter is defined
-    	
+        like above, but additionally a CtrlCharacter is defined
+        
     ALTGR(scan,code) 
-    	this scancode generates addition char if ALTGREY is pressed
+        this scancode generates addition char if ALTGREY is pressed
     ALTGRSHIFT(scan,code1,code2) 
-    	like ALTGR, but shifted key generates different key
+        like ALTGR, but shifted key generates different key
 
     PUNCT_ALTGR(scan,lcase,ucase,altgr)           
     PUNCT_CTRL_ALTGR(scan,lcase,ucase,ctrl,alt) 
 
     REPLACE(scan,code)
-    	replaces one scancode by another one (german keyboards
-    	have 'Y' and 'Z' swapped)
+        replaces one scancode by another one (german keyboards
+        have 'Y' and 'Z' swapped)
 
 
 COMBI tables:
@@ -158,7 +158,7 @@ and copy it to keydefJP.h
 
 if there already exists (in xkeyb) a key definition, run
 
-	C:\mkeyb> FC GR.key JP.key
+    C:\mkeyb> FC GR.key JP.key
 
 add these changes to keydefJP.h
 

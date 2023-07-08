@@ -50,6 +50,6 @@ struct KeyboardDefinition NAME(Keyboard) = {
 #else
         { 0 },
 #endif                  
-        ',',                                           //char DezimalDingsbums;
+        0,                                             //char DezimalDingsbums;
         0,                                             //char DefaultLayoutUS;                  // TRUE for russian
         } ;

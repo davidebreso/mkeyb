@@ -50,6 +50,7 @@ standard keyboard.
 Confirmed working machines
 **************************
  - Amstrad PC5086: real and emulated, chain INT9 needed and autodetected
+ - Olivetti PCS86: real machine, no need to chain INT9, BIOS uses INT 15,4F
  - Amstrad PC2086, PC3086: emulated, chain INT9, autodetect do not work
  - Toshiba T1200: emulated, no need to chain INT9 since BIOS uses INT 15,4F
  - Tandy 1000 SL/2: emulated, no need to chain INT9 since BIOS uses INT 15,4F

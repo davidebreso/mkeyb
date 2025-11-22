@@ -1,9 +1,9 @@
 all: mkeyb.exe
 
 INST_SIG=19309			# mKEYB fingerprint "mK"
-VERSION=52				# version number
-VERSION_STR="0.52.1"		# version number text
-ZIPFILE=mkeyb052.zip
+VERSION=53				# version number
+VERSION_STR="0.53"		# version number text
+ZIPFILE=mkeyb053.zip
 
 TCC=bcc.exe
 TASM=tasm.exe

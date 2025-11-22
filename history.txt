@@ -155,4 +155,8 @@
     Code ported to Open Watcom v2. Now mKEYB can be compiled either with
     Borland's BCC and TASM (on a DOS environment) or with Open Watcom's 
     WCC/WASM on modern systems. With Open Watcom you get a bigger executable 
-    but a smaller resident memory footprint. 
+    but a smaller resident memory footprint.
+    
+0.53 - 22 November 2025
+    Fix UK, PO, SP, and SG layouts 
+    Documentation and help file updated

@@ -8,7 +8,7 @@
 
 
 	Copyright (C) 2002-2018 by www.tomehlert.de
-	Copyright (C) 2022 by github.com/davidebreso
+	Copyright (C) 2022-2025 by github.com/davidebreso
 */
 
 
@@ -24,6 +24,7 @@
 #include "mkeyb.h"
 
 #define MY_MEMORY_SIGNATURE "mKEYB   "
+#define COPYRIGHT_TEXT "(c) 2002-2018 tom ehlert, 2022-2025 davidebreso"
 
 #define DBGprintf printf
 
@@ -734,7 +735,7 @@ void ListLanguages(void)
 	struct KeyboardDefinition *kb;
 	int j;
 
-	printf("\n");
+	printf("List of keyboard layouts:\n");
 	for (j = 0; j < LENGTH(KeyDefTab); j++)
 	{
 		kb = KeyDefTab[j];
@@ -745,8 +746,6 @@ void ListLanguages(void)
 
 void usage(void)
 {
-	printf( "(c) 2002-2018 www.tomehlert.de, (c) 2022 davidebreso\n");
-
 	printf("MKEYB usage:\n"
 		   "      MKEYB UK - United Kingdom keyboard\n"
 		   "      MKEYB GR - German - deutsche Tastatur\n"
@@ -780,7 +779,7 @@ int main(int argc, char *argv[])
 	int i, kb_idx = LENGTH(KeyDefTab);
 	uchar far *pmodel;
 
-	printf("mKEYB " MY_VERSION_TEXT " [" __DATE__ "] - " );
+	printf("mKEYB " MY_VERSION_TEXT " [" __DATE__ "] " COPYRIGHT_TEXT "\n");
 
 	for (i = 1; i < argc; i++)
 	{

@@ -89,6 +89,8 @@ chain_int15_non_carry:
 _OldInt15  	dd 0
 
 ;extern uchar usebiosonly_flag;
+;extern uchar capsctrl_flag;
+;extern uchar upcode;
 ;extern uchar debug_scancode;
 ;extern uint  RESIDENT currentCombi             ;
 ;extern uchar RESIDENT currentCombiScancode     ;
@@ -101,21 +103,25 @@ public _OldInt16
 
 public _usebiosonly_flag
 public _lastisctrl_flag
+public _capsctrl_flag
+public _upcode
 
 public _debug_scancode,_currentCombi
 public _ResidentCombiTables, _DecimalDingsBums,_SilentKeyboard
 public _pResidentScancodetable
 ;extrn _ResidentScancodetable
 
-_OldInt9 dd 0
-_OldInt16 dd 0
-_usebiosonly_flag db 0ffh
-_lastisctrl_flag db 0
-_debug_scancode   db 0
-_currentCombi     dw 0
-_DecimalDingsBums    db 0
-_SilentKeyboard   db 0
-_ResidentCombiTables dw 0,0,0,0,0,0
+_OldInt9                dd 0
+_OldInt16               dd 0
+_usebiosonly_flag       db 0ffh
+_lastisctrl_flag        db 0
+_capsctrl_flag	        db 0
+_upcode	                db 0bah
+_debug_scancode         db 0
+_currentCombi           dw 0
+_DecimalDingsBums       db 0
+_SilentKeyboard         db 0
+_ResidentCombiTables    dw 0,0,0,0,0,0
 _pResidentScancodetable dw 0
 
 I_ASMTEXT ENDS

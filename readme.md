@@ -35,11 +35,15 @@ You can combine /G with /9: `mkeyb it /9 /G`.
 
 `/G-` disables installation of the INT16 handler even if autodetection decided that it is needed.
 
+## Use CapsLock as Ctrl key
+
+The `/C` swich changes the behaviour of the CapsLock key to act as Ctrl key. To get a real CapsLock when this option is enabled, press Shift-CapsLock.
+
 ## Standard and Enhanced keyboards
 
 PC keyboards came in two flavours: "standard" keyboards with 83 or 84 keys, common on XT class machines, and "enhanced" keyboards with 101 or 102 keys, common on AT, PS2 and later machines.
 
-mKEYB supports both keyboard types. An enhanced keyboard layout is available for all languages. For some languages also a custom layout for standard keyboards is present. mKEYB can autodetect the keyboard type and selects the appropriate keyboard layout, if available for the language. If the standard keyboard layout is not available for the selected language, mKEYB patches the enhanced keyboard layout to use Ctrl+Alt instead of AltGr (not available on standard keyboards). This pached layout may not be completely accurate.
+mKEYB supports both keyboard types. The enhanced keyboard layout is available for all languages. Some languages have also a custom layout for the standard keyboard. mKEYB can autodetect the keyboard type and selects the appropriate keyboard layout, if available for the language. If the standard keyboard layout is not available for the selected language, mKEYB patches the enhanced keyboard layout to use Ctrl+Alt instead of AltGr (not available on standard keyboards). This pached layout may not be completely accurate.
 
 The `/E` switch forces an enhanced keyboard layout, while `/S` forces a standard keyboard layout.
 
@@ -53,10 +57,10 @@ To uninstall the driver type `mkeyb /u` or `mkeyb us` (US keyboards do not need 
 
 ## Known limitations
 
-* mKEYB is known to work on my machine, an Amstrad PC5086 with and enhanced 101 keys keyboard. Consider it untested on anything else.
+* mKEYB is known to work on my machines: the Amstrad PC5086 and the Olivetti PCS86. Both are XT clones with an enhanced 101 keys keyboard. Consider it untested on anything else.
 * Most of the layouts are for 101/102 keys enhanced keyboards only. They are not accurate for 83 keys keyboard.
 * Autodetect of BIOS features and keyboard type may not work.
-* The INT 9 handler is written for controllers compatible with the 8255 PPI, and may have unpredictable results with non-standard keyboard controllers
+* The INT 9 handler is written for controllers compatible with the 8255 PPI, and may have unpredictable results with non-standard keyboard controllers.
 
 ## License 
 

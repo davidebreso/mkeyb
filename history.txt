@@ -160,3 +160,6 @@
 0.53 - 22 November 2025
     Fix UK, PO, SP, and SG layouts 
     Documentation and help file updated
+
+0.54 - 21 December 2025
+    Option /C to use CapsLock as Ctrl key, and Shift-CapsLock to get a real CapsLock.  

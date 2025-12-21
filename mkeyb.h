@@ -23,6 +23,7 @@ extern uchar  RESIDENT DecimalDingsBums; /* grey , or . */
 extern uchar  RESIDENT SilentKeyboard; /* absorb all keyboard input except CtrlAltDel */
 
 extern uchar RESIDENT  usebiosonly_flag;
+extern uchar RESIDENT  capsctrl_flag;
 
 extern void (interrupt far *RESIDENT OldInt9)();
 extern void (interrupt far *RESIDENT OldInt16)();

@@ -55,6 +55,8 @@
 
 extern uchar usebiosonly_flag;
 extern uchar lastisctrl_flag;
+extern uchar capsctrl_flag;
+extern uchar upcode;
 extern uchar debug_scancode;
 
 extern uint  RESIDENT currentCombi             ;
@@ -125,6 +127,19 @@ int cdecl NAME(cint15_handler)(uchar scancode)
 	{
 		return 0;							/* absorb all keyboard input :
 												tell the BIOS to ignore scancode */
+	}
+
+	if (capsctrl_flag)
+	{
+		if (scancode == 0x3a && (BIOSstate & 0x0b) == 0)	/* CapsLock, no Alt nor shift */
+		{
+			scancode = 0x1d;		/* Turn into Ctrl */
+			upcode = 0x9d;			/* Save upcode for later */
+		} else if (scancode == 0xba) {
+			/* CapsLock release, return saved upcode */
+			scancode = upcode;
+			upcode = 0xba;
+		}
 	}
 
 #ifdef NO_FASTSWITCH

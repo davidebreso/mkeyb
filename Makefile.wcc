@@ -1,9 +1,9 @@
 all: mkeyb.exe
 
 INST_SIG=19309			# mKEYB fingerprint "mK"
-VERSION=53				# version number
-VERSION_STR=\"0.53\"		# version number text
-ZIPFILE=mkeyb053.zip
+VERSION=54				# version number
+VERSION_STR=\"0.54\"		# version number text
+ZIPFILE=mkeyb054.zip
 
 WCC=wcc
 WASM=wasm

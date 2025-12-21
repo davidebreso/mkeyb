@@ -755,6 +755,7 @@ void usage(void)
 		   "      MKEYB /Q - Quiet - absorb all keyboard input\n"
 		   "      MKEYB /E - Specifies that an enhanced 101/102 keys keyboard is installed\n"
 		   "      MKEYB /S - Specifies that a standard 83/84 keys keyboard is installed\n"
+		   "      MKEYB /C - CapsLock acts as Ctrl (Shift-CapsLock to get a real CapsLock)\n"
 		   "      MKEYB /9 - Installs INT 9 handler (/9- to disable)\n"
 		   "      MKEYB /G - Installs INT 16 handler (/G- to disable)\n"
 		   "      MKEYB /M - Installs driver in low memory\n"
@@ -798,6 +799,9 @@ int main(int argc, char *argv[])
 						  break;
 
 				case 'Q': SilentKeyboard = 1;
+						  break;
+
+				case 'C': capsctrl_flag = 1;
 						  break;
 
 				case 'E': enhancedKeyb = 1;

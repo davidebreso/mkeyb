@@ -4,7 +4,7 @@
 Makefile.bcc	f	2025-12-21T18:47:21Z
 Makefile.wcc	f	2025-12-21T18:47:33Z
 bugs.txt	f	2023-10-07T20:33:50Z
-fdhelp.htm	f	2025-09-13T08:22:23Z
+fdhelp.htm	f	2025-12-21T22:10:34Z
 history.txt	f	2025-12-21T18:59:28Z
 keydefbe.h	f	2022-11-16T20:56:42Z
 keydefbg.h	f	2003-05-23T10:05:18Z
@@ -37,7 +37,7 @@ mkeyb.c	f	2025-12-21T18:16:27Z
 mkeyb.exe	f	2025-12-21T19:07:44Z
 mkeyb.h	f	2025-12-21T18:16:21Z
 mkeyb.htm	f	2018-12-04T13:52:56Z
-mkeyb.lsm	f	2025-09-13T08:20:37Z
+mkeyb.lsm	f	2025-12-21T22:08:02Z
 mkeyb.txt	f	2022-11-19T21:40:03Z
 mkeyba.asm	f	2025-12-21T18:06:54Z
 mkeybr.c	f	2025-12-21T18:43:39Z

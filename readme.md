@@ -35,10 +35,6 @@ You can combine /G with /9: `mkeyb it /9 /G`.
 
 `/G-` disables installation of the INT16 handler even if autodetection decided that it is needed.
 
-## Use CapsLock as Ctrl key
-
-The `/C` swich changes the behaviour of the CapsLock key to act as Ctrl key. To get a real CapsLock when this option is enabled, press Shift-CapsLock.
-
 ## Standard and Enhanced keyboards
 
 PC keyboards came in two flavours: "standard" keyboards with 83 or 84 keys, common on XT class machines, and "enhanced" keyboards with 101 or 102 keys, common on AT, PS2 and later machines.
@@ -46,6 +42,10 @@ PC keyboards came in two flavours: "standard" keyboards with 83 or 84 keys, comm
 mKEYB supports both keyboard types. The enhanced keyboard layout is available for all languages. Some languages have also a custom layout for the standard keyboard. mKEYB can autodetect the keyboard type and selects the appropriate keyboard layout, if available for the language. If the standard keyboard layout is not available for the selected language, mKEYB patches the enhanced keyboard layout to use Ctrl+Alt instead of AltGr (not available on standard keyboards). This pached layout may not be completely accurate.
 
 The `/E` switch forces an enhanced keyboard layout, while `/S` forces a standard keyboard layout.
+
+## Use CapsLock as Ctrl key
+
+The `/C` swich changes the behaviour of the CapsLock key to act as Ctrl key. To get a real CapsLock when this option is enabled, press Shift-CapsLock.
 
 ## Loading in low memory
 

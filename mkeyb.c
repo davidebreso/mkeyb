@@ -402,7 +402,7 @@ void UninstallKeyboard(int verbose)
 		if (verbose)
 			printf("Old mKEYB deinstalled\n");
 	} else if (verbose) {
-		printf("Old mKEYB disabled. Cannot remove it from memory since it is not the last installed driver.\n");
+		printf("Old mKEYB disabled.\nCannot remove it from memory since it is not the last installed driver.\n");
 	}
 
 }

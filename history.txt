@@ -161,5 +161,7 @@
     Fix UK, PO, SP, and SG layouts 
     Documentation and help file updated
 
-0.54 - 21 December 2025
+0.54 - 23 December 2025
     Option /C to use CapsLock as Ctrl key, and Shift-CapsLock to get a real CapsLock.  
+    Autodetect of enhanced keyboard BIOS now follows the original KEYB approach:
+    call the (nonexistent) INT 16h function 92h and check returned AH value.

@@ -175,6 +175,7 @@ error:
    AutodetectInt9h();
    Autodetects if a new INT9 handler is needed by reading
    feature byte 1 of the ROM configuration table
+   Returns 1 if the handler is needed, 0 otherwise
 */
 
 int AutodetectInt9h()
@@ -189,7 +190,7 @@ int AutodetectInt9h()
 		/* ROM Table is at ES:BX, feature byte 1 at offset 5 */
 		uchar fbyte = *(uchar far *)MK_FP(sr.es, r.x.bx + 5);
 		// printf("Feature byte at %04x:%04x is %02x\n", sr.es, r.x.bx, fbyte);
-		/* bit 4 is 1 if INT 15,4F called by INT9 */
+		/* bit 4 is 1 if INT 15,4F is called upon INT9 */
 		return ((fbyte & 0x10) == 0);
 	}
 	/* if carry flag is set, function is unavailable */
@@ -198,29 +199,23 @@ int AutodetectInt9h()
 
 /*
   AutodetectInt16h();
-  Autodetects if BIOS provides store keystroke in keyboard buffer function
+  Autodetects if extended keyboard BIOS is available
+  Returns 0 if available, 1 if not available
 */
 
 int AutodetectInt16h()
 {
 	union REGS r;
 
-	/* Clear keyboard buffer by setting tail = head */
-	*(uint far *)MK_FP(0x40, 0x1C) = *(uint far *)MK_FP(0x40, 0x1A);
-	r.h.ah = 5;
-	r.x.cx = 0x0928;	/* dummy keystroke */
-	int86(0x16, &r, &r);	/* try to add keystroke into buffer */
-	r.h.ah = 01;
-	int86(0x16, &r, &r);	/* check for keystroke */
-	if((r.x.cflag & 0x40) == 0)     /* ZF = 0 */
-	{
-		// printf("Keystroke: %04x\n", r.x.ax);
-		/* Clear buffer */
-		*(uint far *)MK_FP(0x40, 0x1C) = *(uint far *)MK_FP(0x40, 0x1A);
-		return (r.x.ax != 0x0928);	/* check if keystroke is correct */
-	}
-	// printf("Empty buffer\n");
-	return 1;	/* Buffer empty, chain INT16 */
+	/*
+	   Here we use the same trick as the original KEYB driver:
+	   we call the (nonexistend) INT 16h function 92h and check AH:
+	   if it is 80h or less, then extended BIOS is present
+	 */
+	r.h.ah = 0x92;
+	int86(0x16, &r, &r);
+	/* If the returned AH is greater than 80h then handler is needed */
+	return (r.h.ah > 0x80);
 }
 
 /*

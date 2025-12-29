@@ -54,8 +54,6 @@
 /** 'normal' data **********************************/
 
 extern uchar usebiosonly_flag;
-extern uchar lastisctrl_flag;
-extern uchar capsctrl_flag;
 extern uchar upcode;
 extern uchar debug_scancode;
 
@@ -123,13 +121,13 @@ int cdecl NAME(cint15_handler)(uchar scancode)
 	debug_scancode = scancode;              /* very nice for debugging   */
 											/* hit ESC - and we are gone */
 
-	if (SilentKeyboard)
+	if (Flags.silent)
 	{
 		return 0;							/* absorb all keyboard input :
 												tell the BIOS to ignore scancode */
 	}
 
-	if (capsctrl_flag)
+	if (Flags.capsisctrl)
 	{
 		if (scancode == 0x3a && (BIOSstate & 0x0b) == 0)	/* CapsLock, no Alt nor shift */
 		{
@@ -152,16 +150,16 @@ int cdecl NAME(cint15_handler)(uchar scancode)
 		}
 	}
 #else
-	if (! lastisctrl_flag &&                   /* the last key was Ctrl */
+	if (! Flags.lastisctrl &&                   /* the last key was Ctrl */
 	*(char far*)MK_FP(0x40, 0x96) & 0x04 && /* was the Right Ctrl */
 	scancode == (0x1d + 0x80))              /* and now Ctrl key is released */
 	{
 		usebiosonly_flag = ~usebiosonly_flag;  /* toggles between 0x00 and 0xff */
 	}
 	if (scancode > 0 && scancode < 0x80) /* Any key pressed */
-		lastisctrl_flag = 0xff;
+		Flags.lastisctrl = 1;
 	if (scancode == 0x1d) /* Ctrl */
-		lastisctrl_flag = 0;
+		Flags.lastisctrl = 0;
 #endif
 
 	if (usebiosonly_flag == 0)

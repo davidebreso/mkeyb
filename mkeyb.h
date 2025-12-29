@@ -17,13 +17,18 @@ typedef unsigned int    uint;
 typedef unsigned short  ushort;
 typedef unsigned char   uchar;
 
+struct flags {
+	uchar silent: 1;
+	uchar lastisctrl: 1;
+	uchar capsisctrl: 1;
+};
+
 extern uchar *RESIDENT pResidentScancodetable;
 extern char  *RESIDENT ResidentCombiTables[6];
 extern uchar  RESIDENT DecimalDingsBums; /* grey , or . */
-extern uchar  RESIDENT SilentKeyboard; /* absorb all keyboard input except CtrlAltDel */
 
 extern uchar RESIDENT  usebiosonly_flag;
-extern uchar RESIDENT  capsctrl_flag;
+extern struct flags RESIDENT  Flags;
 
 extern void (interrupt far *RESIDENT OldInt9)();
 extern void (interrupt far *RESIDENT OldInt16)();

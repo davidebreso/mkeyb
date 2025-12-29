@@ -805,10 +805,10 @@ int main(int argc, char *argv[])
 						  exit(0);
 						  break;
 
-				case 'Q': SilentKeyboard = 1;
+				case 'Q': Flags.silent = 1;
 						  break;
 
-				case 'C': capsctrl_flag = 1;
+				case 'C': Flags.capsisctrl = 1;
 						  break;
 
 				case 'E': enhancedKeyb = 1;

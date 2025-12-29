@@ -41,7 +41,7 @@ PC keyboards came in two flavours: "standard" keyboards with 83 or 84 keys, comm
 
 mKEYB supports both keyboard types. The enhanced keyboard layout is available for all languages. Some languages have also a custom layout for the standard keyboard. mKEYB can autodetect the keyboard type and selects the appropriate keyboard layout, if available for the language. If the standard keyboard layout is not available for the selected language, mKEYB patches the enhanced keyboard layout to use Ctrl+Alt instead of AltGr (not available on standard keyboards). This pached layout may not be completely accurate.
 
-The `/E` switch forces an enhanced keyboard layout, while `/S` forces a standard keyboard layout.
+The `/E` switch selects the enhanced keyboard layout, while `/S` selects the standard keyboard layout. These switches also update the keyboard mode/type byte in the BIOS Data Area at address 40:96h to reflect the chosen keyboard type. As a result, programs that read this byte can correctly detect which keyboard is in use.
 
 ## Use CapsLock as Ctrl key
 

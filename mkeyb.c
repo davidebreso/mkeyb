@@ -219,16 +219,24 @@ int AutodetectInt16h()
 }
 
 /*
-  AutodetectKeyboard();
-  Autodetect if the keyboard is enhanced (101/102 keys)
-  or standard (83/84 keys).
+  SetKeyboardType(flag);
+  Set the keyboard type depending on flag:
+  	0 = force standard 83/84 keys keyboard
+  	1 = force enhanced 101/102 keys keyboard
+  	2 = autodetect keyboard type from the keyboard mode/type byte at 40:96h
+  Returns the keyboard type and sets the keyboard mode/type byte accordingly
 */
-uint AutodetectKeyboard()
+uint SetKeyboardType(uint flag)
 {
-	uchar status;
-	status = *(uchar far *)MK_FP(0x40, 0x96);
+	uchar far *status= MK_FP(0x40, 0x96);
+	if (flag == 0) {
+		/* Set standard keyboard type */
+		*status &= ~0x10;
+	} else if (flag == 1) {
+		*status |= 0x10;
+	}
 	// printf("Keyboard status byte: %04x\n", status);
-	return (status & 0x10);
+	return (*status & 0x10);
 }
 
 /*
@@ -612,7 +620,11 @@ InstallKeyboard(struct KeyboardDefinition *kb,
 			r.h.ah = 0x00;
 			int86(0x16,&r,&r);
 			last_scancode = r.h.ah;
-			printf("key pressed %04x '%c'\n",r.x.ax,r.h.al);
+			if (r.h.al < ' ') {
+				printf("key pressed %04x ASCII %02x\n",r.x.ax,r.h.al);
+			} else {
+				printf("key pressed %04x ASCII '%c'\n",r.x.ax,r.h.al);
+			}
 		}
 	}
 	while (last_scancode != 1);
@@ -770,7 +782,7 @@ int main(int argc, char *argv[])
 	uint GOTSR = 1;
 	uint int9hChain = 2;	/* 0 = disabled, 1 = enabled, 2 = autodetect */
 	uint int16hChain = 2;	/* 0 = disabled, 1 = enabled, 2 = autodetect */
-	uint enhancedKeyb = AutodetectKeyboard();
+	uint enhancedKeyb = 2;	/* 0 = disabled, 1 = enabled, 2 = autodetect */
 	uint tryHigh = 1;		/* 0 = low memory only, 1 = try high then low */
 	int i, kb_idx = LENGTH(KeyDefTab);
 	uchar far *pmodel;
@@ -845,6 +857,7 @@ int main(int argc, char *argv[])
 		}
 	}
 
+	enhancedKeyb = SetKeyboardType(enhancedKeyb);
 	if (kb_idx == LENGTH(KeyDefTab))
 	{
 		printf("you MUST specify a keyboard language like\n"

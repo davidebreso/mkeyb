@@ -43,8 +43,11 @@ for the selected language, it patches the enhanced keyboard layout to
 use Ctrl+Alt instead of AltGr (not available on standard keyboards).
 This pached layout may not be accurate for standard keyboards.
 
-The /E switch forces an enhanced keyboard layout, while /S forces a
-standard keyboard.
+The /E switch selects the enhanced keyboard layout, while /S selects the
+standard keyboard layout. These switches also update the keyboard mode/type
+byte in the BIOS Data Area at address 40:96h to reflect the chosen keyboard
+type. As a result, programs that read this byte can correctly detect which
+keyboard is in use.
 
 **************************
 Confirmed working machines

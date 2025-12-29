@@ -3,9 +3,9 @@
 .gitignore	f	2022-11-12T18:24:25Z
 Makefile.bcc	f	2025-12-21T18:47:21Z
 Makefile.wcc	f	2025-12-21T18:47:33Z
-bugs.txt	f	2023-10-07T20:33:50Z
+bugs.txt	f	2025-12-29T13:12:42Z
 fdhelp.htm	f	2025-12-21T22:10:34Z
-history.txt	f	2025-12-23T12:43:13Z
+history.txt	f	2025-12-29T13:16:21Z
 keydefbe.h	f	2022-11-16T20:56:42Z
 keydefbg.h	f	2003-05-23T10:05:18Z
 keydefbp.h	f	2003-05-23T10:05:20Z
@@ -33,8 +33,8 @@ keydeftr.h	f	2022-07-31T10:36:50Z
 keydefuk.h	f	2023-06-23T17:25:44Z
 keydefux.h	f	2022-04-15T12:14:26Z
 license.txt	f	2004-03-17T09:55:46Z
-mkeyb.c	f	2025-12-23T12:50:54Z
-mkeyb.exe	f	2025-12-23T12:51:22Z
+mkeyb.c	f	2025-12-29T12:56:58Z
+mkeyb.exe	f	2025-12-29T13:17:14Z
 mkeyb.h	f	2025-12-21T18:16:21Z
 mkeyb.htm	f	2018-12-04T13:52:56Z
 mkeyb.lsm	f	2025-12-21T22:08:02Z
@@ -43,4 +43,4 @@ mkeyba.asm	f	2025-12-21T18:06:54Z
 mkeybr.c	f	2025-12-21T18:43:39Z
 portab.h	f	2022-11-17T21:36:14Z
 prf.c	f	2022-11-17T21:34:24Z
-readme.md	f	2025-12-21T18:59:00Z
+readme.md	f	2025-12-29T13:14:31Z

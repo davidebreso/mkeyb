@@ -165,3 +165,5 @@
     Option /C to use CapsLock as Ctrl key, and Shift-CapsLock to get a real CapsLock.  
     Autodetect of enhanced keyboard BIOS now follows the original KEYB approach:
     call the (nonexistent) INT 16h function 92h and check returned AH value.
+    Options /E and /S update the keyboard type byte at 40:96h to reflect the chosen
+    keyboard type.

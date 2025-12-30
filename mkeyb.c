@@ -415,7 +415,7 @@ void UninstallKeyboard(int verbose)
 
 }
 
-InstallKeyboard(struct KeyboardDefinition *kb,
+int InstallKeyboard(struct KeyboardDefinition *kb,
 		uint GOTSR, uint int9hChain, uint int16hChain, uint tryHigh)
 {
 	union  REGS r;
@@ -602,8 +602,8 @@ InstallKeyboard(struct KeyboardDefinition *kb,
 	{
 		if (*(uchar far*)RESPTR(&debug_scancode) != 0)
 		{
-			printf("shiftstate %02x scancode    %02x\n",
-					*(uchar far*)MK_FP(0x40,0x17),
+			printf("shiftstate  %04x  scancode %02x\n",
+					*(uint far*)MK_FP(0x40,0x17),
 					*(uchar far*)RESPTR(&debug_scancode));
 
 			if (*(uchar far*)RESPTR(&debug_scancode) & 0x80 && /* release key ??*/
@@ -621,9 +621,9 @@ InstallKeyboard(struct KeyboardDefinition *kb,
 			int86(0x16,&r,&r);
 			last_scancode = r.h.ah;
 			if (r.h.al < ' ') {
-				printf("key pressed %04x ASCII %02x\n",r.x.ax,r.h.al);
+				printf("key pressed %04x  ASCII %02x\n",r.x.ax,r.h.al);
 			} else {
-				printf("key pressed %04x ASCII '%c'\n",r.x.ax,r.h.al);
+				printf("key pressed %04x  ASCII '%c'\n",r.x.ax,r.h.al);
 			}
 		}
 	}

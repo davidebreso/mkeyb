@@ -169,3 +169,4 @@
     value.
     Options /E and /S update the keyboard type byte at 40:96h to reflect the
     chosen keyboard type.
+    Fix incorrect behaviour of ALT key in QWERTZ and AZERTY layouts

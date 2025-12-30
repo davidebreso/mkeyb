@@ -60,7 +60,6 @@ extern void CDECL interrupt RESIDENT int2f_handler();
 #define ALPHA_CTRL(scan,lcase,ucase,ctrl) \
         scan, 2 + (_KCHAR|_KCAPS|_KCTRL)+3, lcase, ucase, ctrl,
 
-
 #define ALTGR(scan,code) \
 		scan, 2 + _KALTGR+1, code,
 #define ALTGRSHIFT(scan,code1,code2) \
@@ -87,9 +86,10 @@ extern void CDECL interrupt RESIDENT int2f_handler();
 #define CTRL_ALTGR(scan,ctrl,alt) \
 		scan, 2 + (_KCTRL|_KALTGR)+2, ctrl, alt,
 
-#define REPLACE(scan,code) \
-		scan, 2 + _KREPLACE+1, code,
-#define REPLACESCAN (2+_KREPLACE+1)
+/* Special combination to remap alphabetic keys in AZERTY and QWERTZ layouts */
+#define REPLACE(scan,lcase,ucase,ctrl,alt) \
+		scan, 2 + _KREPLACE+4, lcase, ucase, ctrl, alt,
+#define REPLACESCAN (2+_KREPLACE+4)
 
 
 #define IGNORE       0x00
@@ -116,7 +116,7 @@ struct KeyboardDefinition {
 	char *ScancodeTable;
 	char *CombicodeTables[6];
 	char DezimalDingsbums;
-	char DefaultLayoutUS;			// TRUE for russian  
+	char DefaultLayoutUS;			// TRUE for non-latin and US international
 	};
 
 

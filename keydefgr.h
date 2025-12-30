@@ -7,6 +7,7 @@
  * 20 apr 02: tom ehlert - creation
  * 22 aug 21: pierre beck - 83/84 keyboard
  * 16 nov 22: davide bresolin - review
+ * 29 dec 25: davide bresolin - bugfix
  */
 
 
@@ -41,8 +42,8 @@ uchar NAME(scancodetable)[] = {
 // /* Z */ REPLACE	(0x2C, 0x15		)
 // /* Y */ REPLACE	(0x15, 0x2C		)
 
- /* Z */ ALPHA_CTRL	(0x2C, 'y', 'Y', 0x19		)
- /* Y */ ALPHA_CTRL	(0x15, 'z', 'Z', 0x1A		)
+ /* Z */ REPLACE	(0x2C, 'y', 'Y', 0x19, 0x15)
+ /* Y */ REPLACE	(0x15, 'z', 'Z', 0x1A, 0x2C)
 
  /* 1 */ PUNCT		(0x02, '1', '!'		)
 #ifdef STANDARD

@@ -9,6 +9,7 @@ this keyboard is modeled after the layout given by
  * 29 sep 03: tom ehlert - creation
  * 28 nov 18: fritz corrected this layout for CP852
  * 16 nov 22: davide bresolin - review
+ * 29 dec 25: davide bresolin - bugfix
  *
  */
 
@@ -30,8 +31,8 @@ uchar NAME(scancodetable)[] = {
  //* Y */ REPLACE	 (0x15,0x2C		    ) /* 21C z  Z  #26 . . */
  //* Z */ REPLACE	 (0x2C,0x15		    ) /* 44C y  Y  #25 . . */
 
- /* Z */ ALPHA_CTRL 	(0x2C, 'y', 'Y', 0x19		)
- /* Y */ ALPHA_CTRL 	(0x15, 'z', 'Z', 0x1A		)
+ /* Z */ REPLACE	(0x2C, 'y', 'Y', 0x19, 0x15)
+ /* Y */ REPLACE	(0x15, 'z', 'Z', 0x1A, 0x2C)
 
 
 

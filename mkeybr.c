@@ -114,9 +114,10 @@ int cdecl NAME(cint15_handler)(uchar scancode)
 {
 	uchar  RESIDENT *tbl;
 	ushort BIOSstate;
-	uchar  keyflags;
+	uchar  KeybMode, keyflags, keycode;
 
 	BIOSstate     = *(short far*)MK_FP(0x40,0x17);
+	KeybMode      = *(uchar far*)MK_FP(0x40,0x96);
 
 	debug_scancode = scancode;              /* very nice for debugging   */
 											/* hit ESC - and we are gone */
@@ -134,7 +135,7 @@ int cdecl NAME(cint15_handler)(uchar scancode)
 			scancode = 0x1d;		/* Turn into Ctrl */
 			upcode = 0x9d;			/* Save upcode for later */
 		} else if (scancode == 0xba) {
-			/* CapsLock release, return saved upcode */
+			/* CapsLock release, restore saved upcode */
 			scancode = upcode;
 			upcode = 0xba;
 		}
@@ -150,16 +151,16 @@ int cdecl NAME(cint15_handler)(uchar scancode)
 		}
 	}
 #else
-	if (! Flags.lastisctrl &&                   /* the last key was Ctrl */
-	*(char far*)MK_FP(0x40, 0x96) & 0x04 && /* was the Right Ctrl */
-	scancode == (0x1d + 0x80))              /* and now Ctrl key is released */
+	if (Flags.lastisctrl &&                     /* the last key was Ctrl */
+	KeybMode & 0x04 &&                          /* was the Right Ctrl */
+	scancode == (0x1d + 0x80))                  /* and now Ctrl key is released */
 	{
 		usebiosonly_flag = ~usebiosonly_flag;  /* toggles between 0x00 and 0xff */
 	}
 	if (scancode > 0 && scancode < 0x80) /* Any key pressed */
-		Flags.lastisctrl = 1;
-	if (scancode == 0x1d) /* Ctrl */
 		Flags.lastisctrl = 0;
+	if (scancode == 0x1d) /* Ctrl */
+		Flags.lastisctrl = 1;
 #endif
 
 	if (usebiosonly_flag == 0)
@@ -169,7 +170,7 @@ int cdecl NAME(cint15_handler)(uchar scancode)
 							** E0 scancode handling
 							**      don't handle ANYTHING, if E0 was pressed
 							*/
-	if (*(char far*)MK_FP(0x40, 0x96) & 0x02) /* last code was E0 hidden code */
+	if (KeybMode & 0x02)    /* last code was E0 hidden code */
 	{
 		return scancode;
 	}
@@ -182,8 +183,8 @@ int cdecl NAME(cint15_handler)(uchar scancode)
 				BIOSstate & 0x20)   /* NUMLOCK pressed */
 	{
 							/* the grey . is particular ugly */
-		GENERATE_KEYSTROKE(scancode,DecimalDingsBums);
-		return 0;
+		keycode = DecimalDingsBums;
+		goto simulateCtrlKeyPress;
 	}
 #endif /* NO_DECIDINGSBUMS */
 
@@ -216,8 +217,8 @@ int cdecl NAME(cint15_handler)(uchar scancode)
 		{
 			if (tbl[0] == scancode)
 			{                                /* these character all use CAPS */
-				GENERATE_KEYSTROKE(0, BIOSstate & 0x40 ? tbl[2] : tbl[1]);
-				return 0;
+				keycode = BIOSstate & 0x40 ? tbl[2] : tbl[1];
+				goto simulateCtrlKeyPress;
 			}
 		}
 		/* not found ? then the last entry before holds the character to generate */
@@ -249,9 +250,21 @@ int cdecl NAME(cint15_handler)(uchar scancode)
 
 #ifndef NO_REPLACESCAN
 
-									/* simple scancode exchange */
+	/* left alt scancode exchange */
 	if (keyflags == REPLACESCAN)
-		return tbl[0];
+	{
+#ifdef NO_ALTGREY
+		if ((BIOSstate & 0x0C) == 0x08)		/* has alt but not ctrl pressed */
+#else
+		if ((BIOSstate & 0x204) == 0x200)	/* has left alt but not ctrl pressed */
+#endif /* NO_ALTGREY */
+		{
+			/* Pass the alt scancode replacement to the BIOS */
+			return tbl[3];
+		}
+		/* Fall trough with a valid combination to generate the key */
+		keyflags = (2+(_KCHAR|_KCAPS|_KCTRL)+4);
+	}
 
 #endif /* NO_REPLACESCAN */
 									/* we found the table entry for the scancode
@@ -264,39 +277,23 @@ int cdecl NAME(cint15_handler)(uchar scancode)
 									*/
 
 
-#ifndef NO_ALTGREY
-
-	if (keyflags & _KALTGR &&                   /* has ALTGREY definition */
-		*(char far*)MK_FP(0x40,0x96) & 0x08)    /* and right ALT pressed */
-	{
-		if (keyflags & _KCHAR)                  /* skip over other characters */
-			tbl+=2;
-
-		if (keyflags & _KCTRL)
-			tbl += 1;
-
-		if (BIOSstate & 0x40)					/* is Shift pressed ? */
-		{
-			if (keyflags & _KALTGRSHIFT)        /* uses ALTGREY with shifts if defined */
-			{
-				tbl += 1;
-			} else {
-				return scancode;				/* let the BIOS do its work if not */
-			}
-		}
-
-		goto simulateKeyPress;
-	}
-#endif  /* NO_ALTGREY */
-
 	if (BIOSstate & 0x08)           /* any ALT pressed */
 	{
-#ifdef STANDARD
+#ifdef NO_FASTSWITCH
+
+#ifdef NO_ALTGREY
 		if (keyflags & _KALTGR &&	/* has ALTGREY definition */
 			BIOSstate & 0x04)    	/* and CTRL is also pressed */
+#else
+		if (keyflags & _KALTGR &&                   /* has ALTGREY definition */
+			KeybMode & 0x08)    /* and right ALT pressed */
+#endif /* NO_ALTGREY */
 		{
-			if (keyflags & _KCHAR) 		/* skip over other characters */
+			if (keyflags & _KCHAR)                  /* skip over other characters */
 				tbl+=2;
+
+			if (keyflags & _KCTRL)
+				tbl += 1;
 
 			if (BIOSstate & 0x40)					/* is Shift pressed ? */
 			{
@@ -310,7 +307,7 @@ int cdecl NAME(cint15_handler)(uchar scancode)
 
 			goto simulateKeyPress;
 		}
-#endif  /* STANDARD */
+#endif /* NO_FASTSWITCH */
 		return scancode;            /* leave the work to BIOS */
 	}
 
@@ -321,6 +318,7 @@ int cdecl NAME(cint15_handler)(uchar scancode)
 		if(keyflags & _KCHAR)
 			tbl += 2;
 
+		keycode = tbl[0];
 		goto simulateCtrlKeyPress;		/* Skip check for COMBIs to avoid clash with ^A..^F */
 	}
 
@@ -342,27 +340,29 @@ int cdecl NAME(cint15_handler)(uchar scancode)
 
 simulateKeyPress:
 
+	keycode = tbl[0];
+
 #ifdef COMBI
-	if (tbl[0] >= COMBI1 && tbl[0] <= COMBI6)
+	if (keycode >= COMBI1 && keycode <= COMBI6)
 	{
-		currentCombi         = tbl[0];
+		currentCombi         = keycode;
 		return 0;
 	}
 #endif
 
 simulateCtrlKeyPress:
 
-	if (tbl[0] == IGNORE)
+	if (keycode == IGNORE)
 		return scancode;	/* let BIOS do its work */
 
 							/* strange, but necessary */
-	if (tbl[0] == 0xf0 ||   /* this is a BIOS 'feature' */
-		tbl[0] == 0xe0)     /* this too               */
+	if (keycode == 0xf0 ||   /* this is a BIOS 'feature' */
+		keycode == 0xe0)     /* this too               */
 	{
 		scancode = 0;
 	}
 
-	GENERATE_KEYSTROKE(scancode,tbl[0]);
+	GENERATE_KEYSTROKE(scancode,keycode);
 
 	return 0;
 }

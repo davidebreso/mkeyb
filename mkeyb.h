@@ -21,6 +21,7 @@ struct flags {
 	uchar silent: 1;
 	uchar lastisctrl: 1;
 	uchar capsisctrl: 1;
+	uchar capsctrldown: 1;
 };
 
 extern uchar *RESIDENT pResidentScancodetable;

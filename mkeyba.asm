@@ -89,7 +89,6 @@ chain_int15_non_carry:
 _OldInt15  	dd 0
 
 ;extern uchar usebiosonly_flag;
-;extern uchar upcode;
 ;extern uchar debug_scancode;
 ;extern uint  RESIDENT currentCombi             ;
 ;extern uchar RESIDENT currentCombiScancode     ;
@@ -102,7 +101,6 @@ public _OldInt16
 
 public _usebiosonly_flag
 public _Flags
-public _upcode
 
 public _debug_scancode,_currentCombi
 public _ResidentCombiTables, _DecimalDingsBums
@@ -113,7 +111,6 @@ _OldInt9                dd 0
 _OldInt16               dd 0
 _usebiosonly_flag       db 0ffh
 _Flags 			db 0
-_upcode	                db 0bah
 _debug_scancode         db 0
 _currentCombi           dw 0
 _DecimalDingsBums       db 0

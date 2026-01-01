@@ -54,7 +54,6 @@
 /** 'normal' data **********************************/
 
 extern uchar usebiosonly_flag;
-extern uchar upcode;
 extern uchar debug_scancode;
 
 extern uint  RESIDENT currentCombi             ;
@@ -132,12 +131,16 @@ int cdecl NAME(cint15_handler)(uchar scancode)
 	{
 		if (scancode == 0x3a && (BIOSstate & 0x0b) == 0)	/* CapsLock, no Alt nor shift */
 		{
-			scancode = 0x1d;		/* Turn into Ctrl */
-			upcode = 0x9d;			/* Save upcode for later */
-		} else if (scancode == 0xba) {
-			/* CapsLock release, restore saved upcode */
-			scancode = upcode;
-			upcode = 0xba;
+			/* Turn into right Ctrl and set modifier flags */
+			*(short far*)MK_FP(0x40,0x17) |= 0x104;
+			Flags.capsctrldown = 1;
+			return 0;
+		} else if (scancode == 0xba && Flags.capsctrldown) {
+			/* CapsLock released, was remapped to Ctrl */
+			/* Reset right Ctrl modifier flags */
+			*(short far*)MK_FP(0x40,0x17) &= ~0x104;
+			Flags.capsctrldown = 0;
+			return 0;
 		}
 	}
 
@@ -184,7 +187,7 @@ int cdecl NAME(cint15_handler)(uchar scancode)
 	{
 							/* the grey . is particular ugly */
 		keycode = DecimalDingsBums;
-		goto simulateCtrlKeyPress;
+		goto simulateKeyPress;
 	}
 #endif /* NO_DECIDINGSBUMS */
 
@@ -218,7 +221,7 @@ int cdecl NAME(cint15_handler)(uchar scancode)
 			if (tbl[0] == scancode)
 			{                                /* these character all use CAPS */
 				keycode = BIOSstate & 0x40 ? tbl[2] : tbl[1];
-				goto simulateCtrlKeyPress;
+				goto simulateKeyPress;
 			}
 		}
 		/* not found ? then the last entry before holds the character to generate */
@@ -259,8 +262,10 @@ int cdecl NAME(cint15_handler)(uchar scancode)
 		if ((BIOSstate & 0x204) == 0x200)	/* has left alt but not ctrl pressed */
 #endif /* NO_ALTGREY */
 		{
-			/* Pass the alt scancode replacement to the BIOS */
-			return tbl[3];
+			/* Generate keystroke for the scancode replacement */
+			scancode = tbl[3];
+			keycode = 0;
+			goto simulateKeyPress;
 		}
 		/* Fall trough with a valid combination to generate the key */
 		keyflags = (2+(_KCHAR|_KCAPS|_KCTRL)+4);
@@ -305,7 +310,7 @@ int cdecl NAME(cint15_handler)(uchar scancode)
 				}
 			}
 
-			goto simulateKeyPress;
+			goto checkCombis;
 		}
 #endif /* NO_FASTSWITCH */
 		return scancode;            /* leave the work to BIOS */
@@ -319,7 +324,7 @@ int cdecl NAME(cint15_handler)(uchar scancode)
 			tbl += 2;
 
 		keycode = tbl[0];
-		goto simulateCtrlKeyPress;		/* Skip check for COMBIs to avoid clash with ^A..^F */
+		goto simulateKeyPress;		/* Skip check for COMBIs to avoid clash with ^A..^F */
 	}
 
 	if ((keyflags & _KCHAR)  == 0)  /* it should have _KCHAR defined */
@@ -338,7 +343,7 @@ int cdecl NAME(cint15_handler)(uchar scancode)
 			tbl++;
 	}
 
-simulateKeyPress:
+checkCombis:
 
 	keycode = tbl[0];
 
@@ -350,10 +355,10 @@ simulateKeyPress:
 	}
 #endif
 
-simulateCtrlKeyPress:
-
 	if (keycode == IGNORE)
 		return scancode;	/* let BIOS do its work */
+
+simulateKeyPress:
 
 							/* strange, but necessary */
 	if (keycode == 0xf0 ||   /* this is a BIOS 'feature' */

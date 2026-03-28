@@ -54,7 +54,7 @@ int _fmemcmp(void far *d, void far *s, uint len)
 	in upper memory if present and tryHigh is true
 */
 
-AllocMemory(uint residentsize, int makeResident, int tryHigh)
+uint AllocMemory(uint residentsize, int makeResident, int tryHigh)
 {
 	union REGS r;
 	uint allocSeg;

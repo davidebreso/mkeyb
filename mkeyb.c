@@ -119,6 +119,8 @@ void VerifyScancodeTableForCorrectness(	struct KeyboardDefinition *kb,int print)
 	int loopdetect = 0;
 	void *scancode_end;
 
+	/* this depends on the next thing in memory being either the first combi table
+	   or the keyboard definition */
 	scancode_end = kb->CombicodeTables[0];
 	if(scancode_end == NULL)
 		scancode_end = kb;

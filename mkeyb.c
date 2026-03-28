@@ -874,7 +874,7 @@ int main(int argc, char *argv[])
 		if (kb == NULL)
 		{
 			printf("%s language not available for 83/84 keys keyboards\n"
-				   "please select a different language\n");
+				   "please select a different language\n", KeyDefTab[kb_idx]->LanguageShort);
 			exit(1);
 		}
 		/* Patch enhanced keyboard layouts to use standard drivers */

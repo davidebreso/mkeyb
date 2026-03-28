@@ -114,8 +114,8 @@ struct KeyboardDefinition {
 	char LanguageShort[4];			// "GR", 
 	char *Description;				// created by, "with combis",...
 	char DriverFunctionRequired;
-	char *ScancodeTable;
-	char *CombicodeTables[6];
+	uchar *ScancodeTable;
+	uchar *CombicodeTables[6];
 	char DezimalDingsbums;
 	char DefaultLayoutUS;			// TRUE for non-latin and US international
 	};

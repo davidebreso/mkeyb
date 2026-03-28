@@ -117,13 +117,13 @@ void VerifyScancodeTableForCorrectness(	struct KeyboardDefinition *kb,int print)
 	unsigned flags;
 	uchar *tbl, *tblnext, *lasttbl;
 	int loopdetect = 0;
-	void *scancode_end;
+	uchar *scancode_end;
 
 	/* this depends on the next thing in memory being either the first combi table
 	   or the keyboard definition */
 	scancode_end = kb->CombicodeTables[0];
 	if(scancode_end == NULL)
-		scancode_end = kb;
+		scancode_end = (uchar *) kb;
 
 	for(tbl = kb->ScancodeTable;
 		tbl[0] != 0;
@@ -524,7 +524,7 @@ int InstallKeyboard(struct KeyboardDefinition *kb,
 		pres += int16_handler_size;
 	}
 
-	pResidentScancodetable = (char*)FP_OFF(pres);
+	pResidentScancodetable = (uchar*)FP_OFF(pres);
 
 	for (i = COMBI1; i <= COMBI6; i++)
 	{

@@ -151,7 +151,7 @@ STATIC VOID handle_char(COUNT c)
 VOID ltob(LONG n, BYTE * s, COUNT base)
 {
   ULONG u;
-  BYTE *p, *q;
+  BYTE *p;
   int c;
 
   u = n;

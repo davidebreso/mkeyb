@@ -114,7 +114,6 @@ uint AllocMemory(uint residentsize, int makeResident, int tryHigh)
 
 void VerifyScancodeTableForCorrectness(	struct KeyboardDefinition *kb,int print)
 {
-	extern uchar RESIDENT nibble_length[];
 	unsigned flags;
 	uchar *tbl, *tblnext, *lasttbl;
 	int loopdetect = 0;
@@ -785,7 +784,6 @@ int main(int argc, char *argv[])
 	uint enhancedKeyb = 2;	/* 0 = disabled, 1 = enabled, 2 = autodetect */
 	uint tryHigh = 1;		/* 0 = low memory only, 1 = try high then low */
 	int i, kb_idx = LENGTH(KeyDefTab);
-	uchar far *pmodel;
 
 	printf("mKEYB " MY_VERSION_TEXT " [" __DATE__ "] " COPYRIGHT_TEXT "\n");
 

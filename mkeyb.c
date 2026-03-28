@@ -294,7 +294,10 @@ void UninstallKeyboard(int verbose)
 	void far *int15handler = *(void far *far *)MK_FP(0,4*0x15);
 	void far *int2fhandler = *(void far *far *)MK_FP(0,4*0x2f);
 	unsigned resident = (unsigned)NULL;
-	void far *orig9, far *orig16, far *orig15, far *orig2f;
+	void far *orig9;
+	void far *orig16;
+	void far *orig15;
+	void far *orig2f;
 
 	union  REGS r;
 	struct SREGS sr;

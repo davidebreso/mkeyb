@@ -54,7 +54,7 @@ int _fmemcmp(void far *d, void far *s, uint len)
 	in upper memory if present and tryHigh is true
 */
 
-AllocMemory(uint residentsize, int makeResident, int tryHigh)
+uint AllocMemory(uint residentsize, int makeResident, int tryHigh)
 {
 	union REGS r;
 	uint allocSeg;
@@ -114,15 +114,16 @@ AllocMemory(uint residentsize, int makeResident, int tryHigh)
 
 void VerifyScancodeTableForCorrectness(	struct KeyboardDefinition *kb,int print)
 {
-	extern uchar RESIDENT nibble_length[];
 	unsigned flags;
 	uchar *tbl, *tblnext, *lasttbl;
 	int loopdetect = 0;
-	void *scancode_end;
+	uchar *scancode_end;
 
+	/* this depends on the next thing in memory being either the first combi table
+	   or the keyboard definition */
 	scancode_end = kb->CombicodeTables[0];
 	if(scancode_end == NULL)
-		scancode_end = kb;
+		scancode_end = (uchar *) kb;
 
 	for(tbl = kb->ScancodeTable;
 		tbl[0] != 0;
@@ -295,7 +296,10 @@ void UninstallKeyboard(int verbose)
 	void far *int15handler = *(void far *far *)MK_FP(0,4*0x15);
 	void far *int2fhandler = *(void far *far *)MK_FP(0,4*0x2f);
 	unsigned resident = (unsigned)NULL;
-	void far *orig9, far *orig16, far *orig15, far *orig2f;
+	void far *orig9;
+	void far *orig16;
+	void far *orig15;
+	void far *orig2f;
 
 	union  REGS r;
 	struct SREGS sr;
@@ -520,7 +524,7 @@ int InstallKeyboard(struct KeyboardDefinition *kb,
 		pres += int16_handler_size;
 	}
 
-	pResidentScancodetable = (char*)FP_OFF(pres);
+	pResidentScancodetable = (uchar*)FP_OFF(pres);
 
 	for (i = COMBI1; i <= COMBI6; i++)
 	{
@@ -785,7 +789,6 @@ int main(int argc, char *argv[])
 	uint enhancedKeyb = 2;	/* 0 = disabled, 1 = enabled, 2 = autodetect */
 	uint tryHigh = 1;		/* 0 = low memory only, 1 = try high then low */
 	int i, kb_idx = LENGTH(KeyDefTab);
-	uchar far *pmodel;
 
 	printf("mKEYB " MY_VERSION_TEXT " [" __DATE__ "] " COPYRIGHT_TEXT "\n");
 
@@ -874,7 +877,7 @@ int main(int argc, char *argv[])
 		if (kb == NULL)
 		{
 			printf("%s language not available for 83/84 keys keyboards\n"
-				   "please select a different language\n");
+				   "please select a different language\n", KeyDefTab[kb_idx]->LanguageShort);
 			exit(1);
 		}
 		/* Patch enhanced keyboard layouts to use standard drivers */

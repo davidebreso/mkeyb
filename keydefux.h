@@ -84,7 +84,7 @@ uchar NAME(combi4table)[] = {         /* " aÑ eâ iã oî uÅ Aé Oô Uö yò #32" */
 	 0
 };
 
-uchar NAME(combi5table)[] = {        /* ~ n§ N• #32~
+uchar NAME(combi5table)[] = {        /* ~ n§ N• #32~ */
 	/*scancode lower upper*/
  /* A */ 0x1E, 0xC6, 0xC7,
  /* O */ 0x18, 0xE4, 0xE5,

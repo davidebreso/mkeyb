@@ -151,7 +151,7 @@ STATIC VOID handle_char(COUNT c)
 VOID ltob(LONG n, BYTE * s, COUNT base)
 {
   ULONG u;
-  BYTE *p, *q;
+  BYTE *p;
   int c;
 
   u = n;
@@ -214,7 +214,8 @@ ULONG FAR retcs(int i)
 COUNT do_printf(CONST BYTE * fmt, BYTE ** arg)
 {
   int base;
-  BYTE s[11], FAR * p;
+  BYTE s[11];
+  BYTE FAR * p;
   int c, flag, size, fill;
   int longarg;
   long currentArg;

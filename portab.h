@@ -81,7 +81,7 @@ void __int__(int);
 #define __int__(intno) asm int intno;
 #define asm __asm
 #define far __far
-#define CDECL 
+#define CDECL __cdecl
 
 #if _M_IX86 >= 300
 #define I386
@@ -212,7 +212,7 @@ typedef signed long LONG;
 #define FP_OFF(fp)             (fp)
 #endif
 
-typedef VOID (FAR ASMCFUNC * intvec) ();
+typedef void (interrupt far *intvec)();
 
 /*
 	this suppresses the warning

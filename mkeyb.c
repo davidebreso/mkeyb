@@ -14,10 +14,9 @@
 
 #include <dos.h>
 #include <stdlib.h>
-#ifdef __WATCOMC__
-	#include <ctype.h>
-	#include <string.h>
-#else
+#include <ctype.h>
+#include <string.h>
+#ifndef __WATCOMC__
     #include <stdio.h>
 #endif
 
@@ -30,22 +29,6 @@
 
 #ifdef __WATCOMC__
     short printf(const char * fmt, ...);
-#else
-void _fmemcpy(void far *d, void far *s, uint len)
-{
-	uchar far *dc = d,far *sc = s;
-	for (; len; len--)
-	*dc++ = *sc++;
-}
-
-int _fmemcmp(void far *d, void far *s, uint len)
-{
-	uchar far *dc = d,far *sc = s;
-	for (; len; len--)
-	if (*dc++ != *sc++)
-		return 1;
-    return 0;
-}
 #endif
 
 /*
@@ -179,7 +162,7 @@ error:
    Returns 1 if the handler is needed, 0 otherwise
 */
 
-int AutodetectInt9h()
+int AutodetectInt9h(void)
 {
 	union REGS r;
 	struct SREGS sr;
@@ -204,7 +187,7 @@ int AutodetectInt9h()
   Returns 0 if available, 1 if not available
 */
 
-int AutodetectInt16h()
+int AutodetectInt16h(void)
 {
 	union REGS r;
 

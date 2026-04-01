@@ -1,3 +1,5 @@
+#include "portab.h"
+
 /* these things are imported from the resident part */
 
 #ifndef RESIDENT
@@ -5,11 +7,8 @@
 #endif
 
 #if __WATCOMC__
-    #define CDECL __cdecl
     #define getvect _dos_getvect
     #define setvect _dos_setvect
-#else
-    #define CDECL
 #endif
 
 typedef unsigned long   ulong;
@@ -31,15 +30,15 @@ extern uchar  RESIDENT DecimalDingsBums; /* grey , or . */
 extern uchar RESIDENT  usebiosonly_flag;
 extern struct flags RESIDENT  Flags;
 
-extern void (interrupt far *RESIDENT OldInt9)();
-extern void (interrupt far *RESIDENT OldInt16)();
-extern void (interrupt far *RESIDENT OldInt15)();
-extern void (interrupt far *RESIDENT OldInt2F)();
+extern intvec RESIDENT OldInt9;
+extern intvec RESIDENT OldInt16;
+extern intvec RESIDENT OldInt15;
+extern intvec RESIDENT OldInt2F;
 
-extern void CDECL interrupt RESIDENT int9_handler();
-extern void CDECL interrupt RESIDENT int16_handler();
-extern void CDECL interrupt RESIDENT int15_handler();
-extern void CDECL interrupt RESIDENT int2f_handler();
+extern void CDECL RESIDENT int9_handler();
+extern void CDECL RESIDENT int16_handler();
+extern void CDECL RESIDENT int15_handler();
+extern void CDECL RESIDENT int2f_handler();
 
 /* magic constants in keycode table */
 

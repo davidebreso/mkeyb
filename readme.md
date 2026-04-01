@@ -4,7 +4,7 @@ mKEYB is a minimum keyboard driver for xxDOS, requiring less than 1Kb of memory 
 
 [http://www.drivesnapshot.de/freedos/mkeyb.htm](http://www.drivesnapshot.de/freedos/mkeyb.htm)
 
-The original version of mKEYB requires a 80286 or better machine. This repository hosts a modified version of mKEYB that can run on XT machines.
+The original version of mKEYB requires an 80286 or better processor. This repository hosts a modified version of mKEYB that can run on XT machines.
 
 ## How it works
 

@@ -212,7 +212,7 @@ mkeyba.o: mkeyba.asm
 #
 
 mkeybr.o: mkeybr.c
-	$(WCCCOMP) -nd=I mkeybr.c
+	$(WCCCOMP)  mkeybr.c
 
 mkeybr.lst: mkeybr.o
 	$(WDIS) -l mkeybr
@@ -221,7 +221,7 @@ mkeybr.lst: mkeybr.o
 # resident part with combi
 #
 mkeybrc.o: mkeybr.c
-	$(WCCCOMP) -nd=I -DCOMBI -fo=mkeybrc mkeybr.c
+	$(WCCCOMP)  -DCOMBI -fo=mkeybrc mkeybr.c
 
 mkeybrc.lst: mkeybrc.o
 	$(WDIS) -l mkeybrc
@@ -231,7 +231,7 @@ mkeybrc.lst: mkeybrc.o
 # The right Ctrl toggles between native QWERTY and national keyboard
 #
 mkeybrf.o: mkeybr.c
-	$(WCCCOMP)  -nd=I      -DFASTSWITCH -fo=mkeybrf mkeybr.c
+	$(WCCCOMP)        -DFASTSWITCH -fo=mkeybrf mkeybr.c
 
 mkeybrf.lst: mkeybrc.o
 	$(WDIS) -l mkeybrf
@@ -240,7 +240,7 @@ mkeybrf.lst: mkeybrc.o
 # resident part for 83 keys "standard" keyboards
 #
 mkeybrs.o: mkeybr.c
-	$(WCCCOMP)   -nd=I     -DSTANDARD -fo=mkeybrs mkeybr.c
+	$(WCCCOMP)        -DSTANDARD -fo=mkeybrs mkeybr.c
 
 mkeybrs.lst: mkeybrc.o
 	$(WDIS) -l mkeybrs
@@ -249,7 +249,7 @@ mkeybrs.lst: mkeybrc.o
 # resident part for 83 keys "standard" keyboards with COMBI
 #
 mkeybrsc.o: mkeybr.c
-	$(WCCCOMP)   -nd=I     -DSTD_FULL -fo=mkeybrsc mkeybr.c
+	$(WCCCOMP)        -DSTD_FULL -fo=mkeybrsc mkeybr.c
 
 mkeybrsc.lst: mkeybrc.o
 	$(WDIS) -l mkeybrsc

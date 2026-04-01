@@ -1,0 +1,90 @@
+mKEYB MEMORY MAP
+================
+
+To keep the memory footprint small, the resident portion of mKEYB contains
+only the code and data that are necessary for the selected keyboard layout
+and for the capabilities of the BIOS, and nothing more.
+
+The resident code is made from the following routines:
+
+ - The interrupt 2Fh handler `_int2f_handler` from `mkeyba.asm`, that is
+   responsible to report when mKEYB installed, and to switch between US
+   keyboard (Control-Alt-F1) and foreign keyboard (Control-Alt-F2).
+
+ - The interrupt 15h handler `_int15_handler`, also from `mkeyba.asm`.
+   This is a short assembly stub that calls a C function that do the real
+   job of remapping the keyboard layout.
+
+ - The C function called by `_int15_handler` depends on the keyboard
+   layout. There are three variants for extended keyboards: full (with
+   COMBI), normal (no COMBI), fastswitch, and two variants for standard
+   keyboards (full and normal), for a total of five different routines. The
+   C code for those functions is in `mkeybr.c`.
+
+ - The optional handler for interrupt 9, `_int9_handler`, from
+   `mkeyba.asm`, that is installed only if the BIOS handler does not provide
+   all the required functionalities.
+
+ - The optional handler for interrupt 16h, `_int16_handler`, from
+   `mkeyba.asm`, that is installed only if the BIOS handler does not provide
+   all the required functionalities.
+
+The resident data contains the following items:
+
+ - a few variables to store flags, support combi and allow debug. They are
+   defined in `mkeyba.asm` to place them at the start of the resident
+   portion.
+
+ - pointers to chain interrupts 2Fh, 15h, and also 9 and 16h when needed,
+   also defined in `mkeyba.asm`.
+
+ - pointers to the scancode and combi tables. Defined in `mkeyba.asm`.
+
+ - the actual scancode and combi table of the selected layout.
+
+Once installed, the memory map of the resident portion of mKEYB is thus as
+follows:
+
+START OF RESIDENT PORTION
+
+Variables defined in `mkeyba.asm`
+
+code of `_int2f_handler`
+
+code of `_int15_handler`
+
+code of the C function `_cint15_handler_*` called by the assembly stub
+
+code of `_int9_handler` and `_int16_handler`, if needed
+
+scancode and combi tables of the selected layout
+
+END OF RESIDENT PORTION
+
+The resident portion is built by the function `InstallKeyboard` by copying
+the various pieces in the correct order and position. It assumes that the
+various assembly interrupt handlers and C functions are contained in
+specific segments, that are separated from the default code segment that
+contains the transient code and c-library functions:
+
+ - segment I_ASMTEXT, that contains the local variables and the code of
+   `_int2f_handler` and `_int15_handler`, followed by
+
+ - segment I_TEXT, that contains the C code of all `_cint15_handler_*`
+   functions, followed by
+
+ - segment I_AUXTEXT, that contains the code of the optional
+   `_int9_handler` and `_int16_handler` handlers.
+
+In an Open Watcom build, those segment are placed immediately after the
+standard code segment and before the standard data segment. In a Borland
+build, they are at the end of the memory map, after the data and stack
+segments. The actual placement is not relevant, what is important is that
+they are distinct from the default code and data segments, and placed one
+after the other in the order defined above.
+
+The data for the scancode and combi tables are contained in the standard
+data segment and copied in the correct place by `InstallKeyboard`. They
+are not required to be in a specific segment, nor to be distinct from the
+transient data.
+

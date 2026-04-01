@@ -3,7 +3,7 @@
 .gitattributes	f	2026-01-06T22:35:38Z
 .gitignore	f	2022-11-12T18:24:25Z
 Makefile.bcc	f	2025-12-21T18:47:21Z
-Makefile.wcc	f	2025-12-21T18:47:33Z
+Makefile.wcc	f	2026-04-01T20:05:45Z
 bugs.txt	f	2026-01-06T22:37:06Z
 fdhelp.htm	f	2025-12-21T22:10:34Z
 history.txt	f	2026-01-06T22:37:06Z
@@ -34,6 +34,7 @@ keydeftr.h	f	2022-07-31T10:36:50Z
 keydefuk.h	f	2023-06-23T17:25:44Z
 keydefux.h	f	2022-04-15T12:14:26Z
 license.txt	f	2004-03-17T09:55:46Z
+memmap.txt	f	2026-04-01T21:25:28Z
 mkeyb.c	f	2026-04-01T19:16:36Z
 mkeyb.exe	f	2026-04-01T19:44:06Z
 mkeyb.h	f	2026-04-01T19:18:23Z
@@ -44,4 +45,4 @@ mkeyba.asm	f	2026-01-01T20:58:58Z
 mkeybr.c	f	2026-01-01T22:30:03Z
 portab.h	f	2026-04-01T19:14:23Z
 prf.c	f	2022-11-17T21:34:24Z
-readme.md	f	2025-12-29T13:14:31Z
+readme.md	f	2026-04-01T20:28:09Z

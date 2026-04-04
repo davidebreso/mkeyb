@@ -221,7 +221,7 @@ typedef void (interrupt far *intvec)();
 */
 
 #if defined(__TURBOC__)
-#define UNREFERENCED_PARAMETER(x) if (x);
+#define UNREFERENCED_PARAMETER(x) if (x) {}
 #else
 #define UNREFERENCED_PARAMETER(x) x;
 #endif

@@ -889,7 +889,6 @@ int main(int argc, char *argv[])
 
 #ifdef __TURBOC__
 
-    #define UNREFERENCED_PARAMETER(x) if (x);
 
     int     _Cdecl flushall (void){return 0;}
 

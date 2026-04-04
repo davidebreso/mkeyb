@@ -25,7 +25,32 @@
 #define MY_MEMORY_SIGNATURE "mKEYB   "
 #define COPYRIGHT_TEXT "(c) 2002-2018 tom ehlert, 2022-2025 davidebreso"
 
+#ifndef EXTRADEBUG
+#define EXTRADEBUG 0
+#endif  /* EXTRADEBUG */
+
+#if EXTRADEBUG
+
 #define DBGprintf printf
+
+#else /* EXTRADEBUG */
+
+#ifdef __TURBOC__
+/* Borland doesn't support variadic macros */
+
+static int DBGprintf(const char *fmt, ...)
+{
+	UNREFERENCED_PARAMETER(fmt);
+	return 1;
+}
+
+#else /* __TURBOC__ */
+
+#define DBGprintf(x, ...)
+
+#endif /* __TURBOC__ */
+
+#endif /* EXTRADEBUG */
 
 #ifdef __WATCOMC__
     short printf(const char * fmt, ...);

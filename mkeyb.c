@@ -25,7 +25,32 @@
 #define MY_MEMORY_SIGNATURE "mKEYB   "
 #define COPYRIGHT_TEXT "(c) 2002-2018 tom ehlert, 2022-2025 davidebreso"
 
+#ifndef EXTRADEBUG
+#define EXTRADEBUG 0
+#endif  /* EXTRADEBUG */
+
+#if EXTRADEBUG
+
 #define DBGprintf printf
+
+#else /* EXTRADEBUG */
+
+#ifdef __TURBOC__
+/* Borland doesn't support variadic macros */
+
+static int DBGprintf(const char *fmt, ...)
+{
+	UNREFERENCED_PARAMETER(fmt);
+	return 1;
+}
+
+#else /* __TURBOC__ */
+
+#define DBGprintf(x, ...)
+
+#endif /* __TURBOC__ */
+
+#endif /* EXTRADEBUG */
 
 #ifdef __WATCOMC__
     short printf(const char * fmt, ...);
@@ -173,7 +198,7 @@ int AutodetectInt9h(void)
 	{
 		/* ROM Table is at ES:BX, feature byte 1 at offset 5 */
 		uchar fbyte = *(uchar far *)MK_FP(sr.es, r.x.bx + 5);
-		// printf("Feature byte at %04x:%04x is %02x\n", sr.es, r.x.bx, fbyte);
+		DBGprintf("Feature byte at %04x:%04x is %02x\n", sr.es, r.x.bx, fbyte);
 		/* bit 4 is 1 if INT 15,4F is called upon INT9 */
 		return ((fbyte & 0x10) == 0);
 	}
@@ -219,7 +244,7 @@ uint SetKeyboardType(uint flag)
 	} else if (flag == 1) {
 		*status |= 0x10;
 	}
-	// printf("Keyboard status byte: %04x\n", status);
+	DBGprintf("Keyboard status byte: %04x\n", status);
 	return (*status & 0x10);
 }
 
@@ -245,19 +270,19 @@ uint DetectKeyboardDriver(uint *resident)
 
 	if (r.h.al == 0xff)
 	{
-		// printf("Another keyboard driver is installed\n");
+		DBGprintf("Another keyboard driver is installed\n");
 		return 3;
 	}
 
 	if (r.x.ax != MY_INSTALL_SIGNATURE)
 	{
-		// printf("No keyboard driver installed\n");
+		DBGprintf("No keyboard driver installed\n");
 		return 0;
 	}
 
 	if (r.x.bx != MY_VERSION_SIGNATURE)
 	{
-		// printf("Different version of mKEYB installed\n");
+		DBGprintf("Different version of mKEYB installed\n");
 		return 2;
 	}
 
@@ -289,7 +314,7 @@ void UninstallKeyboard(int verbose)
 
 	uint installed, freemem = 1;
 
-	// printf("current values %8lx, %8lx, %8lx , %8lx\n",int9handler, int16handler, int15handler, int2fhandler);
+	DBGprintf("current values %8lx, %8lx, %8lx , %8lx\n",int9handler, int16handler, int15handler, int2fhandler);
 
 	installed = DetectKeyboardDriver(&resident);
 
@@ -329,7 +354,7 @@ void UninstallKeyboard(int verbose)
 		r.x.ax = 0xad82;  			// Disable current driver
 		r.x.bx = 0;
 		int86(0x2f,&r,&r);
-		// printf("Old keyb driver disabled\n");
+		DBGprintf("Old keyb driver disabled\n");
 		return;
 	}
 
@@ -338,7 +363,7 @@ void UninstallKeyboard(int verbose)
 	orig15 = *(void far *far*)MK_FP(resident,FP_OFF(&OldInt15));
 	orig2f = *(void far *far*)MK_FP(resident,FP_OFF(&OldInt2F));
 
-	// printf("original values %8lx, %8lx, %8lx , %8lx\n",orig9, orig16, orig15,orig2f);
+	DBGprintf("original values %8lx, %8lx, %8lx , %8lx\n",orig9, orig16, orig15,orig2f);
 
 	if (FP_SEG(int9handler) == resident)
 	{
@@ -346,7 +371,7 @@ void UninstallKeyboard(int verbose)
 		r.x.dx  = FP_OFF(orig9);
 		sr.ds   = FP_SEG(orig9);
 		int86x(0x21,&r,&r,&sr);
-		// printf("int9 handler desinstalled\n");
+		DBGprintf("int9 handler desinstalled\n");
 	} else {
 		freemem = (orig9 == NULL);
 	}
@@ -357,7 +382,7 @@ void UninstallKeyboard(int verbose)
 		r.x.dx  = FP_OFF(orig16);
 		sr.ds   = FP_SEG(orig16);
 		int86x(0x21,&r,&r,&sr);
-		// printf("int16 handler desinstalled\n");
+		DBGprintf("int16 handler desinstalled\n");
 	} else {
 		freemem = (orig16 == NULL);
 	}
@@ -368,7 +393,7 @@ void UninstallKeyboard(int verbose)
 		r.x.dx  = FP_OFF(orig15);
 		sr.ds   = FP_SEG(orig15);
 		int86x(0x21,&r,&r,&sr);
-		// printf("int15 handler desinstalled\n");
+		DBGprintf("int15 handler desinstalled\n");
 	} else {
 		freemem = (orig15 == NULL);
 	}
@@ -379,7 +404,7 @@ void UninstallKeyboard(int verbose)
 		r.x.dx  = FP_OFF(orig2f);
 		sr.ds   = FP_SEG(orig2f);
 		int86x(0x21,&r,&r,&sr);
-		// printf("int2f handler deinstalled\n");
+		DBGprintf("int2f handler deinstalled\n");
 	} else {
 		freemem = (orig2f == NULL);
 	}
@@ -393,7 +418,7 @@ void UninstallKeyboard(int verbose)
 		int86x(0x21,&r,&r,&sr);
 
 		*(short far*)MK_FP(resident-1, 1) = 0;   /* bums. DosFree(resident) */
-		// printf("DOS memory at %x freed\n",resident);
+		DBGprintf("DOS memory at %x freed\n",resident);
 		if (verbose)
 			printf("Old mKEYB deinstalled\n");
 	} else if (verbose) {
@@ -541,7 +566,7 @@ int InstallKeyboard(struct KeyboardDefinition *kb,
 		r.x.dx  = FP_OFF(pint9_handler);
 		sregs.ds   = residentSeg;
 		int86x(0x21,&r,&r,&sregs);
-		// printf("INT9 installed at %04x:%04x\n", sregs.ds, r.x.dx);
+		DBGprintf("INT9 installed at %04x:%04x\n", sregs.ds, r.x.dx);
 	}
 	if(int16hChain)		/* install 1nt16 handler if requested */
 	{
@@ -549,19 +574,19 @@ int InstallKeyboard(struct KeyboardDefinition *kb,
 		r.x.dx  = FP_OFF(pint16_handler);
 		sregs.ds   = residentSeg;
 		int86x(0x21,&r,&r,&sregs);
-		// printf("INT16 installed at %04x:%04x\n", sregs.ds, r.x.dx);
+		DBGprintf("INT16 installed at %04x:%04x\n", sregs.ds, r.x.dx);
 	}
 	r.x.ax  = 0x2515;                        /* dosSetVect */
 	r.x.dx  = FP_OFF(int15_handler);
 	sregs.ds   = residentSeg;
 	int86x(0x21,&r,&r,&sregs);
-	// printf("INT15 installed at %04x:%04x\n", sregs.ds, r.x.dx);
+	printf("INT15 installed at %04x:%04x\n", sregs.ds, r.x.dx);
 
 	r.x.ax  = 0x252f;                        /* dosSetVect */
 	r.x.dx  = FP_OFF(int2f_handler);
 	sregs.ds   = residentSeg;
 	int86x(0x21,&r,&r,&sregs);
-	// printf("INT2F installed at %04x:%04x\n", sregs.ds, r.x.dx);
+	printf("INT2F installed at %04x:%04x\n", sregs.ds, r.x.dx);
 
   }	/* done with install */
 
@@ -889,7 +914,6 @@ int main(int argc, char *argv[])
 
 #ifdef __TURBOC__
 
-    #define UNREFERENCED_PARAMETER(x) if (x);
 
     int     _Cdecl flushall (void){return 0;}
 

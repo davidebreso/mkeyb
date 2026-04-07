@@ -133,6 +133,7 @@ void VerifyScancodeTableForCorrectness(	struct KeyboardDefinition *kb,int print)
 	if(scancode_end == NULL)
 		scancode_end = (uchar *) kb;
 
+	lasttbl = kb->ScancodeTable;
 	for(tbl = kb->ScancodeTable;
 		tbl[0] != 0;
 		tbl = tblnext)

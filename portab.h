@@ -230,6 +230,12 @@ typedef void (interrupt far *intvec)();
 #define PROTO
 #endif
 
+#ifdef __GNUC__
+#define UNUSED __attribute__((unused))
+#else /* __GNUC__ */
+#define UNUSED
+#endif /* __GNUC__ */
+
 /*
  * Log: portab.h,v
  * Revision 1.2  1999/08/25 03:17:11  jprice

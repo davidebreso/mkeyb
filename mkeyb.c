@@ -460,6 +460,77 @@ int InstallKeyboard(struct KeyboardDefinition *kb,
 //    if (FP_SEG(ResidentScancodetable)  != FP_SEG(int15_handler)) err |= 0x0002;
 //    if (FP_OFF(ResidentScancodetable)  > 0x800)                  err |= 0x0004;
 
+#if EXTRADEBUG
+
+	/* more thorough internal consistency checks, see memmap.txt */
+
+#define CHECK(c, fmt) if (!(c)) { printf(fmt); err = 1; }
+
+	CHECK(FP_SEG(int2f_handler) == FP_SEG(int15_handler), "int2f and int15 segment mismatch\n")
+	CHECK(FP_OFF(int2f_handler)  < FP_OFF(int15_handler), "int2f and int15 wrong order\n")
+
+	CHECK(FP_SEG(int9_handler) == FP_SEG(int16_handler), "int9 and int16 segment mismatch\n")
+	CHECK(FP_OFF(int9_handler)  < FP_OFF(int16_handler), "int9 and int16 wrong order\n")
+
+	CHECK(FP_SEG(cint15_handler_full) == FP_SEG(END_cint15_handler_full),             "cint15 full end point segment error\n")
+	CHECK(FP_OFF(cint15_handler_full)  < FP_OFF(END_cint15_handler_full),             "cint15 full end point offset error\n")
+
+	CHECK(FP_SEG(cint15_handler_normal) == FP_SEG(END_cint15_handler_normal),         "cint15 normal end point segment error\n")
+	CHECK(FP_OFF(cint15_handler_normal)  < FP_OFF(END_cint15_handler_normal),         "cint15 normal end point offset error\n")
+
+	CHECK(FP_SEG(cint15_handler_fastswitch) == FP_SEG(END_cint15_handler_fastswitch), "cint15 fastswitch end point segment error\n")
+	CHECK(FP_OFF(cint15_handler_fastswitch)  < FP_OFF(END_cint15_handler_fastswitch), "cint15 fastswitch end point offset error\n")
+
+	CHECK(FP_SEG(cint15_handler_standard) == FP_SEG(END_cint15_handler_standard),     "cint15 standard end point segment error\n")
+	CHECK(FP_OFF(cint15_handler_standard)  < FP_OFF(END_cint15_handler_standard),     "cint15 standard end point offset error\n")
+
+	CHECK(FP_SEG(cint15_handler_stdfull) == FP_SEG(END_cint15_handler_stdfull),       "cint15 stdfull end point segment error\n")
+	CHECK(FP_OFF(cint15_handler_stdfull)  < FP_OFF(END_cint15_handler_stdfull),       "cint15 stdfull end point offset error\n")
+
+	CHECK(FP_SEG(cint15_handler_full) == FP_SEG(cint15_handler_normal),     "cint15 full and normal segment mismatch\n")
+	CHECK(FP_SEG(cint15_handler_full) == FP_SEG(cint15_handler_fastswitch), "cint15 full and fastswitch segment mismatch\n")
+	CHECK(FP_SEG(cint15_handler_full) == FP_SEG(cint15_handler_standard),   "cint15 full and standard segment mismatch\n")
+	CHECK(FP_SEG(cint15_handler_full) == FP_SEG(cint15_handler_stdfull),    "cint15 full and stdfull segment mismatch\n")
+
+	CHECK(FP_SEG(int2f_handler      ) != FP_SEG(InstallKeyboard), "int2f in default segment\n")
+	CHECK(FP_SEG(cint15_handler_full) != FP_SEG(InstallKeyboard), "int15 full handler in default segment\n")
+	CHECK(FP_SEG(int9_handler)        != FP_SEG(InstallKeyboard), "int9 in default segment\n")
+
+	CHECK(FP_SEG(kb->ScancodeTable) == FP_SEG(kb), "keyboard def and scancode table segment mismatch\n")
+	CHECK(FP_OFF(kb->ScancodeTable)  < FP_OFF(kb), "keyboard def and scancode table in wrong order\n")
+
+	{
+		uint lastoffs = FP_OFF(kb->ScancodeTable);
+
+		for (i = 0; i < 6; i++) {
+			uchar *combi = kb->CombicodeTables[i];
+			if (!combi)
+			{
+				continue;
+			}
+
+			if (FP_SEG(combi) != FP_SEG(kb))
+			{
+				printf("combi table %d in wrong segment\n", i);
+				err = 1;
+			}
+
+			if (FP_OFF(combi) < lastoffs)
+			{
+				printf("combi table %d in wrong order\n", i);
+				err = 1;
+			}
+			lastoffs = FP_OFF(combi);
+		}
+	}
+
+	CHECK((FP_SEG(int2f_handler) < FP_SEG(cint15_handler_full) || (FP_OFF(int2f_handler) < FP_OFF(cint15_handler_full))), "int2f and cint15_handler in wrong order\n")
+	CHECK((FP_SEG(cint15_handler_full) < FP_SEG(int9_handler) || (FP_OFF(cint15_handler_full) < FP_OFF(int9_handler))), "cint15_handler and int9 in wrong order\n")
+
+#undef CHECK
+
+#endif /* EXTRADEBUG */
+
 	if (err)
 	{
 		printf("compile time error %x\n", err);

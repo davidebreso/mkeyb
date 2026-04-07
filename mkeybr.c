@@ -343,7 +343,7 @@ int cdecl NAME(cint15_handler)(uchar scancode)
 			tbl++;
 	}
 
-checkCombis:
+checkCombis: UNUSED
 
 	keycode = tbl[0];
 

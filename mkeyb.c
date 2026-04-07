@@ -511,6 +511,12 @@ int InstallKeyboard(struct KeyboardDefinition *kb,
 			pint15_handler = (void far *)cint15_handler_stdfull;
 			int15_handler_size = FP_OFF(END_cint15_handler_stdfull) - FP_OFF(cint15_handler_stdfull);
 			break;
+
+		default:
+			/* this should not happen unless the tables are corrupted */
+			printf("compile time error bad driver function %d\n", kb->DriverFunctionRequired);
+			exit(1);
+			break;
 	}
 
 	pres = (void far *)cint15_handler_full;

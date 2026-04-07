@@ -436,7 +436,7 @@ int InstallKeyboard(struct KeyboardDefinition *kb,
 	uint residentSeg;
 	uint residentsize;
 	void far *pint9_handler;
-	void far *pint16_handler;
+	void far *pint16_handler = NULL;
 
 	int  i;
 

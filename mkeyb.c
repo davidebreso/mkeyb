@@ -752,7 +752,7 @@ struct KeyboardDefinition *StdKeyDefTab[] =
 void ListLanguages(void)
 {
 	struct KeyboardDefinition *kb;
-	int j;
+	unsigned int j;
 
 	printf("List of keyboard layouts:\n");
 	for (j = 0; j < LENGTH(KeyDefTab); j++)
@@ -796,7 +796,8 @@ int main(int argc, char *argv[])
 	uint int16hChain = 2;	/* 0 = disabled, 1 = enabled, 2 = autodetect */
 	uint enhancedKeyb = 2;	/* 0 = disabled, 1 = enabled, 2 = autodetect */
 	uint tryHigh = 1;		/* 0 = low memory only, 1 = try high then low */
-	int i, kb_idx = LENGTH(KeyDefTab);
+	int i;
+	unsigned int kb_idx = LENGTH(KeyDefTab);
 
 	printf("mKEYB " MY_VERSION_TEXT " [" __DATE__ "] " COPYRIGHT_TEXT "\n");
 

@@ -444,6 +444,18 @@ int InstallKeyboard(struct KeyboardDefinition *kb,
 	/* make sure some assumptions old */
 	int err = 0;
 
+	extern int  cdecl far cint15_handler_full(int);
+	extern void cdecl far END_cint15_handler_full(void);
+	extern int  cdecl far cint15_handler_normal(int);
+	extern void cdecl far END_cint15_handler_normal(void);
+	extern int  cdecl far cint15_handler_fastswitch(int);
+	extern void cdecl far END_cint15_handler_fastswitch(void);
+	extern int  cdecl far cint15_handler_standard(int);
+	extern void cdecl far END_cint15_handler_standard(void);
+	extern int  cdecl far cint15_handler_stdfull(int);
+	extern void cdecl far END_cint15_handler_stdfull(void);
+	extern void cdecl far END_int16_handler(void);
+
 	if (FP_SEG(int2f_handler) != FP_SEG(int16_handler)) err |= 0x0001;
 //    if (FP_SEG(ResidentScancodetable)  != FP_SEG(int15_handler)) err |= 0x0002;
 //    if (FP_OFF(ResidentScancodetable)  > 0x800)                  err |= 0x0004;
@@ -472,18 +484,6 @@ int InstallKeyboard(struct KeyboardDefinition *kb,
 	uint	  int9_handler_size;
 	uint	  int16_handler_size;
 	uchar far *pres;
-
-	extern int  cdecl far cint15_handler_full(int);
-	extern void cdecl far END_cint15_handler_full(void);
-	extern int  cdecl far cint15_handler_normal(int);
-	extern void cdecl far END_cint15_handler_normal(void);
-	extern int  cdecl far cint15_handler_fastswitch(int);
-	extern void cdecl far END_cint15_handler_fastswitch(void);
-	extern int  cdecl far cint15_handler_standard(int);
-	extern void cdecl far END_cint15_handler_standard(void);
-	extern int  cdecl far cint15_handler_stdfull(int);
-	extern void cdecl far END_cint15_handler_stdfull(void);
-	extern void cdecl far END_int16_handler(void);
 
 	switch(kb->DriverFunctionRequired)
 	{

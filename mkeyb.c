@@ -177,7 +177,7 @@ void VerifyScancodeTableForCorrectness(	struct KeyboardDefinition *kb,int print)
 
 error:
 	if (!print)
-	VerifyScancodeTableForCorrectness(kb,1);
+		VerifyScancodeTableForCorrectness(kb, 1);
 	exit(1);
 }
 

@@ -298,6 +298,9 @@ uint DetectKeyboardDriver(uint *resident)
   a warning message.
 */
 
+// helper to split a far pointer into segment,offset pair for printf
+#define SPLIT_FP(x) FP_SEG(x), FP_OFF(x)
+
 void UninstallKeyboard(int verbose)
 {
 	void far *int9handler = *(void far *far *)MK_FP(0,4*0x9);

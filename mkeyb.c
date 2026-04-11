@@ -670,13 +670,13 @@ int InstallKeyboard(struct KeyboardDefinition *kb,
 	r.x.dx  = FP_OFF(int15_handler);
 	sregs.ds   = residentSeg;
 	int86x(0x21,&r,&r,&sregs);
-	printf("INT15 installed at %04x:%04x\n", sregs.ds, r.x.dx);
+	DBGprintf("INT15 installed at %04x:%04x\n", sregs.ds, r.x.dx);
 
 	r.x.ax  = 0x252f;                        /* dosSetVect */
 	r.x.dx  = FP_OFF(int2f_handler);
 	sregs.ds   = residentSeg;
 	int86x(0x21,&r,&r,&sregs);
-	printf("INT2F installed at %04x:%04x\n", sregs.ds, r.x.dx);
+	DBGprintf("INT2F installed at %04x:%04x\n", sregs.ds, r.x.dx);
 
   }	/* done with install */
 

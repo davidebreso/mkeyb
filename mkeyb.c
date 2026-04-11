@@ -502,6 +502,15 @@ int InstallKeyboard(struct KeyboardDefinition *kb,
 	CHECK(FP_SEG(kb->ScancodeTable) == FP_SEG(kb), "keyboard def and scancode table segment mismatch\n")
 	CHECK(FP_OFF(kb->ScancodeTable)  < FP_OFF(kb), "keyboard def and scancode table in wrong order\n")
 
+	printf("int2f_handler at %04x:%04x\n", SPLIT_FP(int2f_handler));
+	printf("int15_handler at %04x:%04x\n", SPLIT_FP(int15_handler));
+	printf("OldInt15 at %04x:%04x\n", SPLIT_FP(&OldInt15));
+	printf("pResidentScancodetable at %04x:%04x\n", SPLIT_FP(&pResidentScancodetable));
+	printf("cint15_handler_full at %04x:%04x\n", SPLIT_FP(cint15_handler_full));
+	printf("cint15_handler_normal at %04x:%04x\n", SPLIT_FP(cint15_handler_normal));
+	printf("int9_handler at %04x:%04x\n", SPLIT_FP(int9_handler));
+	printf("int16_handler at %04x:%04x\n", SPLIT_FP(int16_handler));
+
 	{
 		uint lastoffs = FP_OFF(kb->ScancodeTable);
 

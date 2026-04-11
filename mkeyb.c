@@ -444,7 +444,7 @@ int InstallKeyboard(struct KeyboardDefinition *kb,
 	int  i;
 
 
-	/* make sure some assumptions old */
+	/* make sure some assumptions hold */
 	int err = 0;
 
 	extern int  cdecl far cint15_handler_full(int);

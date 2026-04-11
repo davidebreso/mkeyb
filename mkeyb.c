@@ -245,7 +245,7 @@ uint SetKeyboardType(uint flag)
 	} else if (flag == 1) {
 		*status |= 0x10;
 	}
-	DBGprintf("Keyboard status byte: %04x\n", status);
+	DBGprintf("Keyboard status byte: %04x\n", *status);
 	return (*status & 0x10);
 }
 

@@ -318,7 +318,7 @@ void UninstallKeyboard(int verbose)
 
 	uint installed, freemem = 1;
 
-	DBGprintf("current values %8lx, %8lx, %8lx , %8lx\n",int9handler, int16handler, int15handler, int2fhandler);
+	DBGprintf("current values %04x:%04x, %04x:%04x, %04x:%04x, %04x:%04x\n", SPLIT_FP(int9handler), SPLIT_FP(int16handler), SPLIT_FP(int15handler), SPLIT_FP(int2fhandler));
 
 	installed = DetectKeyboardDriver(&resident);
 
@@ -367,7 +367,7 @@ void UninstallKeyboard(int verbose)
 	orig15 = *(void far *far*)MK_FP(resident,FP_OFF(&OldInt15));
 	orig2f = *(void far *far*)MK_FP(resident,FP_OFF(&OldInt2F));
 
-	DBGprintf("original values %8lx, %8lx, %8lx , %8lx\n",orig9, orig16, orig15,orig2f);
+	DBGprintf("original values %04x:%04x, %04x:%04x, %04x:%04x, %04x:%04x\n", SPLIT_FP(int9handler), SPLIT_FP(int16handler), SPLIT_FP(int15handler), SPLIT_FP(int2fhandler));
 
 	if (FP_SEG(int9handler) == resident)
 	{

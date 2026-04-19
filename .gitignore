@@ -1,9 +1,13 @@
 *.obj
+*.OBJ
 *.o
 *.lst
 *.lib
+*.LIB
 *.bak
+*.BAK
 *.map
+*.MAP
 *.prj
 *.dsk
 *.log

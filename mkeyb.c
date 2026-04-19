@@ -133,6 +133,7 @@ void VerifyScancodeTableForCorrectness(	struct KeyboardDefinition *kb,int print)
 	if(scancode_end == NULL)
 		scancode_end = (uchar *) kb;
 
+	lasttbl = kb->ScancodeTable;
 	for(tbl = kb->ScancodeTable;
 		tbl[0] != 0;
 		tbl = tblnext)
@@ -176,7 +177,7 @@ void VerifyScancodeTableForCorrectness(	struct KeyboardDefinition *kb,int print)
 
 error:
 	if (!print)
-	VerifyScancodeTableForCorrectness(kb,1);
+		VerifyScancodeTableForCorrectness(kb, 1);
 	exit(1);
 }
 
@@ -244,7 +245,7 @@ uint SetKeyboardType(uint flag)
 	} else if (flag == 1) {
 		*status |= 0x10;
 	}
-	DBGprintf("Keyboard status byte: %04x\n", status);
+	DBGprintf("Keyboard status byte: %04x\n", *status);
 	return (*status & 0x10);
 }
 
@@ -297,6 +298,9 @@ uint DetectKeyboardDriver(uint *resident)
   a warning message.
 */
 
+// helper to split a far pointer into segment,offset pair for printf
+#define SPLIT_FP(x) FP_SEG(x), FP_OFF(x)
+
 void UninstallKeyboard(int verbose)
 {
 	void far *int9handler = *(void far *far *)MK_FP(0,4*0x9);
@@ -314,7 +318,7 @@ void UninstallKeyboard(int verbose)
 
 	uint installed, freemem = 1;
 
-	DBGprintf("current values %8lx, %8lx, %8lx , %8lx\n",int9handler, int16handler, int15handler, int2fhandler);
+	DBGprintf("current values %04x:%04x, %04x:%04x, %04x:%04x, %04x:%04x\n", SPLIT_FP(int9handler), SPLIT_FP(int16handler), SPLIT_FP(int15handler), SPLIT_FP(int2fhandler));
 
 	installed = DetectKeyboardDriver(&resident);
 
@@ -363,7 +367,7 @@ void UninstallKeyboard(int verbose)
 	orig15 = *(void far *far*)MK_FP(resident,FP_OFF(&OldInt15));
 	orig2f = *(void far *far*)MK_FP(resident,FP_OFF(&OldInt2F));
 
-	DBGprintf("original values %8lx, %8lx, %8lx , %8lx\n",orig9, orig16, orig15,orig2f);
+	DBGprintf("original values %04x:%04x, %04x:%04x, %04x:%04x, %04x:%04x\n", SPLIT_FP(int9handler), SPLIT_FP(int16handler), SPLIT_FP(int15handler), SPLIT_FP(int2fhandler));
 
 	if (FP_SEG(int9handler) == resident)
 	{
@@ -435,17 +439,109 @@ int InstallKeyboard(struct KeyboardDefinition *kb,
 	uint residentSeg;
 	uint residentsize;
 	void far *pint9_handler;
-	void far *pint16_handler;
+	void far *pint16_handler = NULL;
 
 	int  i;
 
 
-	/* make sure some assumptions old */
+	/* make sure some assumptions hold */
 	int err = 0;
+
+	extern int  cdecl far cint15_handler_full(int);
+	extern void cdecl far END_cint15_handler_full(void);
+	extern int  cdecl far cint15_handler_normal(int);
+	extern void cdecl far END_cint15_handler_normal(void);
+	extern int  cdecl far cint15_handler_fastswitch(int);
+	extern void cdecl far END_cint15_handler_fastswitch(void);
+	extern int  cdecl far cint15_handler_standard(int);
+	extern void cdecl far END_cint15_handler_standard(void);
+	extern int  cdecl far cint15_handler_stdfull(int);
+	extern void cdecl far END_cint15_handler_stdfull(void);
+	extern void cdecl far END_int16_handler(void);
 
 	if (FP_SEG(int2f_handler) != FP_SEG(int16_handler)) err |= 0x0001;
 //    if (FP_SEG(ResidentScancodetable)  != FP_SEG(int15_handler)) err |= 0x0002;
 //    if (FP_OFF(ResidentScancodetable)  > 0x800)                  err |= 0x0004;
+
+#if EXTRADEBUG
+
+	/* more thorough internal consistency checks, see memmap.txt */
+
+#define CHECK(c, fmt) if (!(c)) { printf(fmt); err = 1; }
+
+	CHECK(FP_SEG(int2f_handler) == FP_SEG(int15_handler), "int2f and int15 segment mismatch\n")
+	CHECK(FP_OFF(int2f_handler)  < FP_OFF(int15_handler), "int2f and int15 wrong order\n")
+
+	CHECK(FP_SEG(int9_handler) == FP_SEG(int16_handler), "int9 and int16 segment mismatch\n")
+	CHECK(FP_OFF(int9_handler)  < FP_OFF(int16_handler), "int9 and int16 wrong order\n")
+
+	CHECK(FP_SEG(cint15_handler_full) == FP_SEG(END_cint15_handler_full),             "cint15 full end point segment error\n")
+	CHECK(FP_OFF(cint15_handler_full)  < FP_OFF(END_cint15_handler_full),             "cint15 full end point offset error\n")
+
+	CHECK(FP_SEG(cint15_handler_normal) == FP_SEG(END_cint15_handler_normal),         "cint15 normal end point segment error\n")
+	CHECK(FP_OFF(cint15_handler_normal)  < FP_OFF(END_cint15_handler_normal),         "cint15 normal end point offset error\n")
+
+	CHECK(FP_SEG(cint15_handler_fastswitch) == FP_SEG(END_cint15_handler_fastswitch), "cint15 fastswitch end point segment error\n")
+	CHECK(FP_OFF(cint15_handler_fastswitch)  < FP_OFF(END_cint15_handler_fastswitch), "cint15 fastswitch end point offset error\n")
+
+	CHECK(FP_SEG(cint15_handler_standard) == FP_SEG(END_cint15_handler_standard),     "cint15 standard end point segment error\n")
+	CHECK(FP_OFF(cint15_handler_standard)  < FP_OFF(END_cint15_handler_standard),     "cint15 standard end point offset error\n")
+
+	CHECK(FP_SEG(cint15_handler_stdfull) == FP_SEG(END_cint15_handler_stdfull),       "cint15 stdfull end point segment error\n")
+	CHECK(FP_OFF(cint15_handler_stdfull)  < FP_OFF(END_cint15_handler_stdfull),       "cint15 stdfull end point offset error\n")
+
+	CHECK(FP_SEG(cint15_handler_full) == FP_SEG(cint15_handler_normal),     "cint15 full and normal segment mismatch\n")
+	CHECK(FP_SEG(cint15_handler_full) == FP_SEG(cint15_handler_fastswitch), "cint15 full and fastswitch segment mismatch\n")
+	CHECK(FP_SEG(cint15_handler_full) == FP_SEG(cint15_handler_standard),   "cint15 full and standard segment mismatch\n")
+	CHECK(FP_SEG(cint15_handler_full) == FP_SEG(cint15_handler_stdfull),    "cint15 full and stdfull segment mismatch\n")
+
+	CHECK(FP_SEG(int2f_handler      ) != FP_SEG(InstallKeyboard), "int2f in default segment\n")
+	CHECK(FP_SEG(cint15_handler_full) != FP_SEG(InstallKeyboard), "int15 full handler in default segment\n")
+	CHECK(FP_SEG(int9_handler)        != FP_SEG(InstallKeyboard), "int9 in default segment\n")
+
+	CHECK(FP_SEG(kb->ScancodeTable) == FP_SEG(kb), "keyboard def and scancode table segment mismatch\n")
+	CHECK(FP_OFF(kb->ScancodeTable)  < FP_OFF(kb), "keyboard def and scancode table in wrong order\n")
+
+	printf("int2f_handler at %04x:%04x\n", SPLIT_FP(int2f_handler));
+	printf("int15_handler at %04x:%04x\n", SPLIT_FP(int15_handler));
+	printf("OldInt15 at %04x:%04x\n", SPLIT_FP(&OldInt15));
+	printf("pResidentScancodetable at %04x:%04x\n", SPLIT_FP(&pResidentScancodetable));
+	printf("cint15_handler_full at %04x:%04x\n", SPLIT_FP(cint15_handler_full));
+	printf("cint15_handler_normal at %04x:%04x\n", SPLIT_FP(cint15_handler_normal));
+	printf("int9_handler at %04x:%04x\n", SPLIT_FP(int9_handler));
+	printf("int16_handler at %04x:%04x\n", SPLIT_FP(int16_handler));
+
+	{
+		uint lastoffs = FP_OFF(kb->ScancodeTable);
+
+		for (i = 0; i < 6; i++) {
+			uchar *combi = kb->CombicodeTables[i];
+			if (!combi)
+			{
+				continue;
+			}
+
+			if (FP_SEG(combi) != FP_SEG(kb))
+			{
+				printf("combi table %d in wrong segment\n", i);
+				err = 1;
+			}
+
+			if (FP_OFF(combi) < lastoffs)
+			{
+				printf("combi table %d in wrong order\n", i);
+				err = 1;
+			}
+			lastoffs = FP_OFF(combi);
+		}
+	}
+
+	CHECK((FP_SEG(int2f_handler) < FP_SEG(cint15_handler_full) || (FP_OFF(int2f_handler) < FP_OFF(cint15_handler_full))), "int2f and cint15_handler in wrong order\n")
+	CHECK((FP_SEG(cint15_handler_full) < FP_SEG(int9_handler) || (FP_OFF(cint15_handler_full) < FP_OFF(int9_handler))), "cint15_handler and int9 in wrong order\n")
+
+#undef CHECK
+
+#endif /* EXTRADEBUG */
 
 	if (err)
 	{
@@ -472,18 +568,6 @@ int InstallKeyboard(struct KeyboardDefinition *kb,
 	uint	  int16_handler_size;
 	uchar far *pres;
 
-	extern int  cdecl far cint15_handler_full(int);
-	extern void cdecl far END_cint15_handler_full(void);
-	extern int  cdecl far cint15_handler_normal(int);
-	extern void cdecl far END_cint15_handler_normal(void);
-	extern int  cdecl far cint15_handler_fastswitch(int);
-	extern void cdecl far END_cint15_handler_fastswitch(void);
-	extern int  cdecl far cint15_handler_standard(int);
-	extern void cdecl far END_cint15_handler_standard(void);
-	extern int  cdecl far cint15_handler_stdfull(int);
-	extern void cdecl far END_cint15_handler_stdfull(void);
-	extern void cdecl far END_int16_handler(void);
-
 	switch(kb->DriverFunctionRequired)
 	{
 		case DRIVER_FUNCTION_FULL:
@@ -509,6 +593,12 @@ int InstallKeyboard(struct KeyboardDefinition *kb,
 		case DRIVER_FUNCTION_STD_FULL:
 			pint15_handler = (void far *)cint15_handler_stdfull;
 			int15_handler_size = FP_OFF(END_cint15_handler_stdfull) - FP_OFF(cint15_handler_stdfull);
+			break;
+
+		default:
+			/* this should not happen unless the tables are corrupted */
+			printf("compile time error bad driver function %d\n", kb->DriverFunctionRequired);
+			exit(1);
 			break;
 	}
 
@@ -580,13 +670,13 @@ int InstallKeyboard(struct KeyboardDefinition *kb,
 	r.x.dx  = FP_OFF(int15_handler);
 	sregs.ds   = residentSeg;
 	int86x(0x21,&r,&r,&sregs);
-	printf("INT15 installed at %04x:%04x\n", sregs.ds, r.x.dx);
+	DBGprintf("INT15 installed at %04x:%04x\n", sregs.ds, r.x.dx);
 
 	r.x.ax  = 0x252f;                        /* dosSetVect */
 	r.x.dx  = FP_OFF(int2f_handler);
 	sregs.ds   = residentSeg;
 	int86x(0x21,&r,&r,&sregs);
-	printf("INT2F installed at %04x:%04x\n", sregs.ds, r.x.dx);
+	DBGprintf("INT2F installed at %04x:%04x\n", sregs.ds, r.x.dx);
 
   }	/* done with install */
 
@@ -752,7 +842,7 @@ struct KeyboardDefinition *StdKeyDefTab[] =
 void ListLanguages(void)
 {
 	struct KeyboardDefinition *kb;
-	int j;
+	unsigned int j;
 
 	printf("List of keyboard layouts:\n");
 	for (j = 0; j < LENGTH(KeyDefTab); j++)
@@ -796,7 +886,8 @@ int main(int argc, char *argv[])
 	uint int16hChain = 2;	/* 0 = disabled, 1 = enabled, 2 = autodetect */
 	uint enhancedKeyb = 2;	/* 0 = disabled, 1 = enabled, 2 = autodetect */
 	uint tryHigh = 1;		/* 0 = low memory only, 1 = try high then low */
-	int i, kb_idx = LENGTH(KeyDefTab);
+	int i;
+	unsigned int kb_idx = LENGTH(KeyDefTab);
 
 	printf("mKEYB " MY_VERSION_TEXT " [" __DATE__ "] " COPYRIGHT_TEXT "\n");
 

@@ -254,9 +254,6 @@ mkeybrSC.asm: mkeybr.c mkeyb.h portab.h
 prf.obj: prf.c portab.h
 	$(TCCCOMP) -DFORSYS prf.c
 
-sscani.obj: sscani.c
-	$(TCCCOMP) sscani.c
-
 #useful when debugging/analysing code
 mkeyb.asm: mkeyb.c mkeyb.h portab.h
 	$(TCCCOMP) -S mKEYB.c

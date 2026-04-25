@@ -233,7 +233,7 @@ mkeybrc.lst: mkeybrc.o
 mkeybrf.o: mkeybr.c mkeyb.h portab.h
 	$(WCCCOMP)        -DFASTSWITCH -fo=mkeybrf mkeybr.c
 
-mkeybrf.lst: mkeybrc.o
+mkeybrf.lst: mkeybrf.o
 	$(WDIS) -l mkeybrf
 
 #
@@ -242,7 +242,7 @@ mkeybrf.lst: mkeybrc.o
 mkeybrs.o: mkeybr.c mkeyb.h portab.h
 	$(WCCCOMP)        -DSTANDARD -fo=mkeybrs mkeybr.c
 
-mkeybrs.lst: mkeybrc.o
+mkeybrs.lst: mkeybrs.o
 	$(WDIS) -l mkeybrs
 
 #

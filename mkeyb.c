@@ -552,6 +552,8 @@ int InstallKeyboard(struct KeyboardDefinition *kb,
 
 	VerifyScancodeTableForCorrectness(kb,0);
 
+	memset(&r, 0, sizeof(r));
+
 	/*
 	 * Do this before copying.
 	 * Save only the handlers that will be installed.

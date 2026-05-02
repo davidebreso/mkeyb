@@ -9,6 +9,9 @@
 #if __WATCOMC__
     #define getvect _dos_getvect
     #define setvect _dos_setvect
+#elif defined(__GNUC__)
+    #define getvect _dos_getvect
+    #define setvect _dos_setvect
 #endif
 
 typedef unsigned long   ulong;

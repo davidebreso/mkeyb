@@ -1,0 +1,238 @@
+all: mkeyb.exe
+
+INST_SIG:=19309			# mKEYB fingerprint "mK"
+VERSION:=54				# version number
+VERSION_STR:=\"0.54\"		# version number text
+
+CFLAGS:=-masm=intel -mcmodel=small -march=i8086 -Os -std=gnu89 -Wall -Wextra
+CFLAGS+=-Werror
+CFLAGS_INIT:=
+# these are important to keep symbols in expected order
+CFLAGS_KEYDEF:=-fno-toplevel-reorder -fno-zero-initialized-in-bss
+# resident part also can't assume ds == ss
+CFLAGS_RESIDENT:=-fno-toplevel-reorder -mno-callee-assume-ss-data-segment
+ASFLAGS:=-c --defsym=MY_INSTALL_SIGNATURE=$(INST_SIG) --defsym=MY_VERSION_SIGNATURE=$(VERSION)
+LDFLAGS:=-mcmodel=small
+LDLIBS:=-li86
+OBJDUMPFLAGS:=-M intel,addr16,data16 -z
+
+CC:=ia16-elf-gcc
+AS:=ia16-elf-as
+OBJDUMP:=ia16-elf-objdump
+
+.SUFFIXES:
+.PHONY: listings clean distclean
+
+depends:=prf.o
+resdep:=mkeyba1.o mkeybrc.o mkeybr.o mkeybrf.o mkeybrs.o mkeybrsc.o mkeyba2.o
+keydefs:= \
+	keydefdk.o \
+	keydefgr.o \
+	keystdgr.o \
+	keydefg2.o \
+	keystdg2.o \
+	keydefit.o \
+	keystdit.o \
+	keydefla.o \
+	keydefnl.o \
+	keydefno.o \
+	keydefpl.o \
+	keydefpo.o \
+	keydefru.o \
+	keydefsf.o \
+	keydefsg.o \
+	keydefsp.o \
+	keydefsu.o \
+	keydefsv.o \
+	keydefuk.o \
+	keydefbr.o \
+	keydefbx.o \
+	keydeffr.o \
+	keydefhe.o \
+	keydefbe.o \
+	keydefbg.o \
+	keydefbp.o \
+	keydefsl.o \
+	keydefux.o \
+	keydeftr.o \
+	keydeftf.o \
+
+listfiles = mkeyb.lst mkeybr.lst mkeybrc.lst mkeybrf.lst mkeybrs.lst mkeybrsc.lst mkeyba1.lst mkeyba2.lst
+
+#
+# MAIN EXECUTABLE
+#
+mkeyb.exe: $(resdep) mkeyb.o $(depends) $(keydefs)
+	$(CC) $(LDFLAGS) -o $@ -Wl,-Map=mkeyb.map $^ $(LDLIBS)
+
+mkeyb.o: mkeyb.c mkeyb.h portab.h
+	$(CC) $(CFLAGS) $(CFLAGS_INIT) -o $@ -c -DMY_INSTALL_SIGNATURE=$(INST_SIG) -DMY_VERSION_SIGNATURE=$(VERSION) -DMY_VERSION_TEXT=$(VERSION_STR) mkeyb.c
+
+# must specify -x c because otherwise gcc creates precompiled headers from .h
+
+# GERMAN
+
+keydefgr.o: keydefgr.h mkeyb.h portab.h
+	$(CC) $(CFLAGS) $(CFLAGS_KEYDEF) -c -x c -o $@ keydefgr.h
+
+# GERMAN+STANDARD
+
+keystdgr.o: keydefgr.h mkeyb.h portab.h
+	$(CC) $(CFLAGS) $(CFLAGS_KEYDEF) -c -x c -o $@ -DSTANDARD keydefgr.h
+
+# GERMAN+COMBI ( '`^ + AEIOU )
+
+keydefg2.o: keydefgr.h mkeyb.h portab.h
+	$(CC) $(CFLAGS) $(CFLAGS_KEYDEF) -c -x c -o $@ -DCOMBI keydefgr.h
+
+# GERMAN+COMBI+STANDARD
+
+keystdg2.o: keydefgr.h mkeyb.h portab.h
+	$(CC) $(CFLAGS) $(CFLAGS_KEYDEF) -c -x c -o $@ -DSTANDARD -DCOMBI keydefgr.h
+
+keydefsp.o: keydefsp.h mkeyb.h portab.h
+	$(CC) $(CFLAGS) $(CFLAGS_KEYDEF) -c -x c -o $@ keydefsp.h
+
+keydefru.o: keydefru.h mkeyb.h portab.h
+	$(CC) $(CFLAGS) $(CFLAGS_KEYDEF) -c -x c -o $@ keydefru.h
+
+keydefdk.o: keydefdk.h mkeyb.h portab.h
+	$(CC) $(CFLAGS) $(CFLAGS_KEYDEF) -c -x c -o $@ keydefdk.h
+
+keydefit.o: keydefit.h mkeyb.h portab.h
+	$(CC) $(CFLAGS) $(CFLAGS_KEYDEF) -c -x c -o $@ keydefit.h
+
+keystdit.o: keydefit.h mkeyb.h portab.h
+	$(CC) $(CFLAGS) $(CFLAGS_KEYDEF) -c -x c -o $@ -DSTANDARD keydefit.h
+
+keydefla.o: keydefla.h mkeyb.h portab.h
+	$(CC) $(CFLAGS) $(CFLAGS_KEYDEF) -c -x c -o $@ keydefla.h
+
+keydefnl.o: keydefnl.h mkeyb.h portab.h
+	$(CC) $(CFLAGS) $(CFLAGS_KEYDEF) -c -x c -o $@ keydefnl.h
+
+keydefno.o: keydefno.h mkeyb.h portab.h
+	$(CC) $(CFLAGS) $(CFLAGS_KEYDEF) -c -x c -o $@ keydefno.h
+
+keydefpl.o: keydefpl.h mkeyb.h portab.h
+	$(CC) $(CFLAGS) $(CFLAGS_KEYDEF) -c -x c -o $@ keydefpl.h
+
+keydefpo.o: keydefpo.h mkeyb.h portab.h
+	$(CC) $(CFLAGS) $(CFLAGS_KEYDEF) -c -x c -o $@ keydefpo.h
+
+keydefsf.o: keydefsf.h mkeyb.h portab.h
+	$(CC) $(CFLAGS) $(CFLAGS_KEYDEF) -c -x c -o $@ keydefsf.h
+
+keydefsg.o: keydefsg.h mkeyb.h portab.h
+	$(CC) $(CFLAGS) $(CFLAGS_KEYDEF) -c -x c -o $@ keydefsg.h
+
+keydefsu.o: keydefsu.h mkeyb.h portab.h
+	$(CC) $(CFLAGS) $(CFLAGS_KEYDEF) -c -x c -o $@ keydefsu.h
+
+keydefsv.o: keydefsv.h mkeyb.h portab.h
+	$(CC) $(CFLAGS) $(CFLAGS_KEYDEF) -c -x c -o $@ keydefsv.h
+
+keydefuk.o: keydefuk.h mkeyb.h portab.h
+	$(CC) $(CFLAGS) $(CFLAGS_KEYDEF) -c -x c -o $@ keydefuk.h
+
+keydefbr.o: keydefbr.h mkeyb.h portab.h
+	$(CC) $(CFLAGS) $(CFLAGS_KEYDEF) -c -x c -o $@ keydefbr.h
+
+keydefbx.o: keydefbx.h mkeyb.h portab.h
+	$(CC) $(CFLAGS) $(CFLAGS_KEYDEF) -c -x c -o $@ keydefbx.h
+
+keydeffr.o: keydeffr.h mkeyb.h portab.h
+	$(CC) $(CFLAGS) $(CFLAGS_KEYDEF) -c -x c -o $@ keydeffr.h
+
+keydefhe.o: keydefhe.h mkeyb.h portab.h
+	$(CC) $(CFLAGS) $(CFLAGS_KEYDEF) -c -x c -o $@ keydefhe.h
+
+keydefbe.o: keydefbe.h mkeyb.h portab.h
+	$(CC) $(CFLAGS) $(CFLAGS_KEYDEF) -c -x c -o $@ keydefbe.h
+
+keydefbg.o: keydefbg.h mkeyb.h portab.h
+	$(CC) $(CFLAGS) $(CFLAGS_KEYDEF) -c -x c -o $@ keydefbg.h
+
+keydefbp.o: keydefbp.h mkeyb.h portab.h
+	$(CC) $(CFLAGS) $(CFLAGS_KEYDEF) -c -x c -o $@ keydefbp.h
+
+keydefsl.o: keydefsl.h mkeyb.h portab.h
+	$(CC) $(CFLAGS) $(CFLAGS_KEYDEF) -c -x c -o $@ keydefsl.h
+
+keydefux.o: keydefux.h mkeyb.h portab.h
+	$(CC) $(CFLAGS) $(CFLAGS_KEYDEF) -c -x c -o $@ keydefux.h
+
+keydeftr.o: keydeftr.h mkeyb.h portab.h
+	$(CC) $(CFLAGS) $(CFLAGS_KEYDEF) -c -x c -o $@ keydeftr.h
+
+keydeftf.o: keydeftf.h mkeyb.h portab.h
+	$(CC) $(CFLAGS) $(CFLAGS_KEYDEF) -c -x c -o $@ keydeftf.h
+
+# ############## generic ##########################
+#
+# for all languages same:
+#
+
+#
+#assembly stub
+#
+mkeyba1.o: mkeyba1.S
+	$(AS) $(ASFLAGS) -o $@ $<
+mkeyba2.o: mkeyba2.S
+	$(AS) $(ASFLAGS) -o $@ $<
+
+#
+# resident part
+#
+
+mkeybr.o: mkeybr.c mkeyb.h portab.h
+	$(CC) $(CFLAGS) $(CFLAGS_RESIDENT) -c -o $@ mkeybr.c
+
+#
+# resident part with combi
+#
+mkeybrc.o: mkeybr.c mkeyb.h portab.h
+	$(CC) $(CFLAGS) $(CFLAGS_RESIDENT) -c -o $@ -DCOMBI mkeybr.c
+
+#
+# FASTSWITCH resident part without ALTGREY, REPLACESCAN, DECIMALDINGSBUMS
+# The right Ctrl toggles between native QWERTY and national keyboard
+#
+mkeybrf.o: mkeybr.c mkeyb.h portab.h
+	$(CC) $(CFLAGS) $(CFLAGS_RESIDENT) -c -o $@ -DFASTSWITCH mkeybr.c
+
+#
+# resident part for 83 keys "standard" keyboards
+#
+mkeybrs.o: mkeybr.c mkeyb.h portab.h
+	$(CC) $(CFLAGS) $(CFLAGS_RESIDENT) -c -o $@ -DSTANDARD mkeybr.c
+
+#
+# resident part for 83 keys "standard" keyboards with COMBI
+#
+mkeybrsc.o: mkeybr.c mkeyb.h portab.h
+	$(CC) $(CFLAGS) $(CFLAGS_RESIDENT) -c -o $@ -DSTD_FULL mkeybr.c
+
+prf.o: prf.c portab.h
+	$(CC) $(CFLAGS) $(CFLAGS_INIT) -c -o $@ -DFORSYS prf.c
+
+
+# useful when debugging/analysing code
+%.lst: %.o
+	$(OBJDUMP) $(OBJDUMPFLAGS) -D $< > $@
+
+listings: $(listfiles)
+
+# cleanup
+clean:
+	rm -f *.o
+	rm -f *~
+	rm -f *.map
+	rm -f *.lst
+	rm -f *.err
+
+distclean: clean
+	rm -f *.exe
+
+# ############## end generic ##########################
+

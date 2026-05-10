@@ -91,6 +91,21 @@ extern uchar *pResidentScancodetable;
 				 "int 0x16"              \
 				 __parm   [ch] [cl]      \
 				 __modify [ax];
+#elif defined(__GNUC__)
+	// must be inlined or computer will crash
+	static inline void GENERATE_KEYSTROKE(uchar scancode, uchar keycode) __attribute__((always_inline));
+	static inline void GENERATE_KEYSTROKE(uchar scancode, uchar keycode) {
+		register uchar cl asm ("cl") = keycode;
+		register uchar ch asm ("ch") = scancode;
+		__asm__ volatile (                          \
+				 "mov ah, 5\n"                      \
+				 "int 0x16\n"                       \
+				 : /* output */                     \
+				 : /* input */ "cl" (cl), "ch" (ch) \
+				 : /* clobber */ "a"                \
+
+		);
+	}
 #else
 	#define GENERATE_KEYSTROKE(scancode,keycode)        \
 		_CL = keycode,                                  \
@@ -108,8 +123,14 @@ extern uchar *pResidentScancodetable;
 */
 
 
+#ifdef __GNUC__
+#define SECTION_ATTR __attribute__((section(".fartext._1")))
+#else  /* __GNUC__ */
+#define SECTION_ATTR
+#endif  /* __GNUC__ */
 
-int cdecl NAME(cint15_handler)(uchar scancode)
+
+SECTION_ATTR int cdecl NAME(cint15_handler)(uchar scancode)
 {
 	uchar  RESIDENT *tbl;
 	ushort BIOSstate;
@@ -379,6 +400,6 @@ simulateKeyPress:
 	}
 	#pragma aux NAME(END_cint15_handler) "_*"
 #else
-	void NAME(END_cint15_handler)(void){};
+	SECTION_ATTR void NAME(END_cint15_handler)(void){};
 #endif
 

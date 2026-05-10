@@ -87,6 +87,20 @@ void __int__(int);
 #define I386
 #endif
 
+#elif defined(__GNUC__)
+
+#include <dos.h>
+
+#define CDECL
+#define cdecl
+#define CONST const
+#define far __far
+#define FAR __far
+#define interrupt
+#define near
+#define REG
+#define VOID void
+
 #elif defined (_MYMC68K_COMILER_)
 
 #define MC68K
@@ -212,7 +226,11 @@ typedef signed long LONG;
 #define FP_OFF(fp)             (fp)
 #endif
 
+#ifdef __GNUC__
+typedef __libi86_isr_t intvec;
+#else
 typedef void (interrupt far *intvec)();
+#endif
 
 /*
 	this suppresses the warning

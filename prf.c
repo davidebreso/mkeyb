@@ -113,7 +113,17 @@ VOID put_console(COUNT c)
   if (c == '\n')
     put_console('\r');
 
-#ifdef FORSYS
+#ifdef __GNUC__
+  register char ah asm ("ah") = 0x02;
+  register char dl asm ("dl") = c;
+  __asm__ volatile (                          \
+           "int 0x21\n"                       \
+           : /* output */                     \
+           : /* input */ "ah" (ah), "dl" (dl) \
+           : /* clobber */                    \
+
+  );
+#elif defined(FORSYS)
   /* write(1, &c, 1); */       /* write character to stdout */
   asm{
     mov ah, 0x02

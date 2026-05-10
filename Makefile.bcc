@@ -58,134 +58,134 @@ keydefs = \
 mkeyb.exe: mkeyb.obj  $(resdep) $(depends) $(keydefs)
 	$(TCCLINK) mKEYB.obj $(resdep) $(depends) keydef.lib
 
-mkeyb.obj: mkeyb.c mkeyb.h
+mkeyb.obj: mkeyb.c mkeyb.h portab.h
 	$(TCCCOMP) -DMY_INSTALL_SIGNATURE=$(INST_SIG) -DMY_VERSION_SIGNATURE=$(VERSION) -DMY_VERSION_TEXT=$(VERSION_STR) mKEYB.c
 
 # GERMAN
 
-keydefgr.obj:  keydefgr.h  mkeyb.h
+keydefgr.obj:  keydefgr.h  mkeyb.h portab.h
 	$(TCCCOMP) keydefgr.h
 	$(TLIB) keydef.lib -+ keydefgr.obj
 
 # GERMAN+STANDARD
 
-keystdgr.obj:  keydefgr.h  mkeyb.h
+keystdgr.obj:  keydefgr.h  mkeyb.h portab.h
 	$(TCCCOMP) -okeystdgr -DSTANDARD keydefgr.h
 	$(TLIB) keydef.lib -+ keystdgr.obj
 
 # GERMAN+COMBI ( '`^ + AEIOU )
 
-keydefg2.obj: keydefgr.h  mkeyb.h
+keydefg2.obj: keydefgr.h  mkeyb.h portab.h
 	$(TCCCOMP) -okeydefg2 -DCOMBI keydefgr.h
 	$(TLIB) keydef.lib -+ keydefg2.obj
 
 # GERMAN+COMBI+STANDARD
 
-keystdg2.obj: keydefgr.h  mkeyb.h
+keystdg2.obj: keydefgr.h  mkeyb.h portab.h
 	$(TCCCOMP) -okeystdg2 -DSTANDARD -DCOMBI keydefgr.h
 	$(TLIB) keydef.lib -+ keystdg2.obj
 
-keydefsp.obj: keydefsp.h  mkeyb.h
+keydefsp.obj: keydefsp.h  mkeyb.h portab.h
 	$(TCCCOMP) keydefsp.h
 	$(TLIB) keydef.lib -+ keydefsp.obj
 
-keydefru.obj: keydefru.h  mkeyb.h
+keydefru.obj: keydefru.h  mkeyb.h portab.h
 	$(TCCCOMP) keydefru.h
 	$(TLIB) keydef.lib -+ keydefru.obj
 
-keydefdk.obj: keydefdk.h  mkeyb.h
+keydefdk.obj: keydefdk.h  mkeyb.h portab.h
 	$(TCCCOMP) keydefdk.h
 	$(TLIB) keydef.lib -+ keydefdk.obj
 
-keydefit.obj: keydefit.h  mkeyb.h
+keydefit.obj: keydefit.h  mkeyb.h portab.h
 	$(TCCCOMP) keydefit.h
 	$(TLIB) keydef.lib -+ keydefit.obj
 
-keystdit.obj: keydefit.h  mkeyb.h
+keystdit.obj: keydefit.h  mkeyb.h portab.h
 	$(TCCCOMP) -okeystdit -DSTANDARD keydefit.h
 	$(TLIB) keydef.lib -+ keystdit.obj
 
-keydefla.obj: keydefla.h  mkeyb.h
+keydefla.obj: keydefla.h  mkeyb.h portab.h
 	$(TCCCOMP) keydefla.h
 	$(TLIB) keydef.lib -+ keydefla.obj
 
-keydefnl.obj: keydefnl.h  mkeyb.h
+keydefnl.obj: keydefnl.h  mkeyb.h portab.h
 	$(TCCCOMP) keydefnl.h
 	$(TLIB) keydef.lib -+ keydefnl.obj
 
-keydefno.obj: keydefno.h  mkeyb.h
+keydefno.obj: keydefno.h  mkeyb.h portab.h
 	$(TCCCOMP) keydefno.h
 	$(TLIB) keydef.lib -+ keydefno.obj
 
-keydefpl.obj: keydefpl.h  mkeyb.h
+keydefpl.obj: keydefpl.h  mkeyb.h portab.h
 	$(TCCCOMP) keydefpl.h
 	$(TLIB) keydef.lib -+ keydefpl.obj
 
-keydefpo.obj: keydefpo.h  mkeyb.h
+keydefpo.obj: keydefpo.h  mkeyb.h portab.h
 	$(TCCCOMP) keydefpo.h
 	$(TLIB) keydef.lib -+ keydefpo.obj
 
-keydefsf.obj: keydefsf.h  mkeyb.h
+keydefsf.obj: keydefsf.h  mkeyb.h portab.h
 	$(TCCCOMP) keydefsf.h
 	$(TLIB) keydef.lib -+ keydefsf.obj
 
-keydefsg.obj: keydefsg.h  mkeyb.h
+keydefsg.obj: keydefsg.h  mkeyb.h portab.h
 	$(TCCCOMP) keydefsg.h
 	$(TLIB) keydef.lib -+ keydefsg.obj
 
-keydefsu.obj: keydefsu.h  mkeyb.h
+keydefsu.obj: keydefsu.h  mkeyb.h portab.h
 	$(TCCCOMP) keydefsu.h
 	$(TLIB) keydef.lib -+ keydefsu.obj
 
-keydefsv.obj: keydefsv.h  mkeyb.h
+keydefsv.obj: keydefsv.h  mkeyb.h portab.h
 	$(TCCCOMP) keydefsv.h
 	$(TLIB) keydef.lib -+ keydefsv.obj
 
-keydefuk.obj: keydefuk.h  mkeyb.h
+keydefuk.obj: keydefuk.h  mkeyb.h portab.h
 	$(TCCCOMP) keydefuk.h
 	$(TLIB) keydef.lib -+ keydefuk.obj
 
-keydefbr.obj: keydefbr.h  mkeyb.h
+keydefbr.obj: keydefbr.h  mkeyb.h portab.h
 	$(TCCCOMP) keydefbr.h
 	$(TLIB) keydef.lib -+ keydefbr.obj
 
-keydefbx.obj: keydefbx.h  mkeyb.h
+keydefbx.obj: keydefbx.h  mkeyb.h portab.h
 	$(TCCCOMP) keydefbx.h
 	$(TLIB) keydef.lib -+ keydefbx.obj
 
-keydeffr.obj: keydeffr.h  mkeyb.h
+keydeffr.obj: keydeffr.h  mkeyb.h portab.h
 	$(TCCCOMP) keydeffr.h
 	$(TLIB) keydef.lib -+ keydeffr.obj
 
-keydefhe.obj: keydefhe.h  mkeyb.h
+keydefhe.obj: keydefhe.h  mkeyb.h portab.h
 	$(TCCCOMP) keydefhe.h
 	$(TLIB) keydef.lib -+ keydefhe.obj
 
-keydefbe.obj: keydefbe.h  mkeyb.h
+keydefbe.obj: keydefbe.h  mkeyb.h portab.h
 	$(TCCCOMP) keydefbe.h
 	$(TLIB) keydef.lib -+ keydefbe.obj
 
-keydefbg.obj: keydefbg.h  mkeyb.h
+keydefbg.obj: keydefbg.h  mkeyb.h portab.h
 	$(TCCCOMP) keydefbg.h
 	$(TLIB) keydef.lib -+ keydefbg.obj
 
-keydefbp.obj: keydefbp.h  mkeyb.h
+keydefbp.obj: keydefbp.h  mkeyb.h portab.h
 	$(TCCCOMP) keydefbp.h
 	$(TLIB) keydef.lib -+ keydefbp.obj
 
-keydefsl.obj: keydefsl.h  mkeyb.h
+keydefsl.obj: keydefsl.h  mkeyb.h portab.h
 	$(TCCCOMP) keydefsl.h
 	$(TLIB) keydef.lib -+ keydefsl.obj
 
-keydefux.obj: keydefux.h  mkeyb.h
+keydefux.obj: keydefux.h  mkeyb.h portab.h
 	$(TCCCOMP) keydefux.h
 	$(TLIB) keydef.lib -+ keydefux.obj
 
-keydeftr.obj: keydeftr.h  mkeyb.h
+keydeftr.obj: keydeftr.h  mkeyb.h portab.h
 	$(TCCCOMP) keydeftr.h
 	$(TLIB) keydef.lib -+ keydeftr.obj
 
-keydeftf.obj: keydeftf.h  mkeyb.h
+keydeftf.obj: keydeftf.h  mkeyb.h portab.h
 	$(TCCCOMP) keydeftf.h
 	$(TLIB) keydef.lib -+ keydeftf.obj
 
@@ -208,57 +208,54 @@ mkeybA.obj: mkeybA.ASM
 # resident part
 #
 
-mkeybr.obj: mkeybr.c
+mkeybr.obj: mkeybr.c mkeyb.h portab.h
 	$(TCCCOMP) -mt    -zAINIT -zCI_TEXT -zDIB -zRID -zTID -zPI_GR -zBIB -zGI_GR -zSI_GR    mKEYBr.c
 
-mkeybr.asm: mkeybr.c
+mkeybr.asm: mkeybr.c mkeyb.h portab.h
 	$(TCCCOMP) -mt -S -zAINIT -zCI_TEXT -zDIB -zRID -zTID -zPI_GR -zBIB -zGI_GR -zSI_GR    mKEYBr.c
 
 #
 # resident part with combi
 #
-mkeybrC.obj: mkeybr.c
+mkeybrC.obj: mkeybr.c mkeyb.h portab.h
 	$(TCCCOMP) -mt    -zAINIT -zCI_TEXT -zDIB -zRID -zTID -zPI_GR -zBIB -zGI_GR -zSI_GR    -DCOMBI -omkeybrC mKEYBr.c
 
-mkeybrC.asm: mkeybr.c
+mkeybrC.asm: mkeybr.c mkeyb.h portab.h
 	$(TCCCOMP) -mt -S -zAINIT -zCI_TEXT -zDIB -zRID -zTID -zPI_GR -zBIB -zGI_GR -zSI_GR    -DCOMBI -omkeybrC mKEYBr.c
 
 #
 # FASTSWITCH resident part without ALTGREY, REPLACESCAN, DECIMALDINGSBUMS
 # The right Ctrl toggles between native QWERTY and national keyboard
 #
-mkeybrf.obj: mkeybr.c
+mkeybrf.obj: mkeybr.c mkeyb.h portab.h
 	$(TCCCOMP) -mt    -zAINIT -zCI_TEXT -zDIB -zRID -zTID -zPI_GR -zBIB -zGI_GR -zSI_GR    -DFASTSWITCH -omkeybrF mKEYBr.c
 
-mkeybrf.asm: mkeybr.c
+mkeybrf.asm: mkeybr.c mkeyb.h portab.h
 	$(TCCCOMP) -mt -S -zAINIT -zCI_TEXT -zDIB -zRID -zTID -zPI_GR -zBIB -zGI_GR -zSI_GR    -DFASTSWITCH -omkeybrF mKEYBr.c
 
 #
 # resident part for 83 keys "standard" keyboards
 #
-mkeybrS.obj: mkeybr.c
+mkeybrS.obj: mkeybr.c mkeyb.h portab.h
 	$(TCCCOMP) -mt    -zAINIT -zCI_TEXT -zDIB -zRID -zTID -zPI_GR -zBIB -zGI_GR -zSI_GR    -DSTANDARD -omkeybrS mKEYBr.c
 
-mkeybrS.asm: mkeybr.c
+mkeybrS.asm: mkeybr.c mkeyb.h portab.h
 	$(TCCCOMP) -mt -S -zAINIT -zCI_TEXT -zDIB -zRID -zTID -zPI_GR -zBIB -zGI_GR -zSI_GR    -DSTANDARD -omkeybrS mKEYBr.c
 
 #
 # resident part for 83 keys "standard" keyboards with COMBI
 #
-mkeybrSC.obj: mkeybr.c
+mkeybrSC.obj: mkeybr.c mkeyb.h portab.h
 	$(TCCCOMP) -mt    -zAINIT -zCI_TEXT -zDIB -zRID -zTID -zPI_GR -zBIB -zGI_GR -zSI_GR    -DSTD_FULL -omkeybrSC mKEYBr.c
 
-mkeybrSC.asm: mkeybr.c
+mkeybrSC.asm: mkeybr.c mkeyb.h portab.h
 	$(TCCCOMP) -mt -S -zAINIT -zCI_TEXT -zDIB -zRID -zTID -zPI_GR -zBIB -zGI_GR -zSI_GR    -DSTD_FULL -omkeybrSC mKEYBr.c
 
-prf.obj: prf.c
+prf.obj: prf.c portab.h
 	$(TCCCOMP) -DFORSYS prf.c
 
-sscani.obj: sscani.c
-	$(TCCCOMP) sscani.c
-
 #useful when debugging/analysing code
-mkeyb.asm: mkeyb.c mkeyb.h
+mkeyb.asm: mkeyb.c mkeyb.h portab.h
 	$(TCCCOMP) -S mKEYB.c
 
 # Pack executable and create zip file for release

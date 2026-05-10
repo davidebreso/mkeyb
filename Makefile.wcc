@@ -61,134 +61,134 @@ mkeyb.exe: mkeyb.o  $(resdep) $(depends) $(keydefs)
 	$(WCCLINK) system dos file {mkeyb.o $(resdep) $(depends) keydef.lib} option map=mkeyb name mkeyb
 	$(PACK) mkeyb.exe
 
-mkeyb.o: mkeyb.c mkeyb.h
+mkeyb.o: mkeyb.c mkeyb.h portab.h
 	$(WCCCOMP) -DMY_INSTALL_SIGNATURE=$(INST_SIG) -DMY_VERSION_SIGNATURE=$(VERSION) -DMY_VERSION_TEXT=$(VERSION_STR) mkeyb.c
 
 # GERMAN
 
-keydefgr.o:  keydefgr.h  mkeyb.h
+keydefgr.o:  keydefgr.h  mkeyb.h portab.h
 	$(WCCCOMP) keydefgr.h
 	$(TLIB) keydef.lib -+keydefgr.o
 
 # GERMAN+STANDARD
 
-keystdgr.o:  keydefgr.h  mkeyb.h
+keystdgr.o:  keydefgr.h  mkeyb.h portab.h
 	$(WCCCOMP) -fo=keystdgr -DSTANDARD keydefgr.h
 	$(TLIB) keydef.lib -+keystdgr.o
 
 # GERMAN+COMBI ( '`^ + AEIOU )
 
-keydefg2.o: keydefgr.h  mkeyb.h
+keydefg2.o: keydefgr.h  mkeyb.h portab.h
 	$(WCCCOMP) -fo=keydefg2 -DCOMBI keydefgr.h
 	$(TLIB) keydef.lib -+keydefg2.o
 
 # GERMAN+COMBI+STANDARD
 
-keystdg2.o: keydefgr.h  mkeyb.h
+keystdg2.o: keydefgr.h  mkeyb.h portab.h
 	$(WCCCOMP) -fo=keystdg2 -DSTANDARD -DCOMBI keydefgr.h
 	$(TLIB) keydef.lib -+keystdg2.o
 
-keydefsp.o: keydefsp.h  mkeyb.h
+keydefsp.o: keydefsp.h  mkeyb.h portab.h
 	$(WCCCOMP) keydefsp.h
 	$(TLIB) keydef.lib -+keydefsp.o
 
-keydefru.o: keydefru.h  mkeyb.h
+keydefru.o: keydefru.h  mkeyb.h portab.h
 	$(WCCCOMP) keydefru.h
 	$(TLIB) keydef.lib -+keydefru.o
 
-keydefdk.o: keydefdk.h  mkeyb.h
+keydefdk.o: keydefdk.h  mkeyb.h portab.h
 	$(WCCCOMP) keydefdk.h
 	$(TLIB) keydef.lib -+keydefdk.o
 
-keydefit.o: keydefit.h  mkeyb.h
+keydefit.o: keydefit.h  mkeyb.h portab.h
 	$(WCCCOMP) keydefit.h
 	$(TLIB) keydef.lib -+keydefit.o
 
-keystdit.o: keydefit.h  mkeyb.h
+keystdit.o: keydefit.h  mkeyb.h portab.h
 	$(WCCCOMP) -fo=keystdit -DSTANDARD keydefit.h
 	$(TLIB) keydef.lib -+keystdit.o
 
-keydefla.o: keydefla.h  mkeyb.h
+keydefla.o: keydefla.h  mkeyb.h portab.h
 	$(WCCCOMP) keydefla.h
 	$(TLIB) keydef.lib -+keydefla.o
 
-keydefnl.o: keydefnl.h  mkeyb.h
+keydefnl.o: keydefnl.h  mkeyb.h portab.h
 	$(WCCCOMP) keydefnl.h
 	$(TLIB) keydef.lib -+keydefnl.o
 
-keydefno.o: keydefno.h  mkeyb.h
+keydefno.o: keydefno.h  mkeyb.h portab.h
 	$(WCCCOMP) keydefno.h
 	$(TLIB) keydef.lib -+keydefno.o
 
-keydefpl.o: keydefpl.h  mkeyb.h
+keydefpl.o: keydefpl.h  mkeyb.h portab.h
 	$(WCCCOMP) keydefpl.h
 	$(TLIB) keydef.lib -+keydefpl.o
 
-keydefpo.o: keydefpo.h  mkeyb.h
+keydefpo.o: keydefpo.h  mkeyb.h portab.h
 	$(WCCCOMP) keydefpo.h
 	$(TLIB) keydef.lib -+keydefpo.o
 
-keydefsf.o: keydefsf.h  mkeyb.h
+keydefsf.o: keydefsf.h  mkeyb.h portab.h
 	$(WCCCOMP) keydefsf.h
 	$(TLIB) keydef.lib -+keydefsf.o
 
-keydefsg.o: keydefsg.h  mkeyb.h
+keydefsg.o: keydefsg.h  mkeyb.h portab.h
 	$(WCCCOMP) keydefsg.h
 	$(TLIB) keydef.lib -+keydefsg.o
 
-keydefsu.o: keydefsu.h  mkeyb.h
+keydefsu.o: keydefsu.h  mkeyb.h portab.h
 	$(WCCCOMP) keydefsu.h
 	$(TLIB) keydef.lib -+keydefsu.o
 
-keydefsv.o: keydefsv.h  mkeyb.h
+keydefsv.o: keydefsv.h  mkeyb.h portab.h
 	$(WCCCOMP) keydefsv.h
 	$(TLIB) keydef.lib -+keydefsv.o
 
-keydefuk.o: keydefuk.h  mkeyb.h
+keydefuk.o: keydefuk.h  mkeyb.h portab.h
 	$(WCCCOMP) keydefuk.h
 	$(TLIB) keydef.lib -+keydefuk.o
 
-keydefbr.o: keydefbr.h  mkeyb.h
+keydefbr.o: keydefbr.h  mkeyb.h portab.h
 	$(WCCCOMP) keydefbr.h
 	$(TLIB) keydef.lib -+keydefbr.o
 
-keydefbx.o: keydefbx.h  mkeyb.h
+keydefbx.o: keydefbx.h  mkeyb.h portab.h
 	$(WCCCOMP) keydefbx.h
 	$(TLIB) keydef.lib -+keydefbx.o
 
-keydeffr.o: keydeffr.h  mkeyb.h
+keydeffr.o: keydeffr.h  mkeyb.h portab.h
 	$(WCCCOMP) keydeffr.h
 	$(TLIB) keydef.lib -+keydeffr.o
 
-keydefhe.o: keydefhe.h  mkeyb.h
+keydefhe.o: keydefhe.h  mkeyb.h portab.h
 	$(WCCCOMP) keydefhe.h
 	$(TLIB) keydef.lib -+keydefhe.o
 
-keydefbe.o: keydefbe.h  mkeyb.h
+keydefbe.o: keydefbe.h  mkeyb.h portab.h
 	$(WCCCOMP) keydefbe.h
 	$(TLIB) keydef.lib -+keydefbe.o
 
-keydefbg.o: keydefbg.h  mkeyb.h
+keydefbg.o: keydefbg.h  mkeyb.h portab.h
 	$(WCCCOMP) keydefbg.h
 	$(TLIB) keydef.lib -+keydefbg.o
 
-keydefbp.o: keydefbp.h  mkeyb.h
+keydefbp.o: keydefbp.h  mkeyb.h portab.h
 	$(WCCCOMP) keydefbp.h
 	$(TLIB) keydef.lib -+keydefbp.o
 
-keydefsl.o: keydefsl.h  mkeyb.h
+keydefsl.o: keydefsl.h  mkeyb.h portab.h
 	$(WCCCOMP) keydefsl.h
 	$(TLIB) keydef.lib -+keydefsl.o
 
-keydefux.o: keydefux.h  mkeyb.h
+keydefux.o: keydefux.h  mkeyb.h portab.h
 	$(WCCCOMP) keydefux.h
 	$(TLIB) keydef.lib -+keydefux.o
 
-keydeftr.o: keydeftr.h  mkeyb.h
+keydeftr.o: keydeftr.h  mkeyb.h portab.h
 	$(WCCCOMP) keydeftr.h
 	$(TLIB) keydef.lib -+keydeftr.o
 
-keydeftf.o: keydeftf.h  mkeyb.h
+keydeftf.o: keydeftf.h  mkeyb.h portab.h
 	$(WCCCOMP) keydeftf.h
 	$(TLIB) keydef.lib -+keydeftf.o
 
@@ -211,7 +211,7 @@ mkeyba.o: mkeyba.asm
 # resident part
 #
 
-mkeybr.o: mkeybr.c
+mkeybr.o: mkeybr.c mkeyb.h portab.h
 	$(WCCCOMP)  mkeybr.c
 
 mkeybr.lst: mkeybr.o
@@ -220,7 +220,7 @@ mkeybr.lst: mkeybr.o
 #
 # resident part with combi
 #
-mkeybrc.o: mkeybr.c
+mkeybrc.o: mkeybr.c mkeyb.h portab.h
 	$(WCCCOMP)  -DCOMBI -fo=mkeybrc mkeybr.c
 
 mkeybrc.lst: mkeybrc.o
@@ -230,25 +230,25 @@ mkeybrc.lst: mkeybrc.o
 # FASTSWITCH resident part without ALTGREY, REPLACESCAN, DECIMALDINGSBUMS
 # The right Ctrl toggles between native QWERTY and national keyboard
 #
-mkeybrf.o: mkeybr.c
+mkeybrf.o: mkeybr.c mkeyb.h portab.h
 	$(WCCCOMP)        -DFASTSWITCH -fo=mkeybrf mkeybr.c
 
-mkeybrf.lst: mkeybrc.o
+mkeybrf.lst: mkeybrf.o
 	$(WDIS) -l mkeybrf
 
 #
 # resident part for 83 keys "standard" keyboards
 #
-mkeybrs.o: mkeybr.c
+mkeybrs.o: mkeybr.c mkeyb.h portab.h
 	$(WCCCOMP)        -DSTANDARD -fo=mkeybrs mkeybr.c
 
-mkeybrs.lst: mkeybrc.o
+mkeybrs.lst: mkeybrs.o
 	$(WDIS) -l mkeybrs
 
 #
 # resident part for 83 keys "standard" keyboards with COMBI
 #
-mkeybrsc.o: mkeybr.c
+mkeybrsc.o: mkeybr.c mkeyb.h portab.h
 	$(WCCCOMP)        -DSTD_FULL -fo=mkeybrsc mkeybr.c
 
 mkeybrsc.lst: mkeybrc.o

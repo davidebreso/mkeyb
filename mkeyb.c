@@ -167,12 +167,7 @@ void VerifyScancodeTableForCorrectness(	struct KeyboardDefinition *kb,int print)
 		lasttbl = tbl;
 	}
 
-	if (tbl + 1 != scancode_end
-#ifdef __GNUC__
-		/* GCC-ia16 aligns symbols to 2 bytes which sometimes adds an extra byte */
-		&& tbl + 2 != scancode_end
-#endif  /* __GNUC__ */
-	   )
+	if (tbl + 1 != scancode_end)
 	{
 		printf("scancode table error: early zero found at offset 0x%2x last scan 0x%02x\n",
 				tbl-kb->ScancodeTable, lasttbl[0]);

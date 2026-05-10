@@ -12,6 +12,7 @@
 #elif defined(__GNUC__)
     #define getvect _dos_getvect
     #define setvect _dos_setvect
+    #pragma pack(1) 
 #endif
 
 typedef unsigned long   ulong;
